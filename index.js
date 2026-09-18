@@ -108,6 +108,10 @@ function savePermissionCodes(data) {
 }
 
 function redeemPermissionCode(code, userId, guildId, roleId) {
+    const active = loadPermissions()[userId];
+    if (active && (active.expiresAt === -1 || active.expiresAt > Date.now())) {
+        return { ok:false, message:'⚠️ لديك اشتراك فعال بالفعل.' };
+    }
     const codes = loadPermissionCodes();
     const key = String(code || '').trim().toUpperCase();
     const item = codes[key];
@@ -857,7 +861,13 @@ client.on('interactionCreate', async interaction => {
         await member.roles.add(role);
         encryptPermissions[interaction.user.id] = {roleId:GRANT_PERMISSION_ROLE_ID,guildId:interaction.guild.id,expiresAt:result.expiresAt,grantedAt:Date.now(),grantedBy:'BUTTON'};
         savePermissions(encryptPermissions);
-        return await interaction.reply({embeds:[new EmbedBuilder().setColor(0x00ff99).setTitle('✅ تم تفعيل الاشتراك').setDescription(`📦 الباقة: **${result.plan}**\n⏳ المدة: **${result.days===-1?'♾️ مدى الحياة':result.days+' يوم'}**\n🎖️ تم إعطاؤك الرتبة`).setFooter({text:'TEAM RAVX'})]});
+        const successEmbed = new EmbedBuilder()
+            .setColor(0x0099ff)
+            .setTitle('✅ تم تفعيل الاشتراك')
+            .setDescription(`📦 الباقة: **${result.plan}**\n⏳ المدة: **${result.days===-1?'♾️ مدى الحياة':result.days+' يوم'}**\n🎖️ تم إعطاؤك الرتبة`)
+            .setFooter({text:'TEAM RAVX'});
+        await interaction.user.send({embeds:[successEmbed]}).catch(()=>{});
+        return await interaction.reply({embeds:[successEmbed], flags: MessageFlags.Ephemeral});
     }
 
     if (interaction.isButton()) {

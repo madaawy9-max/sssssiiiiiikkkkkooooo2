@@ -596,6 +596,26 @@ const client = new Client({
 client.once(Events.ClientReady, async () => {
     console.log(`[RAVX BOT] Online as ${client.user.tag}`);
 
+    // رسالة استلام الاشتراك داخل روم الأكواد
+    try {
+        if (PERMISSION_CODES_CHANNEL_ID) {
+            const codeChannel = await client.channels.fetch(PERMISSION_CODES_CHANNEL_ID).catch(() => null);
+            if (codeChannel && codeChannel.isTextBased()) {
+                const recent = await codeChannel.messages.fetch({ limit: 10 }).catch(() => null);
+                const exists = recent && recent.some(m => m.author.id === client.user.id && m.content.includes('استلام الاشتراك'));
+                if (!exists) {
+                    await codeChannel.send(
+                        '🔐 **استلام الاشتراك\n\n' +
+                        'أرسل كود التفعيل هنا لتفعيل رتبتك.\n\n' +
+                        '✅ يتم تفعيل الرتبة تلقائياً\n' +
+                        '⏳ تنتهي حسب مدة اشتراكك\n' +
+                        '👑 اشتراك مدى الحياة لا ينتهي**'
+                    );
+                }
+            }
+        }
+    } catch (e) {}
+
     try {
         const channel = await client.channels.fetch(PANEL_CHANNEL_ID).catch(() => null);
         if (channel) {

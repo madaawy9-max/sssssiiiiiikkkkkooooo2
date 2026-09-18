@@ -1,5 +1,11 @@
 /* ================= Plans page ================= */
-const SUBSCRIPTION_LINKS = {trial: 'https://discord.gg/cfw3', day: 'https://discord.gg/cfw3', week: 'https://discord.gg/cfw3', month: 'https://discord.gg/cfw3'};
+const SUBSCRIPTION_LINKS = {
+  trial: 'https://discord.gg/CQYYwafzwr',
+  day: 'https://discord.gg/CQYYwafzwr',
+  week: 'https://discord.gg/CQYYwafzwr',
+  month: 'https://discord.gg/CQYYwafzwr',
+  lifetime: 'https://discord.gg/CQYYwafzwr'
+};
 
 document.addEventListener('DOMContentLoaded', () => {
   document.querySelectorAll('.subscribe').forEach(btn => btn.addEventListener('click', () => {

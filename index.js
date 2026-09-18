@@ -39,6 +39,8 @@ const THUMBNAIL_URL = "https://cdn.discordapp.com/attachments/134753097497155999
 
 const filePath = path.join(__dirname, 'licenses.json');
 const permissionsFilePath = path.join(__dirname, 'permissions.json');
+const permissionCodesFilePath = path.join(__dirname, 'permission_codes.json');
+const PERMISSION_CODES_CHANNEL_ID = process.env.PERMISSION_CODES_CHANNEL_ID || '';
 
 // 🌐 تشغيل خادم الموقع تلقائياً مع البوت
 try {
@@ -84,6 +86,33 @@ function savePermissions(data) {
 }
 
 let encryptPermissions = loadPermissions();
+
+function loadPermissionCodes() {
+    try {
+        if (fs.existsSync(permissionCodesFilePath)) {
+            return JSON.parse(fs.readFileSync(permissionCodesFilePath, 'utf8'));
+        }
+    } catch (e) {}
+    return {};
+}
+
+function savePermissionCodes(data) {
+    fs.writeFileSync(permissionCodesFilePath, JSON.stringify(data, null, 4), 'utf8');
+}
+
+function redeemPermissionCode(code, userId, guildId, roleId) {
+    const codes = loadPermissionCodes();
+    const key = String(code || '').trim().toUpperCase();
+    const item = codes[key];
+    if (!item) return { ok:false, message:'❌ الكود غير صحيح.' };
+    if (item.used) return { ok:false, message:'❌ هذا الكود مستخدم مسبقاً.' };
+    const expiresAt = Date.now() + Number(item.days) * 24 * 60 * 60 * 1000;
+    item.used = true;
+    item.usedBy = userId;
+    item.usedAt = Date.now();
+    savePermissionCodes(codes);
+    return { ok:true, days:Number(item.days), expiresAt };
+}
 
 function hasEncryptAccess(interaction) {
     if (interaction.member.permissions.has(PermissionFlagsBits.Administrator)) return true;
@@ -1283,6 +1312,49 @@ if (interaction.customId === 'btn_start_protect') {
     }
 });
 
+
+
+// تفعيل أكواد المتجر: العضو يضع الكود في روم الصلاحيات ويحصل على الرتبة تلقائياً
+client.on('messageCreate', async (message) => {
+    try {
+        if (message.author.bot) return;
+        if (PERMISSION_CODES_CHANNEL_ID && message.channel.id !== PERMISSION_CODES_CHANNEL_ID) return;
+
+        const code = message.content.trim().toUpperCase();
+        if (!code.startsWith('RAVX-PERM-')) return;
+
+        const result = redeemPermissionCode(code, message.author.id, message.guild?.id, GRANT_PERMISSION_ROLE_ID);
+        if (!result.ok) {
+            await message.reply({ content: result.message });
+            return;
+        }
+
+        if (message.guild && GRANT_PERMISSION_ROLE_ID) {
+            const member = await message.guild.members.fetch(message.author.id).catch(() => null);
+            if (member) {
+                await member.roles.add(GRANT_PERMISSION_ROLE_ID).catch(() => {});
+            }
+        }
+
+        encryptPermissions[message.author.id] = {
+            roleId: GRANT_PERMISSION_ROLE_ID,
+            guildId: message.guild?.id,
+            expiresAt: result.expiresAt,
+            grantedBy: 'STORE_CODE',
+            grantedAt: Date.now()
+        };
+        savePermissions(encryptPermissions);
+
+        await message.reply(
+            `✅ تم تفعيل الكود بنجاح\n` +
+            `🎖️ تم إعطاؤك الصلاحية\n` +
+            `⏳ المدة: **${result.days} يوم**\n` +
+            `تنتهي: <t:${Math.floor(result.expiresAt / 1000)}:R>`
+        );
+    } catch (e) {
+        console.error('Permission code error:', e);
+    }
+});
 
 // Upload messages are deleted immediately after the file finishes downloading —
 // right before extraction/encryption — since Discord invalidates the attachment's

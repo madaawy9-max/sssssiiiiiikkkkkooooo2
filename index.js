@@ -41,6 +41,8 @@ const filePath = path.join(__dirname, 'licenses.json');
 const permissionsFilePath = path.join(__dirname, 'permissions.json');
 const permissionCodesFilePath = path.join(__dirname, 'permission_codes.json');
 const PERMISSION_CODES_CHANNEL_ID = process.env.PERMISSION_CODES_CHANNEL_ID || '';
+// جميع الاشتراكات تستخدم رتبة واحدة فقط
+const PLAN_ROLES = {};
 
 // 🌐 تشغيل خادم الموقع تلقائياً مع البوت
 try {
@@ -106,12 +108,12 @@ function redeemPermissionCode(code, userId, guildId, roleId) {
     const item = codes[key];
     if (!item) return { ok:false, message:'❌ الكود غير صحيح.' };
     if (item.used) return { ok:false, message:'❌ هذا الكود مستخدم مسبقاً.' };
-    const expiresAt = Date.now() + Number(item.days) * 24 * 60 * 60 * 1000;
+    const expiresAt = Number(item.days) === -1 ? -1 : Date.now() + Number(item.days) * 24 * 60 * 60 * 1000;
     item.used = true;
     item.usedBy = userId;
     item.usedAt = Date.now();
     savePermissionCodes(codes);
-    return { ok:true, days:Number(item.days), expiresAt };
+    return { ok:true, days:Number(item.days), plan:item.plan, expiresAt };
 }
 
 function hasEncryptAccess(interaction) {
@@ -1329,15 +1331,16 @@ client.on('messageCreate', async (message) => {
             return;
         }
 
-        if (message.guild && GRANT_PERMISSION_ROLE_ID) {
+        const selectedRole = GRANT_PERMISSION_ROLE_ID;
+        if (message.guild && selectedRole) {
             const member = await message.guild.members.fetch(message.author.id).catch(() => null);
             if (member) {
-                await member.roles.add(GRANT_PERMISSION_ROLE_ID).catch(() => {});
+                await member.roles.add(selectedRole).catch(() => {});
             }
         }
 
         encryptPermissions[message.author.id] = {
-            roleId: GRANT_PERMISSION_ROLE_ID,
+            roleId: selectedRole,
             guildId: message.guild?.id,
             expiresAt: result.expiresAt,
             grantedBy: 'STORE_CODE',
@@ -1348,7 +1351,8 @@ client.on('messageCreate', async (message) => {
         await message.reply(
             `✅ تم تفعيل الكود بنجاح\n` +
             `🎖️ تم إعطاؤك الصلاحية\n` +
-            `⏳ المدة: **${result.days} يوم**\n` +
+            `📦 الباقة: **${result.plan}**\n` +
+            `⏳ المدة: **${result.days === -1 ? 'مدى الحياة' : result.days + ' يوم'}**\n` +
             `تنتهي: <t:${Math.floor(result.expiresAt / 1000)}:R>`
         );
     } catch (e) {

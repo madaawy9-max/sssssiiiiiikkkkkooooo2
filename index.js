@@ -876,9 +876,10 @@ client.on('interactionCreate', async interaction => {
                 .setStyle(TextInputStyle.Short)
                 .setPlaceholder('RAVX-XXXXXXXXXX')
                 .setRequired(true);
-            return await interaction.showModal(
+            modal.addComponents(
                 new ActionRowBuilder().addComponents(input)
             );
+            return await interaction.showModal(modal);
         }
 
 if (interaction.customId === 'btn_web_upload') {

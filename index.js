@@ -41,7 +41,9 @@ const filePath = path.join(__dirname, 'licenses.json');
 const permissionsFilePath = path.join(__dirname, 'permissions.json');
 const permissionCodesFilePath = path.join(__dirname, 'permission_codes.json');
 
-const PERMISSION_CODES_CHANNEL_ID = process.env.PERMISSION_CODES_CHANNEL_ID || '';
+const PERMISSION_CODES_CHANNEL_ID = process.env.PERMISSION_CODES_CHANNEL_ID || process.env.PERMISSION_CHANNEL_ID || '';
+console.log('[RAVX CONFIG] Permission channel:', PERMISSION_CODES_CHANNEL_ID || 'NOT SET');
+console.log('[RAVX CONFIG] Role:', GRANT_PERMISSION_ROLE_ID || 'NOT SET');
 const SUBSCRIPTION_LOG_CHANNEL_ID = process.env.SUBSCRIPTION_LOG_CHANNEL_ID || '';
 
 // جميع الاشتراكات تستخدم رتبة واحدة فقط
@@ -1361,6 +1363,7 @@ client.on('messageCreate', async (message) => {
             return;
         }
         if (message.channel.id !== PERMISSION_CODES_CHANNEL_ID) return;
+        console.log('[RAVX] Code message received:', message.content);
 
         const code = message.content.trim().toUpperCase();
         if (!code.startsWith('RAVX-PERM-')) return;

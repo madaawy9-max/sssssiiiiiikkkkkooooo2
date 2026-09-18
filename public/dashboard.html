@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>لوحتي — Ravx Store</title>
+<meta name="description" content="لوحة تحكم Ravx Store: سجّل الدخول عبر Discord، شفّر مواردك، وتابع إحصائيات متجرك.">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/css/style.css">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🛡️</text></svg>">
+</head>
+<body>
+<div class="bg-fx"><div class="grid-layer"></div><div class="blob blob-a"></div><div class="blob blob-b"></div></div>
+<header class="top">
+  <div class="wrap nav">
+    <a class="brand" href="/index.html"><span class="brand-mark">R</span><span><b>Ravx Store</b><small>FiveM Security Hub</small></span></a>
+    <nav id="menu" class="menu">
+      <a data-page-link="index.html" href="/index.html">الرئيسية</a>
+      <a data-page-link="plans.html" href="/plans.html">الاشتراكات</a>
+      <a data-page-link="how.html" href="/how.html">كيف تعمل</a>
+      <a data-page-link="download.html" href="/download.html">تحميل بالكود</a>
+      <a data-page-link="dashboard.html" href="/dashboard.html">لوحتي</a>
+    </nav>
+    <div class="nav-right">
+      <div id="account"><a class="btn ghost sm" href="/api/auth/login">تسجيل الدخول عبر Discord</a></div>
+      <button id="menu-toggle" class="menu-toggle" aria-label="القائمة">☰</button>
+    </div>
+  </div>
+</header>
+<main>
+<section class="page-hero wrap">
+  <div class="dash-top">
+    <div>
+      <div class="eyebrow reveal"><i></i> مساحتك الخاصة</div>
+      <h1 class="reveal" style="margin:14px 0 6px">لوحة التحكم</h1>
+      <p class="reveal" style="margin:0">أدواتك لتشفير الموارد ومتابعة نشاطك، مرتبطة بصلاحياتك في Discord.</p>
+    </div>
+    <div id="health" class="health reveal">جاري فحص النظام...</div>
+  </div>
+</section>
+
+<section class="section wrap" style="padding-top:6px">
+  <div class="dashboard-grid">
+    <div class="dash-card reveal">
+      <div class="dash-title"><span>♢</span><div><h3>حسابك</h3><p id="user-state">سجّل الدخول للوصول إلى أدواتك</p></div></div>
+      <div id="user-info" class="user-info empty">تسجيل الدخول عبر Discord يفعّل الأدوات حسب صلاحياتك.</div>
+    </div>
+    <div class="dash-card reveal">
+      <div class="dash-title"><span>▣</span><div><h3>إحصائيات المتجر</h3><p>تظهر للأدمن فقط</p></div></div>
+      <div id="stats" class="stats"><div><b>—</b><small>الموارد</small></div><div><b>—</b><small>التحميلات</small></div></div>
+    </div>
+  </div>
+
+  <div id="encrypt-box" class="encrypt dash-card locked reveal">
+    <div class="dash-title"><span>✦</span><div><h3>تشفير مورد جديد</h3><p>صلاحية التشفير مرتبطة برتبتك في Discord</p></div></div>
+    <form id="encrypt-form">
+      <label class="drop" for="file">
+        <input id="file" type="file" accept=".zip" hidden>
+        <strong id="file-name">اسحب ملف ZIP أو اضغط للاختيار</strong>
+        <small>يدعم الملفات الكبيرة حتى 5GB حسب إعدادات الاستضافة</small>
+      </label>
+      <div class="form-row">
+        <label>اسم المورد<input id="resource" required placeholder="my-resource"></label>
+        <label>IP السيرفر<input id="ip" required placeholder="127.0.0.1"></label>
+      </div>
+      <div class="mode-row">
+        <button type="button" class="mode active" data-mode="target"><b>مستهدف</b><small>client / server + IP</small></button>
+        <button type="button" class="mode" data-mode="full"><b>شامل</b><small>كل ملفات Lua + IP</small></button>
+        <button type="button" class="mode" data-mode="none"><b>بدون تشفير</b><small>بدون حماية IP</small></button>
+      </div>
+      <button class="btn primary full" id="encrypt-btn">تشفير المورد الآن <b>←</b></button>
+      <div id="encrypt-status" class="status"></div>
+      <div id="encrypt-result" class="encrypt-result" hidden>
+        <div><small>كود التحميل</small><b id="download-code">—</b></div>
+        <a id="download-link" class="btn primary sm" href="#" target="_blank">تنزيل الملف المشفر</a>
+        <button id="copy-code" class="btn ghost sm" type="button">نسخ الكود</button>
+      </div>
+    </form>
+  </div>
+</section>
+</main>
+<footer>
+  <div class="wrap footer-inner">
+    <a class="brand" href="/index.html"><span class="brand-mark">R</span><span><b>Ravx Store</b><small>حقوقك محفوظة</small></span></a>
+    <span>© Ravx Store — جميع الحقوق محفوظة</span>
+    <a class="btn ghost sm" href="https://discord.gg/cfw3" target="_blank" rel="noopener">مجتمع Discord</a>
+  </div>
+</footer>
+<script src="/js/site.js" defer></script>
+<script src="/js/dashboard.js" defer></script>
+</body>
+</html>

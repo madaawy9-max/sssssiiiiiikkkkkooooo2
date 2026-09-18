@@ -1,1 +1,70 @@
-<!doctype html><html lang="ar" dir="rtl"><head><meta charset="utf-8"><link rel="stylesheet" href="/style.css"></head><body><header><div class="nav"><h1>التحميل</h1><nav><a href="/">الرئيسية</a><a href="/plans.html">الاشتراكات</a><a href="/download.html">التحميل</a><a href="/thanks.html">الشكر</a></nav></div></header><main class="box"><h2>تحميل ملفك</h2><input placeholder="كود التحميل"><button class="btn">بحث</button></main></body></html>
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>تحميل بالكود — Ravx Store</title>
+<meta name="description" content="أدخل كود RAVX لعرض بيانات مورد FiveM المحمي وتنزيل الملف المشفر مباشرة.">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/css/style.css">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🛡️</text></svg>">
+</head>
+<body>
+<div class="bg-fx"><div class="grid-layer"></div><div class="blob blob-a"></div><div class="blob blob-b"></div></div>
+<header class="top">
+  <div class="wrap nav">
+    <a class="brand" href="/index.html"><span class="brand-mark">R</span><span><b>Ravx Store</b><small>FiveM Security Hub</small></span></a>
+    <nav id="menu" class="menu">
+      <a data-page-link="index.html" href="/index.html">الرئيسية</a>
+      <a data-page-link="plans.html" href="/plans.html">الاشتراكات</a>
+      <a data-page-link="how.html" href="/how.html">كيف تعمل</a>
+      <a data-page-link="download.html" href="/download.html">تحميل بالكود</a>
+      <a data-page-link="dashboard.html" href="/dashboard.html">لوحتي</a>
+    </nav>
+    <div class="nav-right">
+      <div id="account"><a class="btn ghost sm" href="/api/auth/login">تسجيل الدخول عبر Discord</a></div>
+      <button id="menu-toggle" class="menu-toggle" aria-label="القائمة">☰</button>
+    </div>
+  </div>
+</header>
+<main>
+<section class="page-hero wrap">
+  <div class="eyebrow reveal"><i></i> تسليم آمن وسريع</div>
+  <h1 class="reveal">تحميل ملفك بالكود</h1>
+  <p class="reveal">أدخل كود RAVX الذي حصلت عليه من البائع لعرض بيانات المورد وتنزيل الملف المشفر.</p>
+</section>
+
+<section class="section wrap" style="padding-top:16px">
+  <div class="download-panel reveal">
+    <div class="code-search">
+      <input id="code-input" class="code-input" placeholder="RAVX-XXXXXXXXXX" autocomplete="off">
+      <button id="code-search" class="btn primary">بحث عن الملف <b>←</b></button>
+    </div>
+    <div id="code-status" class="code-status"></div>
+    <div id="code-result" class="code-result" hidden>
+      <div class="result-top">
+        <div><small>المورد المحمي</small><h3 id="result-name">—</h3></div>
+        <span class="verified">✓ جاهز</span>
+      </div>
+      <div class="result-grid">
+        <div><small>كود التحميل</small><b id="result-code">—</b></div>
+        <div><small>حجم الملف</small><b id="result-size">—</b></div>
+        <div><small>نمط الحماية</small><b id="result-mode">—</b></div>
+        <div><small>عدد التحميلات</small><b id="result-downloads">—</b></div>
+      </div>
+      <a id="result-download" class="btn primary full" href="#">تنزيل الملف المشفر <b>↓</b></a>
+    </div>
+  </div>
+</section>
+</main>
+<footer>
+  <div class="wrap footer-inner">
+    <a class="brand" href="/index.html"><span class="brand-mark">R</span><span><b>Ravx Store</b><small>حقوقك محفوظة</small></span></a>
+    <span>© Ravx Store — جميع الحقوق محفوظة</span>
+    <a class="btn ghost sm" href="https://discord.gg/cfw3" target="_blank" rel="noopener">مجتمع Discord</a>
+  </div>
+</footer>
+<script src="/js/site.js" defer></script>
+<script src="/js/download.js" defer></script>
+</body>
+</html>

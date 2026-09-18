@@ -1,12 +1,90 @@
 <!doctype html>
 <html lang="ar" dir="rtl">
-<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Ravx Store</title><link rel="stylesheet" href="style.css"><link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&display=swap" rel="stylesheet"></head>
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Ravx Store — حماية موارد FiveM</title>
+<meta name="description" content="منصة Ravx Store لتشفير وحماية موارد FiveM Lua مع دخول Discord وإدارة كاملة من لوحة واحدة.">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/css/style.css">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🛡️</text></svg>">
+</head>
 <body>
-<header><div class="nav"><div class="logo">⚡ Ravx Store</div><nav><a href="#home">الرئيسية</a><a href="#services">الخدمات</a><a href="#plans">الباقات</a><a href="#about">عن المتجر</a><a href="#contact">الدعم</a></nav></div></header>
-<section id="home" class="hero"><div class="badge">منصة احترافية للحماية والبيع</div><h1>ارفع مشروعك<br><span>واحصل على تجربة مختلفة</span></h1><p>تصميم حديث، أقسام مرتبة، صفحات منفصلة، وتجربة مستخدم احترافية بالكامل.</p><button>ابدأ الآن</button></section>
-<section id="services"><h2>الخدمات</h2><div class="grid"><div class="card">🔐<h3>حماية الملفات</h3><p>أنظمة حماية وترخيص متقدمة.</p></div><div class="card">🛒<h3>المتجر</h3><p>بيع منتجاتك بطريقة منظمة.</p></div><div class="card">⚙️<h3>لوحة التحكم</h3><p>إدارة كاملة وسهلة.</p></div></div></section>
-<section id="plans"><h2>الباقات</h2><div class="grid"><div class="card"><h3>Basic</h3><b>20 ريال</b><p>مميزات أساسية.</p></div><div class="card main"><h3>VIP</h3><b>75 ريال</b><p>كل المميزات المتقدمة.</p></div><div class="card"><h3>Pro</h3><b>120 ريال</b><p>للمشاريع الكبيرة.</p></div></div></section>
-<section id="about"><h2>لماذا Ravx؟</h2><div class="card wide">تصميم احترافي + سرعة + ترتيب + حقوق كاملة باسمك.</div></section>
-<section id="contact"><h2>تواصل معنا</h2><div class="card wide">الدعم متوفر عبر الديسكورد.</div></section>
-<footer>جميع الحقوق محفوظة © Ravx Store 2026</footer>
-</body></html>
+<div class="bg-fx"><div class="grid-layer"></div><div class="blob blob-a"></div><div class="blob blob-b"></div></div>
+<header class="top">
+  <div class="wrap nav">
+    <a class="brand" href="/index.html"><span class="brand-mark">R</span><span><b>Ravx Store</b><small>FiveM Security Hub</small></span></a>
+    <nav id="menu" class="menu">
+      <a data-page-link="index.html" href="/index.html">الرئيسية</a>
+      <a data-page-link="plans.html" href="/plans.html">الاشتراكات</a>
+      <a data-page-link="how.html" href="/how.html">كيف تعمل</a>
+      <a data-page-link="download.html" href="/download.html">تحميل بالكود</a>
+      <a data-page-link="dashboard.html" href="/dashboard.html">لوحتي</a>
+    </nav>
+    <div class="nav-right">
+      <div id="account"><a class="btn ghost sm" href="/api/auth/login">تسجيل الدخول عبر Discord</a></div>
+      <button id="menu-toggle" class="menu-toggle" aria-label="القائمة">☰</button>
+    </div>
+  </div>
+</header>
+<main>
+<section class="ticker-wrap"><div class="ticker" id="ticker"></div></section>
+
+<section class="hero wrap">
+  <div class="hero-copy reveal">
+    <div class="eyebrow"><i></i> حماية موارد FiveM بشكل احترافي</div>
+    <h1>احمِ سكربتك.<br><span>وشغّله بثقة.</span></h1>
+    <p>منصة Ravx Store لتشفير موارد Lua وإدارة ملفاتك من مكان واحد، مع دخول Discord وصلاحيات مرتبطة بسيرفرك مباشرة.</p>
+    <div class="hero-actions">
+      <a class="btn primary" href="/plans.html">شاهد الاشتراكات <b>←</b></a>
+      <a class="btn ghost" href="/how.html">اكتشف المنصة</a>
+    </div>
+    <div class="trust"><span>✓ تشفير Lua</span><span>✓ رفع ملفات كبيرة</span><span>✓ إدارة من Discord</span></div>
+  </div>
+  <div class="hero-art reveal">
+    <div class="orb"></div>
+    <div class="shield"><span>R</span><small>RAVX<br>SECURE</small></div>
+    <div class="float-card fc-one"><b>98.7%</b><small>حالة النظام</small><i class="online-dot"></i></div>
+    <div class="float-card fc-two"><b>24/7</b><small>مراقبة وحماية</small></div>
+  </div>
+</section>
+
+<section class="metrics wrap">
+  <div class="reveal"><b>5GB</b><span>حد الرفع</span></div>
+  <div class="reveal"><b>100%</b><span>تحكم من Discord</span></div>
+  <div class="reveal"><b>Lua</b><span>تشفير الموارد</span></div>
+  <div class="reveal"><b>Fast</b><span>تسليم مباشر</span></div>
+</section>
+
+<section class="section wrap">
+  <div class="section-head">
+    <div><div class="eyebrow">لماذا Ravx Store</div><h2>كل ما تحتاجه لحماية مواردك</h2></div>
+    <p>أدوات مصممة خصيصًا لأصحاب موارد FiveM لبيعها وتسليمها بأمان.</p>
+  </div>
+  <div class="feature-grid">
+    <div class="feature reveal"><div class="ic">🔐</div><h3>تشفير احترافي</h3><p>حماية ملفات Lua بأنماط متعددة: مستهدف، شامل، أو بدون تشفير حسب حاجتك.</p></div>
+    <div class="feature reveal"><div class="ic">🛰️</div><h3>قفل بالـ IP</h3><p>ربط المورد بسيرفر واحد محدد لمنع تشغيله خارج نطاقك.</p></div>
+    <div class="feature reveal"><div class="ic">⚡</div><h3>تسليم فوري</h3><p>كود تحميل فريد لكل مورد، يشاركه العميل ليحصل على نسخته المشفّرة مباشرة.</p></div>
+    <div class="feature reveal"><div class="ic">🧩</div><h3>دخول عبر Discord</h3><p>صلاحياتك وحسابك مرتبطة بسيرفر Discord الخاص بك، بدون حسابات منفصلة.</p></div>
+    <div class="feature reveal"><div class="ic">📊</div><h3>لوحة تحكم واضحة</h3><p>تابع مواردك، عمليات التشفير، وإحصائيات المتجر من مكان واحد.</p></div>
+    <div class="feature reveal"><div class="ic">🛡️</div><h3>أمان الملفات الكبيرة</h3><p>رفع ملفات ZIP كبيرة بأمان عبر بث مباشر إلى الخادم دون استهلاك ذاكرة زائد.</p></div>
+  </div>
+</section>
+
+<section class="section wrap">
+  <div class="cta-band reveal">
+    <div><h2>جاهز تحمي أول مورد لك؟</h2><p>سجّل دخولك عبر Discord وابدأ التشفير خلال دقائق من لوحتك الخاصة.</p></div>
+    <a class="btn primary" href="/dashboard.html">افتح لوحتي <b>←</b></a>
+  </div>
+</section>
+</main>
+<footer>
+  <div class="wrap footer-inner">
+    <a class="brand" href="/index.html"><span class="brand-mark">R</span><span><b>Ravx Store</b><small>حقوقك محفوظة</small></span></a>
+    <span>© Ravx Store — جميع الحقوق محفوظة</span>
+    <a class="btn ghost sm" href="https://discord.gg/cfw3" target="_blank" rel="noopener">مجتمع Discord</a>
+  </div>
+</footer>
+<script src="/js/site.js" defer></script>
+</body>
+</html>

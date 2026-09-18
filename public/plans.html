@@ -1,8 +1,88 @@
 <!doctype html>
-<html lang="ar" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Ravx Store</title><link rel="stylesheet" href="/style.css">
-</head><body>
-<header><div class="nav"><div class="logo">RAVX <span>STORE</span></div>
-<nav><a href="/">الرئيسية</a><a href="/plans.html">الاشتراكات</a><a href="/download.html">التحميل</a><a href="/thanks.html">الشكر</a></nav>
-</div></header>
-<main class='hero'><h1>الاشتراكات</h1><div class='card'><h2>اختر الباقة المناسبة لك</h2><div class='grid'><div class='item'>Basic</div><div class='item'>Premium</div><div class='item'>Ultimate</div></div></div></main></body></html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>الاشتراكات — Ravx Store</title>
+<meta name="description" content="اختر باقة اشتراك Ravx Store المناسبة لك: تجربة مجانية، يومي، أسبوعي، أو باقة VIP الشهرية.">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/css/style.css">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🛡️</text></svg>">
+</head>
+<body>
+<div class="bg-fx"><div class="grid-layer"></div><div class="blob blob-a"></div><div class="blob blob-b"></div></div>
+<header class="top">
+  <div class="wrap nav">
+    <a class="brand" href="/index.html"><span class="brand-mark">R</span><span><b>Ravx Store</b><small>FiveM Security Hub</small></span></a>
+    <nav id="menu" class="menu">
+      <a data-page-link="index.html" href="/index.html">الرئيسية</a>
+      <a data-page-link="plans.html" href="/plans.html">الاشتراكات</a>
+      <a data-page-link="how.html" href="/how.html">كيف تعمل</a>
+      <a data-page-link="download.html" href="/download.html">تحميل بالكود</a>
+      <a data-page-link="dashboard.html" href="/dashboard.html">لوحتي</a>
+    </nav>
+    <div class="nav-right">
+      <div id="account"><a class="btn ghost sm" href="/api/auth/login">تسجيل الدخول عبر Discord</a></div>
+      <button id="menu-toggle" class="menu-toggle" aria-label="القائمة">☰</button>
+    </div>
+  </div>
+</header>
+<main>
+<section class="page-hero wrap">
+  <div class="eyebrow reveal"><i></i> اختر ما يناسبك</div>
+  <h1 class="reveal">اشتراكك يبدأ من هنا</h1>
+  <p class="reveal">اضغط على أي باقة وسيتم تحويلك مباشرة إلى رابط الاشتراك المحدد عبر Discord.</p>
+</section>
+
+<section class="section wrap" style="padding-top:24px">
+  <div class="plans">
+    <article class="plan reveal">
+      <div class="plan-top"><span class="plan-icon">✦</span><span class="tag">تجربة</span></div>
+      <h3>تجربة مجانية</h3><p>للتجربة قبل الاشتراك</p>
+      <div class="price"><b>0</b><span>ر.س / 7 أيام</span></div>
+      <ul><li>3 ملفات</li><li>10 تفعيلات</li><li>3 عمليات تشفير</li><li>بوابة العميل</li></ul>
+      <button class="btn ghost full subscribe" data-plan="trial">ابدأ التجربة <b>←</b></button>
+    </article>
+    <article class="plan featured reveal">
+      <div class="popular">الأكثر طلبًا</div>
+      <div class="plan-top"><span class="plan-icon">◈</span><span class="tag blue">يومي</span></div>
+      <h3>باقة اليوم</h3><p>تشغيل كامل ليوم واحد</p>
+      <div class="price"><b>27</b><span>ر.س / يوم</span></div>
+      <ul><li>ملفات وتفعيلات غير محدودة</li><li>10 Webhooks</li><li>إشعارات Discord</li><li>دعم سريع</li></ul>
+      <button class="btn primary full subscribe" data-plan="day">اشترك الآن <b>←</b></button>
+    </article>
+    <article class="plan reveal">
+      <div class="plan-top"><span class="plan-icon">◆</span><span class="tag">أسبوعي</span></div>
+      <h3>باقة الأسبوع</h3><p>كل الأساسيات مع مزايا إضافية</p>
+      <div class="price"><b>37.55</b><span>ر.س / أسبوع</span></div>
+      <ul><li>50 عملية تشفير</li><li>20 Webhooks</li><li>نسخ احتياطي</li><li>دعم أولوية</li></ul>
+      <button class="btn ghost full subscribe" data-plan="week">اشترك الآن <b>←</b></button>
+    </article>
+    <article class="plan vip reveal">
+      <div class="plan-top"><span class="plan-icon">★</span><span class="tag gold">VIP</span></div>
+      <h3>باقة الشهر</h3><p>حل متكامل للمحترفين</p>
+      <div class="price"><b>75.09</b><span>ر.س / شهر</span></div>
+      <ul><li>100 عملية تشفير</li><li>بوتات مخصصة</li><li>كل الإضافات</li><li>دعم VIP</li></ul>
+      <button class="btn primary full subscribe" data-plan="month">اشترك الآن <b>←</b></button>
+    </article>
+  </div>
+</section>
+
+<section class="section wrap" style="padding-top:0">
+  <div class="cta-band reveal">
+    <div><h2>عندك استفسار قبل الاشتراك؟</h2><p>تواصل معنا في مجتمع Discord وسيرد عليك الفريق مباشرة.</p></div>
+    <a class="btn ghost" href="https://discord.gg/cfw3" target="_blank" rel="noopener">تواصل معنا <b>←</b></a>
+  </div>
+</section>
+</main>
+<footer>
+  <div class="wrap footer-inner">
+    <a class="brand" href="/index.html"><span class="brand-mark">R</span><span><b>Ravx Store</b><small>حقوقك محفوظة</small></span></a>
+    <span>© Ravx Store — جميع الحقوق محفوظة</span>
+    <a class="btn ghost sm" href="https://discord.gg/cfw3" target="_blank" rel="noopener">مجتمع Discord</a>
+  </div>
+</footer>
+<script src="/js/site.js" defer></script>
+<script src="/js/plans.js" defer></script>
+</body>
+</html>

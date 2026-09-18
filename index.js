@@ -1366,7 +1366,7 @@ client.on('messageCreate', async (message) => {
         console.log('[RAVX] Code message received:', message.content);
 
         const code = message.content.trim().toUpperCase();
-        if (!code.startsWith('RAVX-PERM-')) return;
+        if (!code.startsWith('RAVX-')) return;
 
         const result = redeemPermissionCode(code, message.author.id, message.guild?.id, GRANT_PERMISSION_ROLE_ID);
         if (!result.ok) {
@@ -1404,13 +1404,19 @@ client.on('messageCreate', async (message) => {
         };
         savePermissions(encryptPermissions);
 
-        await message.reply(
-            `✅ تم تفعيل الكود بنجاح\n` +
-            `🎖️ تم إعطاؤك الصلاحية\n` +
-            `📦 الباقة: **${result.plan}**\n` +
-            `⏳ المدة: **${result.days === -1 ? 'مدى الحياة' : result.days + ' يوم'}**\n` +
-            `تنتهي: ${result.expiresAt === -1 ? '♾️ مدى الحياة' : `<t:${Math.floor(result.expiresAt / 1000)}:R>`}`
-        );
+        await message.reply({
+            embeds: [new EmbedBuilder()
+                .setColor(0x00ff99)
+                .setTitle('🔐 تم تفعيل الاشتراك بنجاح')
+                .setDescription(
+                    `👤 العضو: ${message.author}\n\n` +
+                    `📦 الباقة: **${result.plan}**\n` +
+                    `⏳ المدة: **${result.days === -1 ? '♾️ مدى الحياة' : result.days + ' يوم'}**\n\n` +
+                    `🎖️ تم إعطاؤك رتبة الاشتراك\n` +
+                    `🔒 الكود تم استخدامه ولن يعمل مرة أخرى`
+                )
+                .setFooter({ text: 'TEAM RAVX • Subscription System' })]
+        });
     } catch (e) {
         console.error('Permission code error:', e);
     }

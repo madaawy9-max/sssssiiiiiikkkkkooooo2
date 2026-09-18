@@ -36,3 +36,8 @@ BASE_URL=https://your-domain.example
 ## أمان مهم
 
 النسخة المعدلة أزالت الأسرار الافتراضية المكشوفة من الكود. يجب تدوير Bot Token وWebhook السابقين في Discord لأنهما ظهرا داخل النسخة الأصلية، وعدم وضع أي أسرار داخل Git أو الأرشيف.
+
+
+## الاشتراكات
+PERMISSION_CODES_CHANNEL_ID=روم_استلام_الأكواد
+GRANT_PERMISSION_ROLE_ID=رتبة_الاشتراك_الواحدة

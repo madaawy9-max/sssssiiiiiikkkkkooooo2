@@ -1,502 +1,702 @@
 {
-  "RAVX-PERM-RMESYZNMG7": {
+  "RAVX-UW3BJ8QRX2": {
+    "plan": "تجربة",
+    "price": 2,
+    "days": 0,
+    "type": "single_script",
+    "used": false
+  },
+  "RAVX-49KE65TP3N": {
+    "plan": "تجربة",
+    "price": 2,
+    "days": 0,
+    "type": "single_script",
+    "used": false
+  },
+  "RAVX-RWQSUTMCYT": {
+    "plan": "تجربة",
+    "price": 2,
+    "days": 0,
+    "type": "single_script",
+    "used": false
+  },
+  "RAVX-H5ZCBRMO5S": {
+    "plan": "تجربة",
+    "price": 2,
+    "days": 0,
+    "type": "single_script",
+    "used": false
+  },
+  "RAVX-LWBQDH5WHB": {
+    "plan": "تجربة",
+    "price": 2,
+    "days": 0,
+    "type": "single_script",
+    "used": false
+  },
+  "RAVX-DQ9R0PRGOR": {
+    "plan": "تجربة",
+    "price": 2,
+    "days": 0,
+    "type": "single_script",
+    "used": false
+  },
+  "RAVX-OP7INQMM9P": {
+    "plan": "تجربة",
+    "price": 2,
+    "days": 0,
+    "type": "single_script",
+    "used": false
+  },
+  "RAVX-FHMMTI2LQ9": {
+    "plan": "تجربة",
+    "price": 2,
+    "days": 0,
+    "type": "single_script",
+    "used": false
+  },
+  "RAVX-2XA0ACQSO3": {
+    "plan": "تجربة",
+    "price": 2,
+    "days": 0,
+    "type": "single_script",
+    "used": false
+  },
+  "RAVX-1B9M7KBC69": {
+    "plan": "تجربة",
+    "price": 2,
+    "days": 0,
+    "type": "single_script",
+    "used": false
+  },
+  "RAVX-7L4L4SYH7T": {
+    "plan": "تجربة",
+    "price": 2,
+    "days": 0,
+    "type": "single_script",
+    "used": false
+  },
+  "RAVX-SQTU8QUYW7": {
+    "plan": "تجربة",
+    "price": 2,
+    "days": 0,
+    "type": "single_script",
+    "used": false
+  },
+  "RAVX-80F4LB3TT9": {
+    "plan": "تجربة",
+    "price": 2,
+    "days": 0,
+    "type": "single_script",
+    "used": false
+  },
+  "RAVX-2S703P8T4E": {
+    "plan": "تجربة",
+    "price": 2,
+    "days": 0,
+    "type": "single_script",
+    "used": false
+  },
+  "RAVX-0VNWW379MS": {
+    "plan": "تجربة",
+    "price": 2,
+    "days": 0,
+    "type": "single_script",
+    "used": false
+  },
+  "RAVX-P72D2JTMHS": {
+    "plan": "تجربة",
+    "price": 2,
+    "days": 0,
+    "type": "single_script",
+    "used": false
+  },
+  "RAVX-TU7W6CAL9J": {
+    "plan": "تجربة",
+    "price": 2,
+    "days": 0,
+    "type": "single_script",
+    "used": false
+  },
+  "RAVX-VQTNKKSDVA": {
+    "plan": "تجربة",
+    "price": 2,
+    "days": 0,
+    "type": "single_script",
+    "used": false
+  },
+  "RAVX-K8XLR6417Y": {
+    "plan": "تجربة",
+    "price": 2,
+    "days": 0,
+    "type": "single_script",
+    "used": false
+  },
+  "RAVX-Y6YDAG62WO": {
+    "plan": "تجربة",
+    "price": 2,
+    "days": 0,
+    "type": "single_script",
+    "used": false
+  },
+  "RAVX-1WJEL6CFBX": {
+    "plan": "يومي",
+    "price": 5,
     "days": 1,
-    "used": false,
-    "createdAt": "2026-09-18T19:12:47Z"
+    "type": "unlimited_24h",
+    "used": false
   },
-  "RAVX-PERM-QXWECEDJSA": {
-    "days": 3,
-    "used": false,
-    "createdAt": "2026-09-18T19:12:47Z"
-  },
-  "RAVX-PERM-CQUYDPAS8L": {
-    "days": 7,
-    "used": false,
-    "createdAt": "2026-09-18T19:12:47Z"
-  },
-  "RAVX-PERM-5ZLF73H8QT": {
-    "days": 30,
-    "used": false,
-    "createdAt": "2026-09-18T19:12:47Z"
-  },
-  "RAVX-PERM-ZXB5JC2LDV": {
-    "days": 90,
-    "used": false,
-    "createdAt": "2026-09-18T19:12:47Z"
-  },
-  "RAVX-PERM-236SA5MQUS": {
+  "RAVX-W2I8U2SQ95": {
+    "plan": "يومي",
+    "price": 5,
     "days": 1,
-    "used": false,
-    "createdAt": "2026-09-18T19:12:47Z"
+    "type": "unlimited_24h",
+    "used": false
   },
-  "RAVX-PERM-LMRGPVVD4G": {
-    "days": 3,
-    "used": false,
-    "createdAt": "2026-09-18T19:12:47Z"
-  },
-  "RAVX-PERM-D2RKHDMH7Z": {
-    "days": 7,
-    "used": false,
-    "createdAt": "2026-09-18T19:12:47Z"
-  },
-  "RAVX-PERM-QPYB5HHVT3": {
-    "days": 30,
-    "used": false,
-    "createdAt": "2026-09-18T19:12:47Z"
-  },
-  "RAVX-PERM-4RFA2E7JN9": {
-    "days": 90,
-    "used": false,
-    "createdAt": "2026-09-18T19:12:47Z"
-  },
-  "RAVX-PERM-EET57SAQA3": {
+  "RAVX-1XAX0JEPRA": {
+    "plan": "يومي",
+    "price": 5,
     "days": 1,
-    "used": false,
-    "createdAt": "2026-09-18T19:12:47Z"
+    "type": "unlimited_24h",
+    "used": false
   },
-  "RAVX-PERM-NWENU3E7WC": {
-    "days": 3,
-    "used": false,
-    "createdAt": "2026-09-18T19:12:47Z"
-  },
-  "RAVX-PERM-9XRECFPRGZ": {
-    "days": 7,
-    "used": false,
-    "createdAt": "2026-09-18T19:12:47Z"
-  },
-  "RAVX-PERM-43TSV36GDP": {
-    "days": 30,
-    "used": false,
-    "createdAt": "2026-09-18T19:12:47Z"
-  },
-  "RAVX-PERM-EALR67P7K4": {
-    "days": 90,
-    "used": false,
-    "createdAt": "2026-09-18T19:12:47Z"
-  },
-  "RAVX-PERM-7GSW236PU5": {
+  "RAVX-T7KDI8D5XO": {
+    "plan": "يومي",
+    "price": 5,
     "days": 1,
-    "used": false,
-    "createdAt": "2026-09-18T19:12:47Z"
+    "type": "unlimited_24h",
+    "used": false
   },
-  "RAVX-PERM-WPB3AG89JL": {
-    "days": 3,
-    "used": false,
-    "createdAt": "2026-09-18T19:12:47Z"
-  },
-  "RAVX-PERM-T5NK3K7S63": {
-    "days": 7,
-    "used": false,
-    "createdAt": "2026-09-18T19:12:47Z"
-  },
-  "RAVX-PERM-L5NEZH46SB": {
-    "days": 30,
-    "used": false,
-    "createdAt": "2026-09-18T19:12:47Z"
-  },
-  "RAVX-PERM-ZYL4P22P5Q": {
-    "days": 90,
-    "used": false,
-    "createdAt": "2026-09-18T19:12:47Z"
-  },
-  "RAVX-PERM-KBH93LZ6BE": {
+  "RAVX-565VCXJSK6": {
+    "plan": "يومي",
+    "price": 5,
     "days": 1,
-    "used": false,
-    "createdAt": "2026-09-18T19:12:47Z"
+    "type": "unlimited_24h",
+    "used": false
   },
-  "RAVX-PERM-A2HVZVNKPG": {
-    "days": 3,
-    "used": false,
-    "createdAt": "2026-09-18T19:12:47Z"
-  },
-  "RAVX-PERM-YNVMUWDJEB": {
-    "days": 7,
-    "used": false,
-    "createdAt": "2026-09-18T19:12:47Z"
-  },
-  "RAVX-PERM-Z7BKUD2CJK": {
-    "days": 30,
-    "used": false,
-    "createdAt": "2026-09-18T19:12:47Z"
-  },
-  "RAVX-PERM-AH3YW6QJEG": {
-    "days": 90,
-    "used": false,
-    "createdAt": "2026-09-18T19:12:47Z"
-  },
-  "RAVX-PERM-LFCZDKPATX": {
+  "RAVX-0OUC3CZHID": {
+    "plan": "يومي",
+    "price": 5,
     "days": 1,
-    "used": false,
-    "createdAt": "2026-09-18T19:12:47Z"
+    "type": "unlimited_24h",
+    "used": false
   },
-  "RAVX-PERM-28EAKN8VUV": {
-    "days": 3,
-    "used": false,
-    "createdAt": "2026-09-18T19:12:47Z"
-  },
-  "RAVX-PERM-J9RDAFQUYE": {
-    "days": 7,
-    "used": false,
-    "createdAt": "2026-09-18T19:12:47Z"
-  },
-  "RAVX-PERM-UV77XS5DFQ": {
-    "days": 30,
-    "used": false,
-    "createdAt": "2026-09-18T19:12:47Z"
-  },
-  "RAVX-PERM-4LT3AS68WJ": {
-    "days": 90,
-    "used": false,
-    "createdAt": "2026-09-18T19:12:47Z"
-  },
-  "RAVX-PERM-KRHAYDEBJB": {
+  "RAVX-SY5TGC9HZ7": {
+    "plan": "يومي",
+    "price": 5,
     "days": 1,
-    "used": false,
-    "createdAt": "2026-09-18T19:12:47Z"
+    "type": "unlimited_24h",
+    "used": false
   },
-  "RAVX-PERM-LDFFZTKCZB": {
-    "days": 3,
-    "used": false,
-    "createdAt": "2026-09-18T19:12:47Z"
-  },
-  "RAVX-PERM-VB3YCLUNKW": {
-    "days": 7,
-    "used": false,
-    "createdAt": "2026-09-18T19:12:47Z"
-  },
-  "RAVX-PERM-MCPLTEHDGT": {
-    "days": 30,
-    "used": false,
-    "createdAt": "2026-09-18T19:12:47Z"
-  },
-  "RAVX-PERM-5PCESPZ5CB": {
-    "days": 90,
-    "used": false,
-    "createdAt": "2026-09-18T19:12:47Z"
-  },
-  "RAVX-PERM-H2P2ED538J": {
+  "RAVX-ZZHPGSDBDD": {
+    "plan": "يومي",
+    "price": 5,
     "days": 1,
-    "used": false,
-    "createdAt": "2026-09-18T19:12:47Z"
+    "type": "unlimited_24h",
+    "used": false
   },
-  "RAVX-PERM-7MP3D5CCSF": {
-    "days": 3,
-    "used": false,
-    "createdAt": "2026-09-18T19:12:47Z"
-  },
-  "RAVX-PERM-MHD6DV5CPQ": {
-    "days": 7,
-    "used": false,
-    "createdAt": "2026-09-18T19:12:47Z"
-  },
-  "RAVX-PERM-NV8XB26CZT": {
-    "days": 30,
-    "used": false,
-    "createdAt": "2026-09-18T19:12:47Z"
-  },
-  "RAVX-PERM-EVN7BTJ44S": {
-    "days": 90,
-    "used": false,
-    "createdAt": "2026-09-18T19:12:47Z"
-  },
-  "RAVX-PERM-9LLLV4JNY7": {
+  "RAVX-O66X42DXCQ": {
+    "plan": "يومي",
+    "price": 5,
     "days": 1,
-    "used": false,
-    "createdAt": "2026-09-18T19:12:47Z"
+    "type": "unlimited_24h",
+    "used": false
   },
-  "RAVX-PERM-2QESB4NH76": {
-    "days": 3,
-    "used": false,
-    "createdAt": "2026-09-18T19:12:47Z"
-  },
-  "RAVX-PERM-XRSK5MMZKA": {
-    "days": 7,
-    "used": false,
-    "createdAt": "2026-09-18T19:12:47Z"
-  },
-  "RAVX-PERM-3EHTPK9EWA": {
-    "days": 30,
-    "used": false,
-    "createdAt": "2026-09-18T19:12:47Z"
-  },
-  "RAVX-PERM-FZNSF4268B": {
-    "days": 90,
-    "used": false,
-    "createdAt": "2026-09-18T19:12:47Z"
-  },
-  "RAVX-PERM-BPXTQSEUFY": {
+  "RAVX-DHQ9K52CHN": {
+    "plan": "يومي",
+    "price": 5,
     "days": 1,
-    "used": false,
-    "createdAt": "2026-09-18T19:12:47Z"
+    "type": "unlimited_24h",
+    "used": false
   },
-  "RAVX-PERM-E28Y6GE8JC": {
-    "days": 3,
-    "used": false,
-    "createdAt": "2026-09-18T19:12:47Z"
-  },
-  "RAVX-PERM-5QWVRCC85K": {
-    "days": 7,
-    "used": false,
-    "createdAt": "2026-09-18T19:12:47Z"
-  },
-  "RAVX-PERM-RR8L25H7CW": {
-    "days": 30,
-    "used": false,
-    "createdAt": "2026-09-18T19:12:47Z"
-  },
-  "RAVX-PERM-QMBQCK9VNA": {
-    "days": 90,
-    "used": false,
-    "createdAt": "2026-09-18T19:12:47Z"
-  },
-  "RAVX-PERM-CJR2RGPLDX": {
+  "RAVX-4PIEVHLNIE": {
+    "plan": "يومي",
+    "price": 5,
     "days": 1,
-    "used": false,
-    "createdAt": "2026-09-18T19:12:47Z"
+    "type": "unlimited_24h",
+    "used": false
   },
-  "RAVX-PERM-XVTHU4VPFV": {
-    "days": 3,
-    "used": false,
-    "createdAt": "2026-09-18T19:12:47Z"
-  },
-  "RAVX-PERM-DYU26JTWTZ": {
-    "days": 7,
-    "used": false,
-    "createdAt": "2026-09-18T19:12:47Z"
-  },
-  "RAVX-PERM-QBAXERWXZ7": {
-    "days": 30,
-    "used": false,
-    "createdAt": "2026-09-18T19:12:47Z"
-  },
-  "RAVX-PERM-QFZW8JWBD3": {
-    "days": 90,
-    "used": false,
-    "createdAt": "2026-09-18T19:12:47Z"
-  },
-  "RAVX-PERM-PQRDKQSU72": {
+  "RAVX-SRVCZMFRKG": {
+    "plan": "يومي",
+    "price": 5,
     "days": 1,
-    "used": false,
-    "createdAt": "2026-09-18T19:12:47Z"
+    "type": "unlimited_24h",
+    "used": false
   },
-  "RAVX-PERM-RE6NVYMHTP": {
-    "days": 3,
-    "used": false,
-    "createdAt": "2026-09-18T19:12:47Z"
-  },
-  "RAVX-PERM-RRHSUBBCXF": {
-    "days": 7,
-    "used": false,
-    "createdAt": "2026-09-18T19:12:47Z"
-  },
-  "RAVX-PERM-XBAGFM7NSY": {
-    "days": 30,
-    "used": false,
-    "createdAt": "2026-09-18T19:12:47Z"
-  },
-  "RAVX-PERM-8G64D2ZYL5": {
-    "days": 90,
-    "used": false,
-    "createdAt": "2026-09-18T19:12:47Z"
-  },
-  "RAVX-PERM-MYDTFPGE8N": {
+  "RAVX-0GPDVLOJP9": {
+    "plan": "يومي",
+    "price": 5,
     "days": 1,
-    "used": false,
-    "createdAt": "2026-09-18T19:12:47Z"
+    "type": "unlimited_24h",
+    "used": false
   },
-  "RAVX-PERM-4VN6W26DQ2": {
-    "days": 3,
-    "used": false,
-    "createdAt": "2026-09-18T19:12:47Z"
-  },
-  "RAVX-PERM-8Q3RQDKTR2": {
-    "days": 7,
-    "used": false,
-    "createdAt": "2026-09-18T19:12:47Z"
-  },
-  "RAVX-PERM-DZXW3C7ZK2": {
-    "days": 30,
-    "used": false,
-    "createdAt": "2026-09-18T19:12:47Z"
-  },
-  "RAVX-PERM-HSD8DDSLXZ": {
-    "days": 90,
-    "used": false,
-    "createdAt": "2026-09-18T19:12:47Z"
-  },
-  "RAVX-PERM-LXP4EGTLRC": {
+  "RAVX-7T5SSHCTWQ": {
+    "plan": "يومي",
+    "price": 5,
     "days": 1,
-    "used": false,
-    "createdAt": "2026-09-18T19:12:47Z"
+    "type": "unlimited_24h",
+    "used": false
   },
-  "RAVX-PERM-UZRAKZU267": {
-    "days": 3,
-    "used": false,
-    "createdAt": "2026-09-18T19:12:47Z"
-  },
-  "RAVX-PERM-HAWTDMFXCZ": {
-    "days": 7,
-    "used": false,
-    "createdAt": "2026-09-18T19:12:47Z"
-  },
-  "RAVX-PERM-P259W7TM8E": {
-    "days": 30,
-    "used": false,
-    "createdAt": "2026-09-18T19:12:47Z"
-  },
-  "RAVX-PERM-MV9ABQAT2T": {
-    "days": 90,
-    "used": false,
-    "createdAt": "2026-09-18T19:12:47Z"
-  },
-  "RAVX-PERM-CZZ8XM3M5E": {
+  "RAVX-Q09RDTR1O5": {
+    "plan": "يومي",
+    "price": 5,
     "days": 1,
-    "used": false,
-    "createdAt": "2026-09-18T19:12:47Z"
+    "type": "unlimited_24h",
+    "used": false
   },
-  "RAVX-PERM-W4UPSK5YU8": {
-    "days": 3,
-    "used": false,
-    "createdAt": "2026-09-18T19:12:47Z"
-  },
-  "RAVX-PERM-47Y5Q2JU64": {
-    "days": 7,
-    "used": false,
-    "createdAt": "2026-09-18T19:12:47Z"
-  },
-  "RAVX-PERM-BTEAKTFB9V": {
-    "days": 30,
-    "used": false,
-    "createdAt": "2026-09-18T19:12:47Z"
-  },
-  "RAVX-PERM-F9C9T2B7VV": {
-    "days": 90,
-    "used": false,
-    "createdAt": "2026-09-18T19:12:47Z"
-  },
-  "RAVX-PERM-JR4SKXEWYE": {
+  "RAVX-TPBW5FUVEL": {
+    "plan": "يومي",
+    "price": 5,
     "days": 1,
-    "used": false,
-    "createdAt": "2026-09-18T19:12:47Z"
+    "type": "unlimited_24h",
+    "used": false
   },
-  "RAVX-PERM-ZXVBBGENR8": {
-    "days": 3,
-    "used": false,
-    "createdAt": "2026-09-18T19:12:47Z"
-  },
-  "RAVX-PERM-5QKE9FZLGP": {
-    "days": 7,
-    "used": false,
-    "createdAt": "2026-09-18T19:12:47Z"
-  },
-  "RAVX-PERM-RFWSL5KUMF": {
-    "days": 30,
-    "used": false,
-    "createdAt": "2026-09-18T19:12:47Z"
-  },
-  "RAVX-PERM-4G32AYAB7C": {
-    "days": 90,
-    "used": false,
-    "createdAt": "2026-09-18T19:12:47Z"
-  },
-  "RAVX-PERM-WBURFSTBTQ": {
+  "RAVX-N91D75P3KQ": {
+    "plan": "يومي",
+    "price": 5,
     "days": 1,
-    "used": false,
-    "createdAt": "2026-09-18T19:12:47Z"
+    "type": "unlimited_24h",
+    "used": false
   },
-  "RAVX-PERM-7EXCT3EY3J": {
-    "days": 3,
-    "used": false,
-    "createdAt": "2026-09-18T19:12:47Z"
-  },
-  "RAVX-PERM-5EJHK7RPF7": {
-    "days": 7,
-    "used": false,
-    "createdAt": "2026-09-18T19:12:47Z"
-  },
-  "RAVX-PERM-7NN9V4TKTA": {
-    "days": 30,
-    "used": false,
-    "createdAt": "2026-09-18T19:12:47Z"
-  },
-  "RAVX-PERM-PE69C7W8FF": {
-    "days": 90,
-    "used": false,
-    "createdAt": "2026-09-18T19:12:47Z"
-  },
-  "RAVX-PERM-H4EK67XAAT": {
+  "RAVX-CA36RVZHID": {
+    "plan": "يومي",
+    "price": 5,
     "days": 1,
-    "used": false,
-    "createdAt": "2026-09-18T19:12:47Z"
+    "type": "unlimited_24h",
+    "used": false
   },
-  "RAVX-PERM-258VVWWMZU": {
-    "days": 3,
-    "used": false,
-    "createdAt": "2026-09-18T19:12:47Z"
-  },
-  "RAVX-PERM-C4ZRERS25D": {
-    "days": 7,
-    "used": false,
-    "createdAt": "2026-09-18T19:12:47Z"
-  },
-  "RAVX-PERM-NKAAU2WYDF": {
-    "days": 30,
-    "used": false,
-    "createdAt": "2026-09-18T19:12:47Z"
-  },
-  "RAVX-PERM-U6DZ3WYP37": {
-    "days": 90,
-    "used": false,
-    "createdAt": "2026-09-18T19:12:47Z"
-  },
-  "RAVX-PERM-5WBDPQXAGS": {
+  "RAVX-Z6MBHDMA3R": {
+    "plan": "يومي",
+    "price": 5,
     "days": 1,
-    "used": false,
-    "createdAt": "2026-09-18T19:12:47Z"
+    "type": "unlimited_24h",
+    "used": false
   },
-  "RAVX-PERM-HEAMNMENJ2": {
-    "days": 3,
-    "used": false,
-    "createdAt": "2026-09-18T19:12:47Z"
-  },
-  "RAVX-PERM-4X28G8ZVVY": {
-    "days": 7,
-    "used": false,
-    "createdAt": "2026-09-18T19:12:47Z"
-  },
-  "RAVX-PERM-NG8GZLVFSP": {
-    "days": 30,
-    "used": false,
-    "createdAt": "2026-09-18T19:12:47Z"
-  },
-  "RAVX-PERM-S9A8VNLCWA": {
-    "days": 90,
-    "used": false,
-    "createdAt": "2026-09-18T19:12:47Z"
-  },
-  "RAVX-PERM-MGNL3DZPVN": {
+  "RAVX-PNWTITQZAM": {
+    "plan": "يومي",
+    "price": 5,
     "days": 1,
-    "used": false,
-    "createdAt": "2026-09-18T19:12:47Z"
+    "type": "unlimited_24h",
+    "used": false
   },
-  "RAVX-PERM-VGV6NQ3JE6": {
-    "days": 3,
-    "used": false,
-    "createdAt": "2026-09-18T19:12:47Z"
-  },
-  "RAVX-PERM-9BYF284PM3": {
+  "RAVX-DKLB27J44B": {
+    "plan": "أسبوعي",
+    "price": 15,
     "days": 7,
-    "used": false,
-    "createdAt": "2026-09-18T19:12:47Z"
+    "type": "unlimited_7d",
+    "used": false
   },
-  "RAVX-PERM-WU562G5UJR": {
+  "RAVX-3H68XRURR8": {
+    "plan": "أسبوعي",
+    "price": 15,
+    "days": 7,
+    "type": "unlimited_7d",
+    "used": false
+  },
+  "RAVX-C3U4EK4XU3": {
+    "plan": "أسبوعي",
+    "price": 15,
+    "days": 7,
+    "type": "unlimited_7d",
+    "used": false
+  },
+  "RAVX-0K9V56V8BV": {
+    "plan": "أسبوعي",
+    "price": 15,
+    "days": 7,
+    "type": "unlimited_7d",
+    "used": false
+  },
+  "RAVX-I27CO1FXNM": {
+    "plan": "أسبوعي",
+    "price": 15,
+    "days": 7,
+    "type": "unlimited_7d",
+    "used": false
+  },
+  "RAVX-NRZA8Z3GN0": {
+    "plan": "أسبوعي",
+    "price": 15,
+    "days": 7,
+    "type": "unlimited_7d",
+    "used": false
+  },
+  "RAVX-4NTV383W2T": {
+    "plan": "أسبوعي",
+    "price": 15,
+    "days": 7,
+    "type": "unlimited_7d",
+    "used": false
+  },
+  "RAVX-JUY1VTYZI2": {
+    "plan": "أسبوعي",
+    "price": 15,
+    "days": 7,
+    "type": "unlimited_7d",
+    "used": false
+  },
+  "RAVX-RW26VBV4DB": {
+    "plan": "أسبوعي",
+    "price": 15,
+    "days": 7,
+    "type": "unlimited_7d",
+    "used": false
+  },
+  "RAVX-AAQHHNLZTZ": {
+    "plan": "أسبوعي",
+    "price": 15,
+    "days": 7,
+    "type": "unlimited_7d",
+    "used": false
+  },
+  "RAVX-HBM9L8P2L8": {
+    "plan": "أسبوعي",
+    "price": 15,
+    "days": 7,
+    "type": "unlimited_7d",
+    "used": false
+  },
+  "RAVX-P933SIBCZF": {
+    "plan": "أسبوعي",
+    "price": 15,
+    "days": 7,
+    "type": "unlimited_7d",
+    "used": false
+  },
+  "RAVX-8EXGHN5RU6": {
+    "plan": "أسبوعي",
+    "price": 15,
+    "days": 7,
+    "type": "unlimited_7d",
+    "used": false
+  },
+  "RAVX-FQH3YAAM3N": {
+    "plan": "أسبوعي",
+    "price": 15,
+    "days": 7,
+    "type": "unlimited_7d",
+    "used": false
+  },
+  "RAVX-Z3FAIUY51M": {
+    "plan": "أسبوعي",
+    "price": 15,
+    "days": 7,
+    "type": "unlimited_7d",
+    "used": false
+  },
+  "RAVX-09ZXKSXOVF": {
+    "plan": "أسبوعي",
+    "price": 15,
+    "days": 7,
+    "type": "unlimited_7d",
+    "used": false
+  },
+  "RAVX-IAX34VWLA4": {
+    "plan": "أسبوعي",
+    "price": 15,
+    "days": 7,
+    "type": "unlimited_7d",
+    "used": false
+  },
+  "RAVX-OTL4YXPYEV": {
+    "plan": "أسبوعي",
+    "price": 15,
+    "days": 7,
+    "type": "unlimited_7d",
+    "used": false
+  },
+  "RAVX-5PIY88HY6R": {
+    "plan": "أسبوعي",
+    "price": 15,
+    "days": 7,
+    "type": "unlimited_7d",
+    "used": false
+  },
+  "RAVX-GLE3F0JSFI": {
+    "plan": "أسبوعي",
+    "price": 15,
+    "days": 7,
+    "type": "unlimited_7d",
+    "used": false
+  },
+  "RAVX-KVB4J1ZCXY": {
+    "plan": "أسبوعي",
+    "price": 15,
+    "days": 7,
+    "type": "unlimited_7d",
+    "used": false
+  },
+  "RAVX-GQTYYGD4F9": {
+    "plan": "أسبوعي",
+    "price": 15,
+    "days": 7,
+    "type": "unlimited_7d",
+    "used": false
+  },
+  "RAVX-2YWV46GR3I": {
+    "plan": "أسبوعي",
+    "price": 15,
+    "days": 7,
+    "type": "unlimited_7d",
+    "used": false
+  },
+  "RAVX-1AO0Q93G6F": {
+    "plan": "أسبوعي",
+    "price": 15,
+    "days": 7,
+    "type": "unlimited_7d",
+    "used": false
+  },
+  "RAVX-5FXN9204DH": {
+    "plan": "أسبوعي",
+    "price": 15,
+    "days": 7,
+    "type": "unlimited_7d",
+    "used": false
+  },
+  "RAVX-EPK47EEFEE": {
+    "plan": "شهري",
+    "price": 25,
     "days": 30,
-    "used": false,
-    "createdAt": "2026-09-18T19:12:47Z"
+    "type": "unlimited_support",
+    "used": false
   },
-  "RAVX-PERM-6Z32UDQGFT": {
-    "days": 90,
-    "used": false,
-    "createdAt": "2026-09-18T19:12:47Z"
+  "RAVX-9AP578E930": {
+    "plan": "شهري",
+    "price": 25,
+    "days": 30,
+    "type": "unlimited_support",
+    "used": false
+  },
+  "RAVX-BPTUALAT80": {
+    "plan": "شهري",
+    "price": 25,
+    "days": 30,
+    "type": "unlimited_support",
+    "used": false
+  },
+  "RAVX-5WHQER9NWT": {
+    "plan": "شهري",
+    "price": 25,
+    "days": 30,
+    "type": "unlimited_support",
+    "used": false
+  },
+  "RAVX-ZIWP3K92S5": {
+    "plan": "شهري",
+    "price": 25,
+    "days": 30,
+    "type": "unlimited_support",
+    "used": false
+  },
+  "RAVX-LQ7LQM6R3S": {
+    "plan": "شهري",
+    "price": 25,
+    "days": 30,
+    "type": "unlimited_support",
+    "used": false
+  },
+  "RAVX-5GANPWY850": {
+    "plan": "شهري",
+    "price": 25,
+    "days": 30,
+    "type": "unlimited_support",
+    "used": false
+  },
+  "RAVX-7UX0TLN7DS": {
+    "plan": "شهري",
+    "price": 25,
+    "days": 30,
+    "type": "unlimited_support",
+    "used": false
+  },
+  "RAVX-6VEHKX7O3P": {
+    "plan": "شهري",
+    "price": 25,
+    "days": 30,
+    "type": "unlimited_support",
+    "used": false
+  },
+  "RAVX-17071O9LL8": {
+    "plan": "شهري",
+    "price": 25,
+    "days": 30,
+    "type": "unlimited_support",
+    "used": false
+  },
+  "RAVX-X3PRC4DUZ0": {
+    "plan": "شهري",
+    "price": 25,
+    "days": 30,
+    "type": "unlimited_support",
+    "used": false
+  },
+  "RAVX-Y9AIX7JQCP": {
+    "plan": "شهري",
+    "price": 25,
+    "days": 30,
+    "type": "unlimited_support",
+    "used": false
+  },
+  "RAVX-E6KM3ET6IT": {
+    "plan": "شهري",
+    "price": 25,
+    "days": 30,
+    "type": "unlimited_support",
+    "used": false
+  },
+  "RAVX-1XJL0XOA23": {
+    "plan": "شهري",
+    "price": 25,
+    "days": 30,
+    "type": "unlimited_support",
+    "used": false
+  },
+  "RAVX-628UTWGZNB": {
+    "plan": "شهري",
+    "price": 25,
+    "days": 30,
+    "type": "unlimited_support",
+    "used": false
+  },
+  "RAVX-C7PMHA3PDH": {
+    "plan": "شهري",
+    "price": 25,
+    "days": 30,
+    "type": "unlimited_support",
+    "used": false
+  },
+  "RAVX-36954KLEUR": {
+    "plan": "شهري",
+    "price": 25,
+    "days": 30,
+    "type": "unlimited_support",
+    "used": false
+  },
+  "RAVX-AYCP0B3BO0": {
+    "plan": "شهري",
+    "price": 25,
+    "days": 30,
+    "type": "unlimited_support",
+    "used": false
+  },
+  "RAVX-B36SOANPXR": {
+    "plan": "شهري",
+    "price": 25,
+    "days": 30,
+    "type": "unlimited_support",
+    "used": false
+  },
+  "RAVX-YAWS7KDVK5": {
+    "plan": "شهري",
+    "price": 25,
+    "days": 30,
+    "type": "unlimited_support",
+    "used": false
+  },
+  "RAVX-JKMTAHUCMH": {
+    "plan": "شهري",
+    "price": 25,
+    "days": 30,
+    "type": "unlimited_support",
+    "used": false
+  },
+  "RAVX-54Z7IY3XSF": {
+    "plan": "شهري",
+    "price": 25,
+    "days": 30,
+    "type": "unlimited_support",
+    "used": false
+  },
+  "RAVX-DYWPAJDOLA": {
+    "plan": "شهري",
+    "price": 25,
+    "days": 30,
+    "type": "unlimited_support",
+    "used": false
+  },
+  "RAVX-OJLKSQPS7R": {
+    "plan": "شهري",
+    "price": 25,
+    "days": 30,
+    "type": "unlimited_support",
+    "used": false
+  },
+  "RAVX-O59QVNJJ9H": {
+    "plan": "شهري",
+    "price": 25,
+    "days": 30,
+    "type": "unlimited_support",
+    "used": false
+  },
+  "RAVX-CD1LBF5ELM": {
+    "plan": "مدى الحياة",
+    "price": 200,
+    "days": -1,
+    "type": "lifetime",
+    "used": false
+  },
+  "RAVX-DJ365OF9UZ": {
+    "plan": "مدى الحياة",
+    "price": 200,
+    "days": -1,
+    "type": "lifetime",
+    "used": false
+  },
+  "RAVX-07K1I9SMID": {
+    "plan": "مدى الحياة",
+    "price": 200,
+    "days": -1,
+    "type": "lifetime",
+    "used": false
+  },
+  "RAVX-R1LDD5KS8C": {
+    "plan": "مدى الحياة",
+    "price": 200,
+    "days": -1,
+    "type": "lifetime",
+    "used": false
+  },
+  "RAVX-35E91U86UF": {
+    "plan": "مدى الحياة",
+    "price": 200,
+    "days": -1,
+    "type": "lifetime",
+    "used": false
+  },
+  "RAVX-JPUGXBNE73": {
+    "plan": "مدى الحياة",
+    "price": 200,
+    "days": -1,
+    "type": "lifetime",
+    "used": false
+  },
+  "RAVX-V8FJQAQVNR": {
+    "plan": "مدى الحياة",
+    "price": 200,
+    "days": -1,
+    "type": "lifetime",
+    "used": false
+  },
+  "RAVX-4E5FWYS18I": {
+    "plan": "مدى الحياة",
+    "price": 200,
+    "days": -1,
+    "type": "lifetime",
+    "used": false
+  },
+  "RAVX-IJJTDSVC8A": {
+    "plan": "مدى الحياة",
+    "price": 200,
+    "days": -1,
+    "type": "lifetime",
+    "used": false
+  },
+  "RAVX-KMRTC2SQ5Y": {
+    "plan": "مدى الحياة",
+    "price": 200,
+    "days": -1,
+    "type": "lifetime",
+    "used": false
   }
 }

@@ -1355,7 +1355,12 @@ async function checkExpiredSubscriptions() {
 client.on('messageCreate', async (message) => {
     try {
         if (message.author.bot) return;
-        if (PERMISSION_CODES_CHANNEL_ID && message.channel.id !== PERMISSION_CODES_CHANNEL_ID) return;
+        if (!message.guild) return;
+        if (!PERMISSION_CODES_CHANNEL_ID) {
+            console.log('[RAVX] PERMISSION_CODES_CHANNEL_ID is empty');
+            return;
+        }
+        if (message.channel.id !== PERMISSION_CODES_CHANNEL_ID) return;
 
         const code = message.content.trim().toUpperCase();
         if (!code.startsWith('RAVX-PERM-')) return;
@@ -1370,7 +1375,20 @@ client.on('messageCreate', async (message) => {
         if (message.guild && selectedRole) {
             const member = await message.guild.members.fetch(message.author.id).catch(() => null);
             if (member) {
-                await member.roles.add(selectedRole).catch(() => {});
+                const role = message.guild.roles.cache.get(selectedRole);
+                if (!role) {
+                    await message.reply('❌ رتبة الاشتراك غير موجودة. تأكد من GRANT_PERMISSION_ROLE_ID');
+                    return;
+                }
+                if (!message.guild.members.me.permissions.has(PermissionFlagsBits.ManageRoles)) {
+                    await message.reply('❌ البوت لا يملك صلاحية Manage Roles');
+                    return;
+                }
+                if (message.guild.members.me.roles.highest.position <= role.position) {
+                    await message.reply('❌ رتبة البوت يجب أن تكون أعلى من رتبة الاشتراك');
+                    return;
+                }
+                await member.roles.add(role);
             }
         }
 

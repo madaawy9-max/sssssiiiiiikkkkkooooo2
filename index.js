@@ -40,7 +40,10 @@ const THUMBNAIL_URL = "https://cdn.discordapp.com/attachments/134753097497155999
 const filePath = path.join(__dirname, 'licenses.json');
 const permissionsFilePath = path.join(__dirname, 'permissions.json');
 const permissionCodesFilePath = path.join(__dirname, 'permission_codes.json');
+
 const PERMISSION_CODES_CHANNEL_ID = process.env.PERMISSION_CODES_CHANNEL_ID || '';
+const SUBSCRIPTION_LOG_CHANNEL_ID = process.env.SUBSCRIPTION_LOG_CHANNEL_ID || '';
+
 // جميع الاشتراكات تستخدم رتبة واحدة فقط
 const PLAN_ROLES = {};
 
@@ -1336,6 +1339,18 @@ if (interaction.customId === 'btn_start_protect') {
 
 
 
+
+// تنظيف الاشتراكات المنتهية عند تشغيل البوت
+async function checkExpiredSubscriptions() {
+    const now = Date.now();
+    for (const [userId, entry] of Object.entries(encryptPermissions)) {
+        if (entry.expiresAt && entry.expiresAt !== -1 && now > entry.expiresAt) {
+            const guild = client.guilds.cache.get(entry.guildId);
+            if (guild) await revokeExpiredPermission(guild, userId, entry);
+        }
+    }
+}
+
 // تفعيل أكواد المتجر: العضو يضع الكود في روم الصلاحيات ويحصل على الرتبة تلقائياً
 client.on('messageCreate', async (message) => {
     try {
@@ -1373,7 +1388,7 @@ client.on('messageCreate', async (message) => {
             `🎖️ تم إعطاؤك الصلاحية\n` +
             `📦 الباقة: **${result.plan}**\n` +
             `⏳ المدة: **${result.days === -1 ? 'مدى الحياة' : result.days + ' يوم'}**\n` +
-            `تنتهي: <t:${Math.floor(result.expiresAt / 1000)}:R>`
+            `تنتهي: ${result.expiresAt === -1 ? '♾️ مدى الحياة' : `<t:${Math.floor(result.expiresAt / 1000)}:R>`}`
         );
     } catch (e) {
         console.error('Permission code error:', e);

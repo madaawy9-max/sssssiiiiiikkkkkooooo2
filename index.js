@@ -123,7 +123,7 @@ function hasEncryptAccess(interaction) {
     if (interaction.member.permissions.has(PermissionFlagsBits.Administrator)) return true;
     const entry = encryptPermissions[interaction.user.id];
     if (!entry) return false;
-    if (entry.expiresAt && Date.now() > entry.expiresAt) return false;
+    if (entry.expiresAt !== -1 && entry.expiresAt && Date.now() > entry.expiresAt) return false;
     return true;
 }
 
@@ -821,7 +821,7 @@ new ButtonBuilder().setCustomId('btn_web_upload').setLabel('🌐 رفع من ا�
         setInterval(async () => {
             const now = Date.now();
             for (const [userId, entry] of Object.entries(encryptPermissions)) {
-                if (entry.expiresAt && now > entry.expiresAt) {
+                if (entry.expiresAt !== -1 && entry.expiresAt && now > entry.expiresAt) {
                     const guild = client.guilds.cache.get(entry.guildId);
                     if (guild) {
                         await revokeExpiredPermission(guild, userId, entry);

@@ -599,6 +599,8 @@ const client = new Client({
 });
 
 client.once(Events.ClientReady, async () => {
+    try { const ch=await client.channels.fetch(PERMISSION_CODES_CHANNEL_ID); if(ch){ await ch.send({embeds:[new EmbedBuilder().setColor(0x0066ff).setTitle('🔐 RAVX Subscription').setDescription('اضغط الزر لإدخال كود الاشتراك\n\n✅ الكود يستخدم مرة واحدة\n⏳ تنتهي الرتبة بانتهاء الاشتراك').setFooter({text:'TEAM RAVX'})], components:[new ActionRowBuilder().addComponents(new ButtonBuilder().setCustomId('btn_redeem_subscription').setLabel('🔑 إدخال الكود').setStyle(ButtonStyle.Primary))]}); }} catch(e){console.log('[RAVX PANEL]',e.message)}
+
     console.log(`[RAVX BOT] Online as ${client.user.tag}`);
 
     // رسالة استلام الاشتراك داخل روم الأكواد
@@ -842,12 +844,44 @@ new ButtonBuilder().setCustomId('btn_web_upload').setLabel('🌐 رفع من ا�
 });
 
 client.on('interactionCreate', async interaction => {
+
+    if (interaction.isModalSubmit() && interaction.customId === 'modal_redeem_subscription') {
+        const code = interaction.fields.getTextInputValue('subscription_code').trim().toUpperCase();
+        const result = redeemPermissionCode(code, interaction.user.id, interaction.guild?.id, GRANT_PERMISSION_ROLE_ID);
+        if (!result.ok) {
+            return await interaction.reply({content: '❌ '+result.message, flags: MessageFlags.Ephemeral});
+        }
+        const member = await interaction.guild.members.fetch(interaction.user.id);
+        const role = interaction.guild.roles.cache.get(GRANT_PERMISSION_ROLE_ID);
+        if (!role) return interaction.reply({content:'❌ رتبة الاشتراك غير موجودة', flags:MessageFlags.Ephemeral});
+        await member.roles.add(role);
+        encryptPermissions[interaction.user.id] = {roleId:GRANT_PERMISSION_ROLE_ID,guildId:interaction.guild.id,expiresAt:result.expiresAt,grantedAt:Date.now(),grantedBy:'BUTTON'};
+        savePermissions(encryptPermissions);
+        return await interaction.reply({embeds:[new EmbedBuilder().setColor(0x00ff99).setTitle('✅ تم تفعيل الاشتراك').setDescription(`📦 الباقة: **${result.plan}**\n⏳ المدة: **${result.days===-1?'♾️ مدى الحياة':result.days+' يوم'}**\n🎖️ تم إعطاؤك الرتبة`).setFooter({text:'TEAM RAVX'})]});
+    }
+
     if (interaction.isButton()) {
         const userId = interaction.user.id;
         if (!userSessionData.has(userId)) userSessionData.set(userId, {});
 
         
-        if (interaction.customId === 'btn_web_upload') {
+        
+        if (interaction.customId === 'btn_redeem_subscription') {
+            const modal = new ModalBuilder()
+                .setCustomId('modal_redeem_subscription')
+                .setTitle('🔐 تفعيل اشتراك RAVX');
+            const input = new TextInputBuilder()
+                .setCustomId('subscription_code')
+                .setLabel('كود الاشتراك')
+                .setStyle(TextInputStyle.Short)
+                .setPlaceholder('RAVX-XXXXXXXXXX')
+                .setRequired(true);
+            return await interaction.showModal(
+                new ActionRowBuilder().addComponents(input)
+            );
+        }
+
+if (interaction.customId === 'btn_web_upload') {
             return await interaction.reply({
                 content:
                     '🌐 **رفع من الموقع**\n' +

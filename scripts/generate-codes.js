@@ -15,9 +15,21 @@ const path = require('path');
 const crypto = require('crypto');
 
 const ROOT = path.join(__dirname, '..');
-const FILE = path.join(ROOT, 'permission_codes.json');
-const EXPORT_FILE = path.join(ROOT, 'ravx-store-codes.txt');
-const ARCHIVE_FILE = path.join(ROOT, 'permission_codes.previous.json');
+const STORAGE_DIR = path.join(ROOT, 'storage');
+// ⚠️ الأكواد تُخزَّن في storage/ (مُستثنى من git، يبقى بعد إعادة النشر/التشغيل).
+// كتابتها في جذر المشروع كانت تجعلها ترجع لحالتها الأصلية (كل الأكواد غير
+// مستخدمة) في كل إعادة نشر — لأن الجذر يُعاد بناؤه من مستودع git.
+fs.mkdirSync(STORAGE_DIR, { recursive: true });
+const FILE = path.join(STORAGE_DIR, 'permission_codes.json');
+const EXPORT_FILE = path.join(ROOT, 'ravx-store-codes.txt'); // ملف تصدير فقط للمتجر، لا يُقرأ وقت التشغيل
+const ARCHIVE_FILE = path.join(STORAGE_DIR, 'permission_codes.previous.json');
+
+// ترحيل تلقائي: لو فيه نسخة قديمة بالجذر ولا فيه نسخة بـ storage/ بعد
+const legacyFile = path.join(ROOT, 'permission_codes.json');
+if (!fs.existsSync(FILE) && fs.existsSync(legacyFile)) {
+  fs.copyFileSync(legacyFile, FILE);
+  console.log('تم ترحيل permission_codes.json القديم من الجذر إلى storage/.');
+}
 
 const args = process.argv.slice(2);
 const FRESH = args.includes('--fresh');

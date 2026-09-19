@@ -39,9 +39,25 @@ const BASE_URL = process.env.BASE_URL || "https://ravx.onrender.com";
 const BANNER_IMAGE_URL = "https://cdn.discordapp.com/attachments/1347530974971559996/1545106692285661206/ravx_logo_bannr.png?ex=6a9c41be&is=6a9af03e&hm=7bce2e840b13301cdc97aef0dd6738fc7429742431ec97c500999798d0118c43&";
 const THUMBNAIL_URL = "https://cdn.discordapp.com/attachments/1347530974971559996/1545517413678977034/RAVX_LOGO.png?ex=6a9c6ec1&is=6a9b1d41&hm=f4254219e932d39218cee412e64e1d0ae3eba0a9993d75024e7eae292972e9eb&";
 
-const filePath = path.join(__dirname, 'licenses.json');
-const permissionsFilePath = path.join(__dirname, 'permissions.json');
-const permissionCodesFilePath = path.join(__dirname, 'permission_codes.json');
+// ⚠️ ملفات الحالة القابلة للتغيير تُخزَّن الآن في storage/ (مُستثنى من git ويبقى
+// بعد إعادة التشغيل/إعادة النشر) بدل جذر المشروع — كان هذا سبب رجوع الأكواد
+// المستهلكة للعمل بعد أي إعادة تشغيل. راجع src/shared/subscriptions.js لمزيد
+// من التفاصيل والترحيل التلقائي للملفات القديمة.
+const storageDir = path.join(__dirname, 'storage');
+fs.mkdirSync(storageDir, { recursive: true });
+function migrateLegacyRootFile(name) {
+    const legacy = path.join(__dirname, name);
+    const target = path.join(storageDir, name);
+    try {
+        if (!fs.existsSync(target) && fs.existsSync(legacy)) {
+            fs.copyFileSync(legacy, target);
+            console.log(`[RAVX] تم ترحيل ${name} إلى storage/.`);
+        }
+    } catch (e) { console.error(`[RAVX] فشل ترحيل ${name}:`, e.message); }
+}
+migrateLegacyRootFile('licenses.json');
+migrateLegacyRootFile('subscription_logs.json');
+const filePath = path.join(storageDir, 'licenses.json');
 
 const PERMISSION_CODES_CHANNEL_ID = process.env.PERMISSION_CODES_CHANNEL_ID || process.env.PERMISSION_CHANNEL_ID || '';
 console.log('[RAVX CONFIG] Permission channel:', PERMISSION_CODES_CHANNEL_ID || 'NOT SET');
@@ -95,21 +111,8 @@ const adminGrantSession = new Map();
 // نحفظها لاحقاً كانت تمسح استهلاك الرصيد القادم من الموقع (ثغرة تكرار التجربة).
 function loadPermissions() { return subs.readPermissions(); }
 
-function loadPermissionCodes() {
-    try {
-        if (fs.existsSync(permissionCodesFilePath)) {
-            return JSON.parse(fs.readFileSync(permissionCodesFilePath, 'utf8'));
-        }
-    } catch (e) {}
-    return {};
-}
-
-function savePermissionCodes(data) {
-    fs.writeFileSync(permissionCodesFilePath, JSON.stringify(data, null, 4), 'utf8');
-}
-
 // ==================== سجل الاشتراكات (للإدارة) ====================
-const subscriptionLogFilePath = path.join(__dirname, 'subscription_logs.json');
+const subscriptionLogFilePath = path.join(storageDir, 'subscription_logs.json');
 function appendSubscriptionLog(entry) {
     let logs = [];
     try { if (fs.existsSync(subscriptionLogFilePath)) logs = JSON.parse(fs.readFileSync(subscriptionLogFilePath, 'utf8')); } catch (e) {}

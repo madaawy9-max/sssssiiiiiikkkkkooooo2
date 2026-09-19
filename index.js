@@ -117,7 +117,14 @@ function redeemPermissionCode(code, userId, guildId, roleId) {
     const item = codes[key];
     if (!item) return { ok:false, message:'❌ الكود غير صحيح.' };
     if (item.used) return { ok:false, message:'❌ هذا الكود مستخدم مسبقاً.' };
-    const expiresAt = Number(item.days) === -1 ? -1 : Date.now() + Number(item.days) * 24 * 60 * 60 * 1000;
+    let expiresAt;
+    if (Number(item.days) === -1) {
+        expiresAt = -1;
+    } else if (item.type === 'single_script' || Number(item.days) === 0) {
+        expiresAt = Date.now() + (24 * 60 * 60 * 1000);
+    } else {
+        expiresAt = Date.now() + Number(item.days) * 24 * 60 * 60 * 1000;
+    }
     item.used = true;
     item.usedBy = userId;
     item.usedAt = Date.now();

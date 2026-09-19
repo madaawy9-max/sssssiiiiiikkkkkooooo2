@@ -1,10 +1,10 @@
 /* ================= Plans page ================= */
 const SUBSCRIPTION_LINKS = {
-  trial: 'https://discord.gg/CQYYwafzwr',
-  day: 'https://discord.gg/CQYYwafzwr',
-  week: 'https://discord.gg/CQYYwafzwr',
-  month: 'https://discord.gg/CQYYwafzwr',
-  lifetime: 'https://discord.gg/CQYYwafzwr'
+  trial: 'https://madaawy9.00stores.com/product/Ag3BXWU9VLil',
+  day: 'https://madaawy9.00stores.com/product/yJHK3hhXiJuW',
+  week: 'https://madaawy9.00stores.com/product/bADzAFrCm1nd',
+  month: 'https://madaawy9.00stores.com/product/7yaSn1fNoRkk',
+  lifetime: 'https://madaawy9.00stores.com/product/G6eW4aMiUw7w'
 };
 
 document.addEventListener('DOMContentLoaded', () => {

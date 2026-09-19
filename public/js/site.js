@@ -35,11 +35,15 @@ async function bootUser(){
     const a = await api('/api/auth/me');
     renderAccount(a.user);
     document.dispatchEvent(new CustomEvent('ravx:user', {detail: a.user}));
+    document.dispatchEvent(new CustomEvent('ravx:subscription', {detail: a.subscription || null}));
   }catch(e){
     renderAccount(null);
     document.dispatchEvent(new CustomEvent('ravx:user', {detail: null}));
+    document.dispatchEvent(new CustomEvent('ravx:subscription', {detail: null}));
   }
 }
+/* متاح لصفحات أخرى لإعادة قراءة حالة الاشتراك فوراً بعد أي عملية */
+window.ravxRefreshUser = bootUser;
 
 /* active nav link based on current file */
 function markActiveNav(){

@@ -332,3 +332,8 @@ footer{border-top:1px solid var(--border);padding:34px 0;background:var(--bg-sof
   .code-search{flex-direction:column}
   .cta-band{flex-direction:column;text-align:center}
 }
+
+/* حالة الاشتراك في لوحة التحكم */
+.sub-state{margin-top:10px;font-size:13px;line-height:1.7;padding:8px 12px;border-radius:10px}
+.sub-state.on{background:rgba(0,200,120,.10);border:1px solid rgba(0,200,120,.35)}
+.sub-state.off{background:rgba(255,70,70,.10);border:1px solid rgba(255,70,70,.35)}

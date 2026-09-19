@@ -7,6 +7,33 @@ function toast(text, ok = false){
   el.className = 'status ' + (ok ? 'ok' : 'error');
 }
 
+let currentSubscription = null;
+
+function planLine(sub){
+  if (!sub) return '';
+  const left = sub.remaining === null ? 'غير محدود' : sub.remaining + ' عملية';
+  const ends = sub.expiresAt === -1
+    ? 'مدى الحياة'
+    : new Date(sub.expiresAt).toLocaleString('ar', {dateStyle: 'short', timeStyle: 'short'});
+  if (!sub.active){
+    return '<div class="sub-state off">اشتراكك (' + escapeHtml(sub.plan) + ') ' +
+      (sub.exhausted ? 'استُهلك بالكامل' : 'منتهٍ') + ' — فعّل كوداً جديداً في Discord للمتابعة.</div>';
+  }
+  return '<div class="sub-state on">الباقة: <b>' + escapeHtml(sub.plan) + '</b> · الرصيد المتبقي: <b>' + escapeHtml(left) +
+    '</b> · ينتهي: <b>' + escapeHtml(ends) + '</b></div>';
+}
+
+function renderSubscription(sub){
+  currentSubscription = sub;
+  const info = document.getElementById('user-info');
+  if (!info || !sub) return;
+  const old = info.querySelector('.sub-state');
+  if (old) old.remove();
+  info.insertAdjacentHTML('beforeend', planLine(sub));
+  const box = document.getElementById('encrypt-box');
+  if (box && sub && !sub.active) box.classList.add('locked');
+}
+
 function renderDashboardUser(user){
   const state = document.getElementById('user-state');
   const info = document.getElementById('user-info');
@@ -57,6 +84,16 @@ document.addEventListener('DOMContentLoaded', () => {
     renderDashboardUser(e.detail);
     loadStatsIfAdmin(e.detail);
   });
+  document.addEventListener('ravx:subscription', e => renderSubscription(e.detail));
+
+  /* تحديث دوري خفيف لحالة الاشتراك (كل 30 ثانية) حتى تنقفل الأدوات فوراً
+     بعد انتهاء الرصيد أو المدة، بدون ما يحتاج المستخدم يحدّث الصفحة */
+  setInterval(async () => {
+    try{
+      const d = await api('/api/subscription');
+      renderSubscription(d.subscription);
+    }catch(e){ /* غير مسجّل دخول */ }
+  }, 30000);
 
   document.getElementById('file').addEventListener('change', e => {
     if (e.target.files[0]) document.getElementById('file-name').textContent = '✓ ' + e.target.files[0].name;
@@ -82,6 +119,7 @@ document.addEventListener('DOMContentLoaded', () => {
     toast('جاري معالجة الملف، لا تغلق الصفحة');
     try{
       const d = await api('/api/encrypt', {method: 'POST', body: f});
+      if (d.subscription) renderSubscription(d.subscription);
       const code = d.script.code;
       document.getElementById('download-code').textContent = code;
       document.getElementById('download-link').href = '/api/download/' + encodeURIComponent(code);
@@ -91,6 +129,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }catch(err){
       toast(err.message);
       btn.innerHTML = 'تشفير المورد الآن ←';
+      if (window.ravxRefreshUser) window.ravxRefreshUser();
     }finally{
       btn.disabled = false;
     }

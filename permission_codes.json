@@ -1,3502 +1,4502 @@
 {
-  "RAVX-UW3BJ8QRX2": {
+  "RAVX-DB3QPQ4HJ3W2": {
     "plan": "تجربة",
     "price": 2,
-    "days": 0,
+    "days": 3,
     "type": "single_script",
-    "used": false
+    "maxEncrypts": 1,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.570Z"
   },
-  "RAVX-49KE65TP3N": {
+  "RAVX-SVGJ9BQQDZK5": {
     "plan": "تجربة",
     "price": 2,
-    "days": 0,
+    "days": 3,
     "type": "single_script",
-    "used": false
+    "maxEncrypts": 1,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.579Z"
   },
-  "RAVX-RWQSUTMCYT": {
+  "RAVX-9NZ43CYTDHYY": {
     "plan": "تجربة",
     "price": 2,
-    "days": 0,
+    "days": 3,
     "type": "single_script",
-    "used": false
+    "maxEncrypts": 1,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.579Z"
   },
-  "RAVX-H5ZCBRMO5S": {
+  "RAVX-5S48763RJDWT": {
     "plan": "تجربة",
     "price": 2,
-    "days": 0,
+    "days": 3,
     "type": "single_script",
-    "used": false
+    "maxEncrypts": 1,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.579Z"
   },
-  "RAVX-LWBQDH5WHB": {
+  "RAVX-SWS3GE8HVJN8": {
     "plan": "تجربة",
     "price": 2,
-    "days": 0,
+    "days": 3,
     "type": "single_script",
-    "used": false
+    "maxEncrypts": 1,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.579Z"
   },
-  "RAVX-DQ9R0PRGOR": {
+  "RAVX-WJEZYDSC5JZC": {
     "plan": "تجربة",
     "price": 2,
-    "days": 0,
+    "days": 3,
     "type": "single_script",
-    "used": false
+    "maxEncrypts": 1,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.579Z"
   },
-  "RAVX-OP7INQMM9P": {
+  "RAVX-4QFBTZ49E8DC": {
     "plan": "تجربة",
     "price": 2,
-    "days": 0,
+    "days": 3,
     "type": "single_script",
-    "used": false
+    "maxEncrypts": 1,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.579Z"
   },
-  "RAVX-FHMMTI2LQ9": {
+  "RAVX-QPQQQG8N73JH": {
     "plan": "تجربة",
     "price": 2,
-    "days": 0,
+    "days": 3,
     "type": "single_script",
-    "used": false
+    "maxEncrypts": 1,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.579Z"
   },
-  "RAVX-2XA0ACQSO3": {
+  "RAVX-D5S76YEPVB8J": {
     "plan": "تجربة",
     "price": 2,
-    "days": 0,
+    "days": 3,
     "type": "single_script",
-    "used": false
+    "maxEncrypts": 1,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.579Z"
   },
-  "RAVX-1B9M7KBC69": {
+  "RAVX-QYMDGDQ6263E": {
     "plan": "تجربة",
     "price": 2,
-    "days": 0,
+    "days": 3,
     "type": "single_script",
-    "used": false
+    "maxEncrypts": 1,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.579Z"
   },
-  "RAVX-7L4L4SYH7T": {
+  "RAVX-5QXRSVE2K8T5": {
     "plan": "تجربة",
     "price": 2,
-    "days": 0,
+    "days": 3,
     "type": "single_script",
-    "used": false
+    "maxEncrypts": 1,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.579Z"
   },
-  "RAVX-SQTU8QUYW7": {
+  "RAVX-KR696THUJGST": {
     "plan": "تجربة",
     "price": 2,
-    "days": 0,
+    "days": 3,
     "type": "single_script",
-    "used": false
+    "maxEncrypts": 1,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.579Z"
   },
-  "RAVX-80F4LB3TT9": {
+  "RAVX-P4ZB2M5Z9JKU": {
     "plan": "تجربة",
     "price": 2,
-    "days": 0,
+    "days": 3,
     "type": "single_script",
-    "used": false
+    "maxEncrypts": 1,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.579Z"
   },
-  "RAVX-2S703P8T4E": {
+  "RAVX-KVWHU67BLG6R": {
     "plan": "تجربة",
     "price": 2,
-    "days": 0,
+    "days": 3,
     "type": "single_script",
-    "used": false
+    "maxEncrypts": 1,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.580Z"
   },
-  "RAVX-0VNWW379MS": {
+  "RAVX-3GG5DXCWXQQ5": {
     "plan": "تجربة",
     "price": 2,
-    "days": 0,
+    "days": 3,
     "type": "single_script",
-    "used": false
+    "maxEncrypts": 1,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.580Z"
   },
-  "RAVX-P72D2JTMHS": {
+  "RAVX-JMGE8MDLPDNW": {
     "plan": "تجربة",
     "price": 2,
-    "days": 0,
+    "days": 3,
     "type": "single_script",
-    "used": false
+    "maxEncrypts": 1,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.580Z"
   },
-  "RAVX-TU7W6CAL9J": {
+  "RAVX-A53KF8F3GYLS": {
     "plan": "تجربة",
     "price": 2,
-    "days": 0,
+    "days": 3,
     "type": "single_script",
-    "used": false
+    "maxEncrypts": 1,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.580Z"
   },
-  "RAVX-VQTNKKSDVA": {
+  "RAVX-EFVGT9X4BPRN": {
     "plan": "تجربة",
     "price": 2,
-    "days": 0,
+    "days": 3,
     "type": "single_script",
-    "used": false
+    "maxEncrypts": 1,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.580Z"
   },
-  "RAVX-K8XLR6417Y": {
+  "RAVX-FTGL8SBLCLLF": {
     "plan": "تجربة",
     "price": 2,
-    "days": 0,
+    "days": 3,
     "type": "single_script",
-    "used": false
+    "maxEncrypts": 1,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.580Z"
   },
-  "RAVX-Y6YDAG62WO": {
+  "RAVX-GWJUDUS3ZLJW": {
     "plan": "تجربة",
     "price": 2,
-    "days": 0,
+    "days": 3,
     "type": "single_script",
-    "used": false
+    "maxEncrypts": 1,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.580Z"
   },
-  "RAVX-1WJEL6CFBX": {
-    "plan": "يومي",
-    "price": 5,
-    "days": 1,
-    "type": "unlimited_24h",
-    "used": false
-  },
-  "RAVX-W2I8U2SQ95": {
-    "plan": "يومي",
-    "price": 5,
-    "days": 1,
-    "type": "unlimited_24h",
-    "used": false
-  },
-  "RAVX-1XAX0JEPRA": {
-    "plan": "يومي",
-    "price": 5,
-    "days": 1,
-    "type": "unlimited_24h",
-    "used": false
-  },
-  "RAVX-T7KDI8D5XO": {
-    "plan": "يومي",
-    "price": 5,
-    "days": 1,
-    "type": "unlimited_24h",
-    "used": false
-  },
-  "RAVX-565VCXJSK6": {
-    "plan": "يومي",
-    "price": 5,
-    "days": 1,
-    "type": "unlimited_24h",
-    "used": false
-  },
-  "RAVX-0OUC3CZHID": {
-    "plan": "يومي",
-    "price": 5,
-    "days": 1,
-    "type": "unlimited_24h",
-    "used": false
-  },
-  "RAVX-SY5TGC9HZ7": {
-    "plan": "يومي",
-    "price": 5,
-    "days": 1,
-    "type": "unlimited_24h",
-    "used": false
-  },
-  "RAVX-ZZHPGSDBDD": {
-    "plan": "يومي",
-    "price": 5,
-    "days": 1,
-    "type": "unlimited_24h",
-    "used": false
-  },
-  "RAVX-O66X42DXCQ": {
-    "plan": "يومي",
-    "price": 5,
-    "days": 1,
-    "type": "unlimited_24h",
-    "used": false
-  },
-  "RAVX-DHQ9K52CHN": {
-    "plan": "يومي",
-    "price": 5,
-    "days": 1,
-    "type": "unlimited_24h",
-    "used": false
-  },
-  "RAVX-4PIEVHLNIE": {
-    "plan": "يومي",
-    "price": 5,
-    "days": 1,
-    "type": "unlimited_24h",
-    "used": false
-  },
-  "RAVX-SRVCZMFRKG": {
-    "plan": "يومي",
-    "price": 5,
-    "days": 1,
-    "type": "unlimited_24h",
-    "used": false
-  },
-  "RAVX-0GPDVLOJP9": {
-    "plan": "يومي",
-    "price": 5,
-    "days": 1,
-    "type": "unlimited_24h",
-    "used": false
-  },
-  "RAVX-7T5SSHCTWQ": {
-    "plan": "يومي",
-    "price": 5,
-    "days": 1,
-    "type": "unlimited_24h",
-    "used": false
-  },
-  "RAVX-Q09RDTR1O5": {
-    "plan": "يومي",
-    "price": 5,
-    "days": 1,
-    "type": "unlimited_24h",
-    "used": false
-  },
-  "RAVX-TPBW5FUVEL": {
-    "plan": "يومي",
-    "price": 5,
-    "days": 1,
-    "type": "unlimited_24h",
-    "used": false
-  },
-  "RAVX-N91D75P3KQ": {
-    "plan": "يومي",
-    "price": 5,
-    "days": 1,
-    "type": "unlimited_24h",
-    "used": false
-  },
-  "RAVX-CA36RVZHID": {
-    "plan": "يومي",
-    "price": 5,
-    "days": 1,
-    "type": "unlimited_24h",
-    "used": false
-  },
-  "RAVX-Z6MBHDMA3R": {
-    "plan": "يومي",
-    "price": 5,
-    "days": 1,
-    "type": "unlimited_24h",
-    "used": false
-  },
-  "RAVX-PNWTITQZAM": {
-    "plan": "يومي",
-    "price": 5,
-    "days": 1,
-    "type": "unlimited_24h",
-    "used": false
-  },
-  "RAVX-DKLB27J44B": {
-    "plan": "أسبوعي",
-    "price": 15,
-    "days": 7,
-    "type": "unlimited_7d",
-    "used": false
-  },
-  "RAVX-3H68XRURR8": {
-    "plan": "أسبوعي",
-    "price": 15,
-    "days": 7,
-    "type": "unlimited_7d",
-    "used": false
-  },
-  "RAVX-C3U4EK4XU3": {
-    "plan": "أسبوعي",
-    "price": 15,
-    "days": 7,
-    "type": "unlimited_7d",
-    "used": false
-  },
-  "RAVX-0K9V56V8BV": {
-    "plan": "أسبوعي",
-    "price": 15,
-    "days": 7,
-    "type": "unlimited_7d",
-    "used": false
-  },
-  "RAVX-I27CO1FXNM": {
-    "plan": "أسبوعي",
-    "price": 15,
-    "days": 7,
-    "type": "unlimited_7d",
-    "used": false
-  },
-  "RAVX-NRZA8Z3GN0": {
-    "plan": "أسبوعي",
-    "price": 15,
-    "days": 7,
-    "type": "unlimited_7d",
-    "used": false
-  },
-  "RAVX-4NTV383W2T": {
-    "plan": "أسبوعي",
-    "price": 15,
-    "days": 7,
-    "type": "unlimited_7d",
-    "used": false
-  },
-  "RAVX-JUY1VTYZI2": {
-    "plan": "أسبوعي",
-    "price": 15,
-    "days": 7,
-    "type": "unlimited_7d",
-    "used": false
-  },
-  "RAVX-RW26VBV4DB": {
-    "plan": "أسبوعي",
-    "price": 15,
-    "days": 7,
-    "type": "unlimited_7d",
-    "used": false
-  },
-  "RAVX-AAQHHNLZTZ": {
-    "plan": "أسبوعي",
-    "price": 15,
-    "days": 7,
-    "type": "unlimited_7d",
-    "used": false
-  },
-  "RAVX-HBM9L8P2L8": {
-    "plan": "أسبوعي",
-    "price": 15,
-    "days": 7,
-    "type": "unlimited_7d",
-    "used": false
-  },
-  "RAVX-P933SIBCZF": {
-    "plan": "أسبوعي",
-    "price": 15,
-    "days": 7,
-    "type": "unlimited_7d",
-    "used": false
-  },
-  "RAVX-8EXGHN5RU6": {
-    "plan": "أسبوعي",
-    "price": 15,
-    "days": 7,
-    "type": "unlimited_7d",
-    "used": false
-  },
-  "RAVX-FQH3YAAM3N": {
-    "plan": "أسبوعي",
-    "price": 15,
-    "days": 7,
-    "type": "unlimited_7d",
-    "used": false
-  },
-  "RAVX-Z3FAIUY51M": {
-    "plan": "أسبوعي",
-    "price": 15,
-    "days": 7,
-    "type": "unlimited_7d",
-    "used": false
-  },
-  "RAVX-09ZXKSXOVF": {
-    "plan": "أسبوعي",
-    "price": 15,
-    "days": 7,
-    "type": "unlimited_7d",
-    "used": false
-  },
-  "RAVX-IAX34VWLA4": {
-    "plan": "أسبوعي",
-    "price": 15,
-    "days": 7,
-    "type": "unlimited_7d",
-    "used": false
-  },
-  "RAVX-OTL4YXPYEV": {
-    "plan": "أسبوعي",
-    "price": 15,
-    "days": 7,
-    "type": "unlimited_7d",
-    "used": false
-  },
-  "RAVX-5PIY88HY6R": {
-    "plan": "أسبوعي",
-    "price": 15,
-    "days": 7,
-    "type": "unlimited_7d",
-    "used": false
-  },
-  "RAVX-GLE3F0JSFI": {
-    "plan": "أسبوعي",
-    "price": 15,
-    "days": 7,
-    "type": "unlimited_7d",
-    "used": false
-  },
-  "RAVX-KVB4J1ZCXY": {
-    "plan": "أسبوعي",
-    "price": 15,
-    "days": 7,
-    "type": "unlimited_7d",
-    "used": false
-  },
-  "RAVX-GQTYYGD4F9": {
-    "plan": "أسبوعي",
-    "price": 15,
-    "days": 7,
-    "type": "unlimited_7d",
-    "used": false
-  },
-  "RAVX-2YWV46GR3I": {
-    "plan": "أسبوعي",
-    "price": 15,
-    "days": 7,
-    "type": "unlimited_7d",
-    "used": false
-  },
-  "RAVX-1AO0Q93G6F": {
-    "plan": "أسبوعي",
-    "price": 15,
-    "days": 7,
-    "type": "unlimited_7d",
-    "used": false
-  },
-  "RAVX-5FXN9204DH": {
-    "plan": "أسبوعي",
-    "price": 15,
-    "days": 7,
-    "type": "unlimited_7d",
-    "used": false
-  },
-  "RAVX-EPK47EEFEE": {
-    "plan": "شهري",
-    "price": 25,
-    "days": 30,
-    "type": "unlimited_support",
-    "used": false
-  },
-  "RAVX-9AP578E930": {
-    "plan": "شهري",
-    "price": 25,
-    "days": 30,
-    "type": "unlimited_support",
-    "used": false
-  },
-  "RAVX-BPTUALAT80": {
-    "plan": "شهري",
-    "price": 25,
-    "days": 30,
-    "type": "unlimited_support",
-    "used": false
-  },
-  "RAVX-5WHQER9NWT": {
-    "plan": "شهري",
-    "price": 25,
-    "days": 30,
-    "type": "unlimited_support",
-    "used": false
-  },
-  "RAVX-ZIWP3K92S5": {
-    "plan": "شهري",
-    "price": 25,
-    "days": 30,
-    "type": "unlimited_support",
-    "used": false
-  },
-  "RAVX-LQ7LQM6R3S": {
-    "plan": "شهري",
-    "price": 25,
-    "days": 30,
-    "type": "unlimited_support",
-    "used": false
-  },
-  "RAVX-5GANPWY850": {
-    "plan": "شهري",
-    "price": 25,
-    "days": 30,
-    "type": "unlimited_support",
-    "used": false
-  },
-  "RAVX-7UX0TLN7DS": {
-    "plan": "شهري",
-    "price": 25,
-    "days": 30,
-    "type": "unlimited_support",
-    "used": false
-  },
-  "RAVX-6VEHKX7O3P": {
-    "plan": "شهري",
-    "price": 25,
-    "days": 30,
-    "type": "unlimited_support",
-    "used": false
-  },
-  "RAVX-17071O9LL8": {
-    "plan": "شهري",
-    "price": 25,
-    "days": 30,
-    "type": "unlimited_support",
-    "used": false
-  },
-  "RAVX-X3PRC4DUZ0": {
-    "plan": "شهري",
-    "price": 25,
-    "days": 30,
-    "type": "unlimited_support",
-    "used": false
-  },
-  "RAVX-Y9AIX7JQCP": {
-    "plan": "شهري",
-    "price": 25,
-    "days": 30,
-    "type": "unlimited_support",
-    "used": false
-  },
-  "RAVX-E6KM3ET6IT": {
-    "plan": "شهري",
-    "price": 25,
-    "days": 30,
-    "type": "unlimited_support",
-    "used": false
-  },
-  "RAVX-1XJL0XOA23": {
-    "plan": "شهري",
-    "price": 25,
-    "days": 30,
-    "type": "unlimited_support",
-    "used": false
-  },
-  "RAVX-628UTWGZNB": {
-    "plan": "شهري",
-    "price": 25,
-    "days": 30,
-    "type": "unlimited_support",
-    "used": false
-  },
-  "RAVX-C7PMHA3PDH": {
-    "plan": "شهري",
-    "price": 25,
-    "days": 30,
-    "type": "unlimited_support",
-    "used": false
-  },
-  "RAVX-36954KLEUR": {
-    "plan": "شهري",
-    "price": 25,
-    "days": 30,
-    "type": "unlimited_support",
-    "used": false
-  },
-  "RAVX-AYCP0B3BO0": {
-    "plan": "شهري",
-    "price": 25,
-    "days": 30,
-    "type": "unlimited_support",
-    "used": false
-  },
-  "RAVX-B36SOANPXR": {
-    "plan": "شهري",
-    "price": 25,
-    "days": 30,
-    "type": "unlimited_support",
-    "used": false
-  },
-  "RAVX-YAWS7KDVK5": {
-    "plan": "شهري",
-    "price": 25,
-    "days": 30,
-    "type": "unlimited_support",
-    "used": false
-  },
-  "RAVX-JKMTAHUCMH": {
-    "plan": "شهري",
-    "price": 25,
-    "days": 30,
-    "type": "unlimited_support",
-    "used": false
-  },
-  "RAVX-54Z7IY3XSF": {
-    "plan": "شهري",
-    "price": 25,
-    "days": 30,
-    "type": "unlimited_support",
-    "used": false
-  },
-  "RAVX-DYWPAJDOLA": {
-    "plan": "شهري",
-    "price": 25,
-    "days": 30,
-    "type": "unlimited_support",
-    "used": false
-  },
-  "RAVX-OJLKSQPS7R": {
-    "plan": "شهري",
-    "price": 25,
-    "days": 30,
-    "type": "unlimited_support",
-    "used": false
-  },
-  "RAVX-O59QVNJJ9H": {
-    "plan": "شهري",
-    "price": 25,
-    "days": 30,
-    "type": "unlimited_support",
-    "used": false
-  },
-  "RAVX-CD1LBF5ELM": {
-    "plan": "مدى الحياة",
-    "price": 200,
-    "days": -1,
-    "type": "lifetime",
-    "used": false
-  },
-  "RAVX-DJ365OF9UZ": {
-    "plan": "مدى الحياة",
-    "price": 200,
-    "days": -1,
-    "type": "lifetime",
-    "used": false
-  },
-  "RAVX-07K1I9SMID": {
-    "plan": "مدى الحياة",
-    "price": 200,
-    "days": -1,
-    "type": "lifetime",
-    "used": false
-  },
-  "RAVX-R1LDD5KS8C": {
-    "plan": "مدى الحياة",
-    "price": 200,
-    "days": -1,
-    "type": "lifetime",
-    "used": false
-  },
-  "RAVX-35E91U86UF": {
-    "plan": "مدى الحياة",
-    "price": 200,
-    "days": -1,
-    "type": "lifetime",
-    "used": false
-  },
-  "RAVX-JPUGXBNE73": {
-    "plan": "مدى الحياة",
-    "price": 200,
-    "days": -1,
-    "type": "lifetime",
-    "used": false
-  },
-  "RAVX-V8FJQAQVNR": {
-    "plan": "مدى الحياة",
-    "price": 200,
-    "days": -1,
-    "type": "lifetime",
-    "used": false
-  },
-  "RAVX-4E5FWYS18I": {
-    "plan": "مدى الحياة",
-    "price": 200,
-    "days": -1,
-    "type": "lifetime",
-    "used": false
-  },
-  "RAVX-IJJTDSVC8A": {
-    "plan": "مدى الحياة",
-    "price": 200,
-    "days": -1,
-    "type": "lifetime",
-    "used": false
-  },
-  "RAVX-KMRTC2SQ5Y": {
-    "plan": "مدى الحياة",
-    "price": 200,
-    "days": -1,
-    "type": "lifetime",
-    "used": false
-  },
-  "RAVX-3KU5DULTHK": {
+  "RAVX-FLFHJ9D2QQXG": {
     "plan": "تجربة",
     "price": 2,
-    "days": 0,
+    "days": 3,
     "type": "single_script",
-    "used": false
+    "maxEncrypts": 1,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.580Z"
   },
-  "RAVX-11ZGIFII3G": {
+  "RAVX-7QTPLU2MCTWW": {
     "plan": "تجربة",
     "price": 2,
-    "days": 0,
+    "days": 3,
     "type": "single_script",
-    "used": false
+    "maxEncrypts": 1,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.580Z"
   },
-  "RAVX-E0RLEEFVOW": {
+  "RAVX-NTCNXGBP4GBQ": {
     "plan": "تجربة",
     "price": 2,
-    "days": 0,
+    "days": 3,
     "type": "single_script",
-    "used": false
+    "maxEncrypts": 1,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.580Z"
   },
-  "RAVX-ZUJCXFL7EE": {
+  "RAVX-U9BMEMSHWJL3": {
     "plan": "تجربة",
     "price": 2,
-    "days": 0,
+    "days": 3,
     "type": "single_script",
-    "used": false
+    "maxEncrypts": 1,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.580Z"
   },
-  "RAVX-6VVE5JVSZE": {
+  "RAVX-RK3AZP7E9YVD": {
     "plan": "تجربة",
     "price": 2,
-    "days": 0,
+    "days": 3,
     "type": "single_script",
-    "used": false
+    "maxEncrypts": 1,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.580Z"
   },
-  "RAVX-UXYBZLEEKR": {
+  "RAVX-Y9J6MJ9JB2H4": {
     "plan": "تجربة",
     "price": 2,
-    "days": 0,
+    "days": 3,
     "type": "single_script",
-    "used": false
+    "maxEncrypts": 1,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.580Z"
   },
-  "RAVX-6EV3MWSPVU": {
+  "RAVX-UTCADS6Z2KUD": {
     "plan": "تجربة",
     "price": 2,
-    "days": 0,
+    "days": 3,
     "type": "single_script",
-    "used": false
+    "maxEncrypts": 1,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.580Z"
   },
-  "RAVX-WIQ6L64QLW": {
+  "RAVX-QXKQY4CPDJQT": {
     "plan": "تجربة",
     "price": 2,
-    "days": 0,
+    "days": 3,
     "type": "single_script",
-    "used": false
+    "maxEncrypts": 1,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.580Z"
   },
-  "RAVX-XQ643YGP00": {
+  "RAVX-BDFFZZMA788C": {
     "plan": "تجربة",
     "price": 2,
-    "days": 0,
+    "days": 3,
     "type": "single_script",
-    "used": false
+    "maxEncrypts": 1,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.580Z"
   },
-  "RAVX-LATX1GO39I": {
+  "RAVX-38ZUBFWM8VEY": {
     "plan": "تجربة",
     "price": 2,
-    "days": 0,
+    "days": 3,
     "type": "single_script",
-    "used": false
+    "maxEncrypts": 1,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.580Z"
   },
-  "RAVX-GXF0YHFYX3": {
+  "RAVX-VUY2GD4785YQ": {
     "plan": "تجربة",
     "price": 2,
-    "days": 0,
+    "days": 3,
     "type": "single_script",
-    "used": false
+    "maxEncrypts": 1,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.580Z"
   },
-  "RAVX-V3H2YWWBX0": {
+  "RAVX-BCACRAG6PVEK": {
     "plan": "تجربة",
     "price": 2,
-    "days": 0,
+    "days": 3,
     "type": "single_script",
-    "used": false
+    "maxEncrypts": 1,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.580Z"
   },
-  "RAVX-8WJV6F816B": {
+  "RAVX-G3DCN4TBTYG6": {
     "plan": "تجربة",
     "price": 2,
-    "days": 0,
+    "days": 3,
     "type": "single_script",
-    "used": false
+    "maxEncrypts": 1,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.580Z"
   },
-  "RAVX-SPVSC0P675": {
+  "RAVX-HXFZRJ8TU3AH": {
     "plan": "تجربة",
     "price": 2,
-    "days": 0,
+    "days": 3,
     "type": "single_script",
-    "used": false
+    "maxEncrypts": 1,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.580Z"
   },
-  "RAVX-5GLH5J66II": {
+  "RAVX-99KZDT3GN6XW": {
     "plan": "تجربة",
     "price": 2,
-    "days": 0,
+    "days": 3,
     "type": "single_script",
-    "used": false
+    "maxEncrypts": 1,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.580Z"
   },
-  "RAVX-9ONWOP1ZXX": {
+  "RAVX-EJZDRUA7L78C": {
     "plan": "تجربة",
     "price": 2,
-    "days": 0,
+    "days": 3,
     "type": "single_script",
-    "used": false
+    "maxEncrypts": 1,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.580Z"
   },
-  "RAVX-6OTDS2EDRQ": {
+  "RAVX-M99MBSWJKSLR": {
     "plan": "تجربة",
     "price": 2,
-    "days": 0,
+    "days": 3,
     "type": "single_script",
-    "used": false
+    "maxEncrypts": 1,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.580Z"
   },
-  "RAVX-COCUZ6U23Y": {
+  "RAVX-6Z5T6FT3LBEB": {
     "plan": "تجربة",
     "price": 2,
-    "days": 0,
+    "days": 3,
     "type": "single_script",
-    "used": false
+    "maxEncrypts": 1,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.580Z"
   },
-  "RAVX-BQQUZAVUTV": {
+  "RAVX-GG5BNHQD4RGW": {
     "plan": "تجربة",
     "price": 2,
-    "days": 0,
+    "days": 3,
     "type": "single_script",
-    "used": false
+    "maxEncrypts": 1,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.580Z"
   },
-  "RAVX-5ST6TAS8VW": {
+  "RAVX-HR6UXZ3BAFFZ": {
     "plan": "تجربة",
     "price": 2,
-    "days": 0,
+    "days": 3,
     "type": "single_script",
-    "used": false
+    "maxEncrypts": 1,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.580Z"
   },
-  "RAVX-8ZL05STEO4": {
+  "RAVX-JFQJ3KYZ6P4V": {
     "plan": "تجربة",
     "price": 2,
-    "days": 0,
+    "days": 3,
     "type": "single_script",
-    "used": false
+    "maxEncrypts": 1,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.580Z"
   },
-  "RAVX-PKMMOP1UP5": {
+  "RAVX-EQC4C6T9Q38S": {
     "plan": "تجربة",
     "price": 2,
-    "days": 0,
+    "days": 3,
     "type": "single_script",
-    "used": false
+    "maxEncrypts": 1,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.580Z"
   },
-  "RAVX-7GB963ZE34": {
+  "RAVX-BERYBUNCWMJA": {
     "plan": "تجربة",
     "price": 2,
-    "days": 0,
+    "days": 3,
     "type": "single_script",
-    "used": false
+    "maxEncrypts": 1,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.580Z"
   },
-  "RAVX-9FMEBMKADQ": {
+  "RAVX-7LF9HKVEGNCD": {
     "plan": "تجربة",
     "price": 2,
-    "days": 0,
+    "days": 3,
     "type": "single_script",
-    "used": false
+    "maxEncrypts": 1,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.580Z"
   },
-  "RAVX-AJ7NPOVWIE": {
+  "RAVX-F4TJGVAKED25": {
     "plan": "تجربة",
     "price": 2,
-    "days": 0,
+    "days": 3,
     "type": "single_script",
-    "used": false
+    "maxEncrypts": 1,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.580Z"
   },
-  "RAVX-M8NTSZ1EA7": {
+  "RAVX-MFX3MWWX2DM3": {
     "plan": "تجربة",
     "price": 2,
-    "days": 0,
+    "days": 3,
     "type": "single_script",
-    "used": false
+    "maxEncrypts": 1,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.580Z"
   },
-  "RAVX-CBVG0X9YPI": {
+  "RAVX-KEDUYS2KDGUG": {
     "plan": "تجربة",
     "price": 2,
-    "days": 0,
+    "days": 3,
     "type": "single_script",
-    "used": false
+    "maxEncrypts": 1,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.580Z"
   },
-  "RAVX-6SABNGBC0S": {
+  "RAVX-LJX9MNPSHSZ9": {
     "plan": "تجربة",
     "price": 2,
-    "days": 0,
+    "days": 3,
     "type": "single_script",
-    "used": false
+    "maxEncrypts": 1,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.580Z"
   },
-  "RAVX-H6G7S5L8J3": {
+  "RAVX-7JZDNDE26UUZ": {
     "plan": "تجربة",
     "price": 2,
-    "days": 0,
+    "days": 3,
     "type": "single_script",
-    "used": false
+    "maxEncrypts": 1,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.580Z"
   },
-  "RAVX-R1ID0V5FQI": {
+  "RAVX-SCQWR76QHSWF": {
     "plan": "تجربة",
     "price": 2,
-    "days": 0,
+    "days": 3,
     "type": "single_script",
-    "used": false
+    "maxEncrypts": 1,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.580Z"
   },
-  "RAVX-FDK2J39ATW": {
+  "RAVX-Q65BEU8ER29X": {
     "plan": "تجربة",
     "price": 2,
-    "days": 0,
+    "days": 3,
     "type": "single_script",
-    "used": false
+    "maxEncrypts": 1,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.580Z"
   },
-  "RAVX-KR1EFKMEBQ": {
+  "RAVX-S7X9VZHFTDPQ": {
     "plan": "تجربة",
     "price": 2,
-    "days": 0,
+    "days": 3,
     "type": "single_script",
-    "used": false
+    "maxEncrypts": 1,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.580Z"
   },
-  "RAVX-76E4M9UWE0": {
+  "RAVX-PVHC2LDKXK6W": {
     "plan": "تجربة",
     "price": 2,
-    "days": 0,
+    "days": 3,
     "type": "single_script",
-    "used": false
+    "maxEncrypts": 1,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.580Z"
   },
-  "RAVX-H73KUHHN70": {
+  "RAVX-X796ZD6CCSF6": {
     "plan": "تجربة",
     "price": 2,
-    "days": 0,
+    "days": 3,
     "type": "single_script",
-    "used": false
+    "maxEncrypts": 1,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.580Z"
   },
-  "RAVX-QUSP546UIK": {
+  "RAVX-A3XGGPQKRCMR": {
     "plan": "تجربة",
     "price": 2,
-    "days": 0,
+    "days": 3,
     "type": "single_script",
-    "used": false
+    "maxEncrypts": 1,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.580Z"
   },
-  "RAVX-MCFL9VEQY5": {
+  "RAVX-VJABJR9JHDML": {
     "plan": "تجربة",
     "price": 2,
-    "days": 0,
+    "days": 3,
     "type": "single_script",
-    "used": false
+    "maxEncrypts": 1,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.580Z"
   },
-  "RAVX-M2PMCVKNYN": {
+  "RAVX-9X2RJVN5WHB2": {
     "plan": "تجربة",
     "price": 2,
-    "days": 0,
+    "days": 3,
     "type": "single_script",
-    "used": false
+    "maxEncrypts": 1,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.580Z"
   },
-  "RAVX-LLQWBGH9C7": {
+  "RAVX-XA44BLAY8PQ6": {
     "plan": "تجربة",
     "price": 2,
-    "days": 0,
+    "days": 3,
     "type": "single_script",
-    "used": false
+    "maxEncrypts": 1,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.580Z"
   },
-  "RAVX-CKHVQGVN7U": {
+  "RAVX-PHSD7U6KDCKS": {
     "plan": "تجربة",
     "price": 2,
-    "days": 0,
+    "days": 3,
     "type": "single_script",
-    "used": false
+    "maxEncrypts": 1,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.580Z"
   },
-  "RAVX-Z9O2PNDI03": {
+  "RAVX-4RAPDHZYSWFF": {
     "plan": "تجربة",
     "price": 2,
-    "days": 0,
+    "days": 3,
     "type": "single_script",
-    "used": false
+    "maxEncrypts": 1,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.580Z"
   },
-  "RAVX-UB5CO1YY9G": {
+  "RAVX-T7VTEAMYZU3N": {
     "plan": "تجربة",
     "price": 2,
-    "days": 0,
+    "days": 3,
     "type": "single_script",
-    "used": false
+    "maxEncrypts": 1,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.580Z"
   },
-  "RAVX-2UUFVY7XSA": {
+  "RAVX-Y7FFUPQSJ942": {
     "plan": "تجربة",
     "price": 2,
-    "days": 0,
+    "days": 3,
     "type": "single_script",
-    "used": false
+    "maxEncrypts": 1,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.580Z"
   },
-  "RAVX-TU5K7FQ350": {
+  "RAVX-RGAEDQPGZPF6": {
     "plan": "تجربة",
     "price": 2,
-    "days": 0,
+    "days": 3,
     "type": "single_script",
-    "used": false
+    "maxEncrypts": 1,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.580Z"
   },
-  "RAVX-4BD4TT5BZ5": {
+  "RAVX-Y7QREVGFB749": {
     "plan": "تجربة",
     "price": 2,
-    "days": 0,
+    "days": 3,
     "type": "single_script",
-    "used": false
+    "maxEncrypts": 1,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.580Z"
   },
-  "RAVX-FR5V7TWN5S": {
+  "RAVX-QALZTQXZ8C6V": {
     "plan": "تجربة",
     "price": 2,
-    "days": 0,
+    "days": 3,
     "type": "single_script",
-    "used": false
+    "maxEncrypts": 1,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.580Z"
   },
-  "RAVX-98MGXSF21A": {
+  "RAVX-LD9KCGR3F63L": {
     "plan": "تجربة",
     "price": 2,
-    "days": 0,
+    "days": 3,
     "type": "single_script",
-    "used": false
+    "maxEncrypts": 1,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.580Z"
   },
-  "RAVX-KPTVCLF40C": {
+  "RAVX-ZZD58LZ5MW4J": {
     "plan": "تجربة",
     "price": 2,
-    "days": 0,
+    "days": 3,
     "type": "single_script",
-    "used": false
+    "maxEncrypts": 1,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.580Z"
   },
-  "RAVX-JSQ13CRTK6": {
+  "RAVX-7P9YAQGVKJXC": {
     "plan": "تجربة",
     "price": 2,
-    "days": 0,
+    "days": 3,
     "type": "single_script",
-    "used": false
+    "maxEncrypts": 1,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.580Z"
   },
-  "RAVX-STJP03JXT8": {
+  "RAVX-K2N53GRUT8GP": {
     "plan": "تجربة",
     "price": 2,
-    "days": 0,
+    "days": 3,
     "type": "single_script",
-    "used": false
+    "maxEncrypts": 1,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.580Z"
   },
-  "RAVX-AOVNPBTPOG": {
+  "RAVX-NLQ6BXGEB65W": {
     "plan": "تجربة",
     "price": 2,
-    "days": 0,
+    "days": 3,
     "type": "single_script",
-    "used": false
+    "maxEncrypts": 1,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.580Z"
   },
-  "RAVX-FA77B0Z4OG": {
+  "RAVX-BHN5WX4D5XJV": {
     "plan": "تجربة",
     "price": 2,
-    "days": 0,
+    "days": 3,
     "type": "single_script",
-    "used": false
+    "maxEncrypts": 1,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.580Z"
   },
-  "RAVX-E86UIP157I": {
+  "RAVX-SVEPWSY2B7UR": {
     "plan": "تجربة",
     "price": 2,
-    "days": 0,
+    "days": 3,
     "type": "single_script",
-    "used": false
+    "maxEncrypts": 1,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.580Z"
   },
-  "RAVX-7K8EQVBN4Y": {
+  "RAVX-R6EYLHTN3PQZ": {
     "plan": "تجربة",
     "price": 2,
-    "days": 0,
+    "days": 3,
     "type": "single_script",
-    "used": false
+    "maxEncrypts": 1,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.580Z"
   },
-  "RAVX-UBQRUXX57X": {
+  "RAVX-WUVBMDLYZKHZ": {
     "plan": "تجربة",
     "price": 2,
-    "days": 0,
+    "days": 3,
     "type": "single_script",
-    "used": false
+    "maxEncrypts": 1,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.580Z"
   },
-  "RAVX-ZME53T6WT6": {
+  "RAVX-B6L8W7ZMEU5P": {
     "plan": "تجربة",
     "price": 2,
-    "days": 0,
+    "days": 3,
     "type": "single_script",
-    "used": false
+    "maxEncrypts": 1,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.580Z"
   },
-  "RAVX-Q3OIG8JKGA": {
+  "RAVX-LD9ASZMM33TN": {
     "plan": "تجربة",
     "price": 2,
-    "days": 0,
+    "days": 3,
     "type": "single_script",
-    "used": false
+    "maxEncrypts": 1,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.580Z"
   },
-  "RAVX-YE6NJF5Y1V": {
+  "RAVX-PJDJ7E5PB5ZV": {
     "plan": "تجربة",
     "price": 2,
-    "days": 0,
+    "days": 3,
     "type": "single_script",
-    "used": false
+    "maxEncrypts": 1,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.580Z"
   },
-  "RAVX-FN8W1HF9RW": {
+  "RAVX-W6CSY7BMCKF3": {
     "plan": "تجربة",
     "price": 2,
-    "days": 0,
+    "days": 3,
     "type": "single_script",
-    "used": false
+    "maxEncrypts": 1,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.580Z"
   },
-  "RAVX-GMRRYV9FK6": {
+  "RAVX-CYWX3RUXWJSM": {
     "plan": "تجربة",
     "price": 2,
-    "days": 0,
+    "days": 3,
     "type": "single_script",
-    "used": false
+    "maxEncrypts": 1,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.580Z"
   },
-  "RAVX-5M97L4X4R6": {
+  "RAVX-GZ8ZXDNM2RYD": {
     "plan": "تجربة",
     "price": 2,
-    "days": 0,
+    "days": 3,
     "type": "single_script",
-    "used": false
+    "maxEncrypts": 1,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.580Z"
   },
-  "RAVX-7DNMTDZJ74": {
+  "RAVX-FDM7XNGN8BCR": {
     "plan": "تجربة",
     "price": 2,
-    "days": 0,
+    "days": 3,
     "type": "single_script",
-    "used": false
+    "maxEncrypts": 1,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.580Z"
   },
-  "RAVX-WD1HO9V9HI": {
+  "RAVX-72U4Y67MJMTL": {
     "plan": "تجربة",
     "price": 2,
-    "days": 0,
+    "days": 3,
     "type": "single_script",
-    "used": false
+    "maxEncrypts": 1,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.580Z"
   },
-  "RAVX-J8LLY0975F": {
+  "RAVX-FEL748MS9EFX": {
     "plan": "تجربة",
     "price": 2,
-    "days": 0,
+    "days": 3,
     "type": "single_script",
-    "used": false
+    "maxEncrypts": 1,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.580Z"
   },
-  "RAVX-02DP3AVLUY": {
+  "RAVX-K3BHCESPJ6XV": {
     "plan": "تجربة",
     "price": 2,
-    "days": 0,
+    "days": 3,
     "type": "single_script",
-    "used": false
+    "maxEncrypts": 1,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.580Z"
   },
-  "RAVX-660Q6YJFF7": {
+  "RAVX-4SN56UG7SZE2": {
     "plan": "تجربة",
     "price": 2,
-    "days": 0,
+    "days": 3,
     "type": "single_script",
-    "used": false
+    "maxEncrypts": 1,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.580Z"
   },
-  "RAVX-F6RXPDNBQP": {
+  "RAVX-AVX5Q9WY5WWU": {
     "plan": "تجربة",
     "price": 2,
-    "days": 0,
+    "days": 3,
     "type": "single_script",
-    "used": false
+    "maxEncrypts": 1,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.580Z"
   },
-  "RAVX-6XZ1XBFECA": {
+  "RAVX-H87V7WWQJ49P": {
     "plan": "تجربة",
     "price": 2,
-    "days": 0,
+    "days": 3,
     "type": "single_script",
-    "used": false
+    "maxEncrypts": 1,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.580Z"
   },
-  "RAVX-J3L0L7JNAW": {
+  "RAVX-GMYWJ9WCSZEB": {
     "plan": "تجربة",
     "price": 2,
-    "days": 0,
+    "days": 3,
     "type": "single_script",
-    "used": false
+    "maxEncrypts": 1,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.580Z"
   },
-  "RAVX-QNG1X9TC4T": {
+  "RAVX-Y3GEAXT75MHB": {
     "plan": "تجربة",
     "price": 2,
-    "days": 0,
+    "days": 3,
     "type": "single_script",
-    "used": false
+    "maxEncrypts": 1,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.580Z"
   },
-  "RAVX-BOCFFLU7LW": {
+  "RAVX-Z2KFRQU5296T": {
     "plan": "تجربة",
     "price": 2,
-    "days": 0,
+    "days": 3,
     "type": "single_script",
-    "used": false
+    "maxEncrypts": 1,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.580Z"
   },
-  "RAVX-781XZ48B2H": {
+  "RAVX-RVLQVXZTK98F": {
     "plan": "تجربة",
     "price": 2,
-    "days": 0,
+    "days": 3,
     "type": "single_script",
-    "used": false
+    "maxEncrypts": 1,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.580Z"
   },
-  "RAVX-VOM8AFB82U": {
+  "RAVX-4YWJ9W5QRCMD": {
     "plan": "تجربة",
     "price": 2,
-    "days": 0,
+    "days": 3,
     "type": "single_script",
-    "used": false
+    "maxEncrypts": 1,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.580Z"
   },
-  "RAVX-IWGFYNVTNZ": {
+  "RAVX-GPN8UY2QG3RS": {
     "plan": "تجربة",
     "price": 2,
-    "days": 0,
+    "days": 3,
     "type": "single_script",
-    "used": false
+    "maxEncrypts": 1,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.580Z"
   },
-  "RAVX-1R767S6R4R": {
+  "RAVX-QTUN23UK8GLP": {
     "plan": "تجربة",
     "price": 2,
-    "days": 0,
+    "days": 3,
     "type": "single_script",
-    "used": false
+    "maxEncrypts": 1,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.580Z"
   },
-  "RAVX-MU9YROIJLL": {
+  "RAVX-548K4ZQY7JEL": {
     "plan": "تجربة",
     "price": 2,
-    "days": 0,
+    "days": 3,
     "type": "single_script",
-    "used": false
+    "maxEncrypts": 1,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.580Z"
   },
-  "RAVX-ZJZ4I54IYP": {
+  "RAVX-GB3DB43TVPCW": {
     "plan": "تجربة",
     "price": 2,
-    "days": 0,
+    "days": 3,
     "type": "single_script",
-    "used": false
+    "maxEncrypts": 1,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.580Z"
   },
-  "RAVX-6A0DOKDDP7": {
+  "RAVX-JKUP5NBD6L5L": {
     "plan": "تجربة",
     "price": 2,
-    "days": 0,
+    "days": 3,
     "type": "single_script",
-    "used": false
+    "maxEncrypts": 1,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.580Z"
   },
-  "RAVX-WSB8QQVB9F": {
+  "RAVX-NZAWNSRHUK5X": {
     "plan": "تجربة",
     "price": 2,
-    "days": 0,
+    "days": 3,
     "type": "single_script",
-    "used": false
+    "maxEncrypts": 1,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.580Z"
   },
-  "RAVX-O6N3MQVB9Q": {
+  "RAVX-U3E23QS8XZGR": {
     "plan": "تجربة",
     "price": 2,
-    "days": 0,
+    "days": 3,
     "type": "single_script",
-    "used": false
+    "maxEncrypts": 1,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.580Z"
   },
-  "RAVX-PGNKZ8G6AA": {
+  "RAVX-2Y8EE5V8ZWGK": {
     "plan": "تجربة",
     "price": 2,
-    "days": 0,
+    "days": 3,
     "type": "single_script",
-    "used": false
+    "maxEncrypts": 1,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.581Z"
+  },
+  "RAVX-DABG7YJV5QEV": {
+    "plan": "يومي",
+    "price": 5,
+    "days": 1,
+    "type": "unlimited_24h",
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.581Z"
+  },
+  "RAVX-TV8AWG3LKZZR": {
+    "plan": "يومي",
+    "price": 5,
+    "days": 1,
+    "type": "unlimited_24h",
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.581Z"
+  },
+  "RAVX-4ZB2BX6BTLJV": {
+    "plan": "يومي",
+    "price": 5,
+    "days": 1,
+    "type": "unlimited_24h",
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.581Z"
+  },
+  "RAVX-JMHRFGM3QLMA": {
+    "plan": "يومي",
+    "price": 5,
+    "days": 1,
+    "type": "unlimited_24h",
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.581Z"
+  },
+  "RAVX-8JMV3K2FP9MU": {
+    "plan": "يومي",
+    "price": 5,
+    "days": 1,
+    "type": "unlimited_24h",
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.581Z"
+  },
+  "RAVX-EQHXFV6BDN5D": {
+    "plan": "يومي",
+    "price": 5,
+    "days": 1,
+    "type": "unlimited_24h",
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.581Z"
+  },
+  "RAVX-UKZ2XXBC42S5": {
+    "plan": "يومي",
+    "price": 5,
+    "days": 1,
+    "type": "unlimited_24h",
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.581Z"
+  },
+  "RAVX-AR7MV25UERHM": {
+    "plan": "يومي",
+    "price": 5,
+    "days": 1,
+    "type": "unlimited_24h",
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.581Z"
+  },
+  "RAVX-K9U2CJP9LCVK": {
+    "plan": "يومي",
+    "price": 5,
+    "days": 1,
+    "type": "unlimited_24h",
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.581Z"
+  },
+  "RAVX-GVRNLN4X2D93": {
+    "plan": "يومي",
+    "price": 5,
+    "days": 1,
+    "type": "unlimited_24h",
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.581Z"
+  },
+  "RAVX-LKUKCMYY79QS": {
+    "plan": "يومي",
+    "price": 5,
+    "days": 1,
+    "type": "unlimited_24h",
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.581Z"
+  },
+  "RAVX-FMNFHQZJAGBG": {
+    "plan": "يومي",
+    "price": 5,
+    "days": 1,
+    "type": "unlimited_24h",
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.581Z"
+  },
+  "RAVX-YBMMS54NGQ3E": {
+    "plan": "يومي",
+    "price": 5,
+    "days": 1,
+    "type": "unlimited_24h",
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.581Z"
+  },
+  "RAVX-BLPAG4XQQMJD": {
+    "plan": "يومي",
+    "price": 5,
+    "days": 1,
+    "type": "unlimited_24h",
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.581Z"
+  },
+  "RAVX-46WVMKMRT8HP": {
+    "plan": "يومي",
+    "price": 5,
+    "days": 1,
+    "type": "unlimited_24h",
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.581Z"
+  },
+  "RAVX-SF79DV6SGQSD": {
+    "plan": "يومي",
+    "price": 5,
+    "days": 1,
+    "type": "unlimited_24h",
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.581Z"
+  },
+  "RAVX-2HV3VTKAVAB8": {
+    "plan": "يومي",
+    "price": 5,
+    "days": 1,
+    "type": "unlimited_24h",
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.581Z"
+  },
+  "RAVX-2H536VDEVNG4": {
+    "plan": "يومي",
+    "price": 5,
+    "days": 1,
+    "type": "unlimited_24h",
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.581Z"
+  },
+  "RAVX-HD88QNHZW9XB": {
+    "plan": "يومي",
+    "price": 5,
+    "days": 1,
+    "type": "unlimited_24h",
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.581Z"
+  },
+  "RAVX-25736BMDFXY5": {
+    "plan": "يومي",
+    "price": 5,
+    "days": 1,
+    "type": "unlimited_24h",
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.581Z"
+  },
+  "RAVX-AK7Y772AFDXS": {
+    "plan": "يومي",
+    "price": 5,
+    "days": 1,
+    "type": "unlimited_24h",
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.581Z"
+  },
+  "RAVX-YGASPY2A5BSV": {
+    "plan": "يومي",
+    "price": 5,
+    "days": 1,
+    "type": "unlimited_24h",
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.581Z"
+  },
+  "RAVX-86AHSXDAEJUE": {
+    "plan": "يومي",
+    "price": 5,
+    "days": 1,
+    "type": "unlimited_24h",
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.581Z"
+  },
+  "RAVX-X92XCNGACW4D": {
+    "plan": "يومي",
+    "price": 5,
+    "days": 1,
+    "type": "unlimited_24h",
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.581Z"
+  },
+  "RAVX-2H2JWU5HVNME": {
+    "plan": "يومي",
+    "price": 5,
+    "days": 1,
+    "type": "unlimited_24h",
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.581Z"
+  },
+  "RAVX-V57CGPP66FJS": {
+    "plan": "يومي",
+    "price": 5,
+    "days": 1,
+    "type": "unlimited_24h",
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.581Z"
+  },
+  "RAVX-KQYN5UZ6A27K": {
+    "plan": "يومي",
+    "price": 5,
+    "days": 1,
+    "type": "unlimited_24h",
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.581Z"
+  },
+  "RAVX-F6WGUDHV5Z6W": {
+    "plan": "يومي",
+    "price": 5,
+    "days": 1,
+    "type": "unlimited_24h",
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.581Z"
+  },
+  "RAVX-KJ2RPZTB7WNF": {
+    "plan": "يومي",
+    "price": 5,
+    "days": 1,
+    "type": "unlimited_24h",
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.581Z"
+  },
+  "RAVX-UWN3Q6GMNUGC": {
+    "plan": "يومي",
+    "price": 5,
+    "days": 1,
+    "type": "unlimited_24h",
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.581Z"
   },
-  "RAVX-TMJKBPJGOR": {
+  "RAVX-AMQA44GZXADX": {
     "plan": "يومي",
     "price": 5,
     "days": 1,
     "type": "unlimited_24h",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.581Z"
   },
-  "RAVX-2OMVMC0ID6": {
+  "RAVX-PXA39DRWR9UG": {
     "plan": "يومي",
     "price": 5,
     "days": 1,
     "type": "unlimited_24h",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.581Z"
   },
-  "RAVX-4JK7O5IYS9": {
+  "RAVX-9BKPV8ZL6FS5": {
     "plan": "يومي",
     "price": 5,
     "days": 1,
     "type": "unlimited_24h",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.581Z"
   },
-  "RAVX-RPH6F0E4Q6": {
+  "RAVX-T6DS4VSSRUZQ": {
     "plan": "يومي",
     "price": 5,
     "days": 1,
     "type": "unlimited_24h",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.581Z"
   },
-  "RAVX-3W91CQNH4H": {
+  "RAVX-3ZJA7E45QRQ3": {
     "plan": "يومي",
     "price": 5,
     "days": 1,
     "type": "unlimited_24h",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.581Z"
   },
-  "RAVX-7VP44GPHK3": {
+  "RAVX-2H335L8NQZ43": {
     "plan": "يومي",
     "price": 5,
     "days": 1,
     "type": "unlimited_24h",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.581Z"
   },
-  "RAVX-LUQVJ3K9ZL": {
+  "RAVX-PJ4ARKAJ3VXY": {
     "plan": "يومي",
     "price": 5,
     "days": 1,
     "type": "unlimited_24h",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.581Z"
   },
-  "RAVX-XAQ8HSXWLD": {
+  "RAVX-RKP6WKAA862H": {
     "plan": "يومي",
     "price": 5,
     "days": 1,
     "type": "unlimited_24h",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.581Z"
   },
-  "RAVX-39696VXRSS": {
+  "RAVX-TA9UVSNFJ6AL": {
     "plan": "يومي",
     "price": 5,
     "days": 1,
     "type": "unlimited_24h",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.581Z"
   },
-  "RAVX-CV4X9KT7O5": {
+  "RAVX-A84P7LXERS2J": {
     "plan": "يومي",
     "price": 5,
     "days": 1,
     "type": "unlimited_24h",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.581Z"
   },
-  "RAVX-0TMNGKNIHZ": {
+  "RAVX-VSB2ZJFMQP84": {
     "plan": "يومي",
     "price": 5,
     "days": 1,
     "type": "unlimited_24h",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.581Z"
   },
-  "RAVX-3S4KZAOOHA": {
+  "RAVX-3DKR9Y6AEFRZ": {
     "plan": "يومي",
     "price": 5,
     "days": 1,
     "type": "unlimited_24h",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.581Z"
   },
-  "RAVX-XFQUXHI7YA": {
+  "RAVX-HLQBWN2KUGHM": {
     "plan": "يومي",
     "price": 5,
     "days": 1,
     "type": "unlimited_24h",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.581Z"
   },
-  "RAVX-S23190N5BO": {
+  "RAVX-ZZFY3758FZBG": {
     "plan": "يومي",
     "price": 5,
     "days": 1,
     "type": "unlimited_24h",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.581Z"
   },
-  "RAVX-YUC7DD5ZD8": {
+  "RAVX-MQYSG3XYU7RC": {
     "plan": "يومي",
     "price": 5,
     "days": 1,
     "type": "unlimited_24h",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.581Z"
   },
-  "RAVX-9CYV5KDVFY": {
+  "RAVX-JTKCV9LJ5WUZ": {
     "plan": "يومي",
     "price": 5,
     "days": 1,
     "type": "unlimited_24h",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.581Z"
   },
-  "RAVX-B2KTBXNOPH": {
+  "RAVX-LJJN8L8MQ7YD": {
     "plan": "يومي",
     "price": 5,
     "days": 1,
     "type": "unlimited_24h",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.581Z"
   },
-  "RAVX-IWBK63YA5V": {
+  "RAVX-9PBDR3YDFTCR": {
     "plan": "يومي",
     "price": 5,
     "days": 1,
     "type": "unlimited_24h",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.581Z"
   },
-  "RAVX-QKQPIH7286": {
+  "RAVX-HHG3MDFXTY45": {
     "plan": "يومي",
     "price": 5,
     "days": 1,
     "type": "unlimited_24h",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.581Z"
   },
-  "RAVX-RKNHGRPGZU": {
+  "RAVX-LSSCJUKKCLTJ": {
     "plan": "يومي",
     "price": 5,
     "days": 1,
     "type": "unlimited_24h",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.581Z"
   },
-  "RAVX-19LUX5VNAY": {
+  "RAVX-GYJCVXVZ8XAD": {
     "plan": "يومي",
     "price": 5,
     "days": 1,
     "type": "unlimited_24h",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.581Z"
   },
-  "RAVX-HIOEKDMQGI": {
+  "RAVX-X4S25FC5NED8": {
     "plan": "يومي",
     "price": 5,
     "days": 1,
     "type": "unlimited_24h",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.581Z"
   },
-  "RAVX-28419RSA09": {
+  "RAVX-M7TXC7MAFGN4": {
     "plan": "يومي",
     "price": 5,
     "days": 1,
     "type": "unlimited_24h",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.581Z"
   },
-  "RAVX-ZXDCAIKUJI": {
+  "RAVX-T6MVYJP7B6EN": {
     "plan": "يومي",
     "price": 5,
     "days": 1,
     "type": "unlimited_24h",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.581Z"
   },
-  "RAVX-QOQZYBSEXA": {
+  "RAVX-N75GXMRYH453": {
     "plan": "يومي",
     "price": 5,
     "days": 1,
     "type": "unlimited_24h",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.581Z"
   },
-  "RAVX-3UL3QZTPTV": {
+  "RAVX-Y2MSFPFWRDUM": {
     "plan": "يومي",
     "price": 5,
     "days": 1,
     "type": "unlimited_24h",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.581Z"
   },
-  "RAVX-4HXRYGZXH0": {
+  "RAVX-8E7K6XA3ZNJ3": {
     "plan": "يومي",
     "price": 5,
     "days": 1,
     "type": "unlimited_24h",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.581Z"
   },
-  "RAVX-3L8OED8F22": {
+  "RAVX-9MBPZ454EY6G": {
     "plan": "يومي",
     "price": 5,
     "days": 1,
     "type": "unlimited_24h",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.581Z"
   },
-  "RAVX-EKYF51ZTYP": {
+  "RAVX-HA3NZENTYFLX": {
     "plan": "يومي",
     "price": 5,
     "days": 1,
     "type": "unlimited_24h",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.581Z"
   },
-  "RAVX-1DRN3XDBOF": {
+  "RAVX-QGCU53RKSTVJ": {
     "plan": "يومي",
     "price": 5,
     "days": 1,
     "type": "unlimited_24h",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.581Z"
   },
-  "RAVX-XLFO0GJFUI": {
+  "RAVX-BLUCPGFLFS5B": {
     "plan": "يومي",
     "price": 5,
     "days": 1,
     "type": "unlimited_24h",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.581Z"
   },
-  "RAVX-65FSEL69DV": {
+  "RAVX-S2UBL2A9PCZM": {
     "plan": "يومي",
     "price": 5,
     "days": 1,
     "type": "unlimited_24h",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.581Z"
   },
-  "RAVX-U1GNIKSDAZ": {
+  "RAVX-3PSHEZ2EGJLY": {
     "plan": "يومي",
     "price": 5,
     "days": 1,
     "type": "unlimited_24h",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.581Z"
   },
-  "RAVX-FWK8I931WP": {
+  "RAVX-UF3ZTE9KJ3YX": {
     "plan": "يومي",
     "price": 5,
     "days": 1,
     "type": "unlimited_24h",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.581Z"
   },
-  "RAVX-DZV779BJ62": {
+  "RAVX-XQX7SUJ34JMA": {
     "plan": "يومي",
     "price": 5,
     "days": 1,
     "type": "unlimited_24h",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.581Z"
   },
-  "RAVX-SF5IW8Z3C2": {
+  "RAVX-CTZXYNRAA7T3": {
     "plan": "يومي",
     "price": 5,
     "days": 1,
     "type": "unlimited_24h",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.581Z"
   },
-  "RAVX-PMH9CQS0BU": {
+  "RAVX-RRTQE5KCB2AD": {
     "plan": "يومي",
     "price": 5,
     "days": 1,
     "type": "unlimited_24h",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.581Z"
   },
-  "RAVX-PYAHF5RBTG": {
+  "RAVX-JLHZDWCXDSMG": {
     "plan": "يومي",
     "price": 5,
     "days": 1,
     "type": "unlimited_24h",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.581Z"
   },
-  "RAVX-K4N5CI4XMN": {
+  "RAVX-4MM6MZJC983T": {
     "plan": "يومي",
     "price": 5,
     "days": 1,
     "type": "unlimited_24h",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.581Z"
   },
-  "RAVX-AFRUKGB5PO": {
+  "RAVX-D6RZLHZ3M77D": {
     "plan": "يومي",
     "price": 5,
     "days": 1,
     "type": "unlimited_24h",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.581Z"
   },
-  "RAVX-1SYSWFZHMX": {
+  "RAVX-L5XK2U6WVFDG": {
     "plan": "يومي",
     "price": 5,
     "days": 1,
     "type": "unlimited_24h",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.581Z"
   },
-  "RAVX-GDGHC2GI2U": {
+  "RAVX-Z7GTULV9JBAW": {
     "plan": "يومي",
     "price": 5,
     "days": 1,
     "type": "unlimited_24h",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.581Z"
   },
-  "RAVX-N427DFCMM0": {
+  "RAVX-6KAE5HZ4ZX54": {
     "plan": "يومي",
     "price": 5,
     "days": 1,
     "type": "unlimited_24h",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.581Z"
   },
-  "RAVX-WGY1KXGSGP": {
+  "RAVX-EMC6VQ5CAF5K": {
     "plan": "يومي",
     "price": 5,
     "days": 1,
     "type": "unlimited_24h",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.581Z"
   },
-  "RAVX-FUR4E3COOC": {
+  "RAVX-VVNJPBKHBG6G": {
     "plan": "يومي",
     "price": 5,
     "days": 1,
     "type": "unlimited_24h",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.581Z"
   },
-  "RAVX-3HCRVHPM5T": {
+  "RAVX-FSNUPUCSL28F": {
     "plan": "يومي",
     "price": 5,
     "days": 1,
     "type": "unlimited_24h",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.581Z"
   },
-  "RAVX-5P83EC0HG1": {
+  "RAVX-CTUB4EW854QR": {
     "plan": "يومي",
     "price": 5,
     "days": 1,
     "type": "unlimited_24h",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.581Z"
   },
-  "RAVX-2VGG941HHG": {
+  "RAVX-SK26AX5ZSCZM": {
     "plan": "يومي",
     "price": 5,
     "days": 1,
     "type": "unlimited_24h",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.581Z"
   },
-  "RAVX-ZYKOXTZWNB": {
+  "RAVX-PQZU6WD8R2K5": {
     "plan": "يومي",
     "price": 5,
     "days": 1,
     "type": "unlimited_24h",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.581Z"
   },
-  "RAVX-JT030X9AUP": {
+  "RAVX-ZWT96VJFZ75H": {
     "plan": "يومي",
     "price": 5,
     "days": 1,
     "type": "unlimited_24h",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.581Z"
   },
-  "RAVX-MZTT8X2VEY": {
+  "RAVX-PY2U3VYXU3NX": {
     "plan": "يومي",
     "price": 5,
     "days": 1,
     "type": "unlimited_24h",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.581Z"
   },
-  "RAVX-Y0L1FL36GB": {
+  "RAVX-AU23Z4M2YFGF": {
     "plan": "يومي",
     "price": 5,
     "days": 1,
     "type": "unlimited_24h",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.581Z"
   },
-  "RAVX-0ZEZYOHR8L": {
+  "RAVX-SKTA4MPH6MJF": {
     "plan": "يومي",
     "price": 5,
     "days": 1,
     "type": "unlimited_24h",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.581Z"
   },
-  "RAVX-U69MQSJJCV": {
+  "RAVX-QQJM554ACVEN": {
     "plan": "يومي",
     "price": 5,
     "days": 1,
     "type": "unlimited_24h",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.581Z"
   },
-  "RAVX-QSGAN4JTTN": {
+  "RAVX-SFURCBXPTEXR": {
     "plan": "يومي",
     "price": 5,
     "days": 1,
     "type": "unlimited_24h",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.581Z"
   },
-  "RAVX-VRC8GRSVLA": {
+  "RAVX-5BD9F45QDSZD": {
     "plan": "يومي",
     "price": 5,
     "days": 1,
     "type": "unlimited_24h",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.581Z"
   },
-  "RAVX-D2S89BW9FY": {
+  "RAVX-J8VGFLCQ4QM3": {
     "plan": "يومي",
     "price": 5,
     "days": 1,
     "type": "unlimited_24h",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.581Z"
   },
-  "RAVX-WB76MBSHQ2": {
+  "RAVX-SAUFWCHTATNK": {
     "plan": "يومي",
     "price": 5,
     "days": 1,
     "type": "unlimited_24h",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.581Z"
   },
-  "RAVX-MO7UKETWXS": {
+  "RAVX-9THK5DDEV79T": {
     "plan": "يومي",
     "price": 5,
     "days": 1,
     "type": "unlimited_24h",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.581Z"
   },
-  "RAVX-KUOCL3EBKN": {
+  "RAVX-6TXE2TQ598MD": {
     "plan": "يومي",
     "price": 5,
     "days": 1,
     "type": "unlimited_24h",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.581Z"
   },
-  "RAVX-4LXRGK0EJM": {
+  "RAVX-7EVPGL6YCW8J": {
     "plan": "يومي",
     "price": 5,
     "days": 1,
     "type": "unlimited_24h",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.581Z"
   },
-  "RAVX-UR9YOV32RK": {
+  "RAVX-W48CUN33JCY8": {
     "plan": "يومي",
     "price": 5,
     "days": 1,
     "type": "unlimited_24h",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.581Z"
   },
-  "RAVX-9WHGGQZ77K": {
+  "RAVX-QH4DHA5AQUM7": {
     "plan": "يومي",
     "price": 5,
     "days": 1,
     "type": "unlimited_24h",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.581Z"
   },
-  "RAVX-STO2EFOWAJ": {
+  "RAVX-FGREQYPCYKUK": {
     "plan": "يومي",
     "price": 5,
     "days": 1,
     "type": "unlimited_24h",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.581Z"
   },
-  "RAVX-JZBLDO1J76": {
+  "RAVX-DJ9JT2J435R8": {
     "plan": "يومي",
     "price": 5,
     "days": 1,
     "type": "unlimited_24h",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.581Z"
   },
-  "RAVX-TW7Q6WZCHJ": {
+  "RAVX-YT82ZBLYASCR": {
     "plan": "يومي",
     "price": 5,
     "days": 1,
     "type": "unlimited_24h",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.581Z"
   },
-  "RAVX-H32U1NGELH": {
+  "RAVX-4XWYY8PLM6GF": {
     "plan": "يومي",
     "price": 5,
     "days": 1,
     "type": "unlimited_24h",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.581Z"
   },
-  "RAVX-2MUGNKMK29": {
+  "RAVX-BF8JXJMJXGUC": {
     "plan": "يومي",
     "price": 5,
     "days": 1,
     "type": "unlimited_24h",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.581Z"
   },
-  "RAVX-Y7GI53IDB8": {
+  "RAVX-SCAPNBQUAXYG": {
     "plan": "يومي",
     "price": 5,
     "days": 1,
     "type": "unlimited_24h",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.581Z"
   },
-  "RAVX-2RML6QW6L8": {
+  "RAVX-BYKJBW6DKMB7": {
     "plan": "يومي",
     "price": 5,
     "days": 1,
     "type": "unlimited_24h",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.581Z"
+  },
+  "RAVX-ZTTKLLQ3Q9WA": {
+    "plan": "أسبوعي",
+    "price": 15,
+    "days": 7,
+    "type": "unlimited_7d",
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.581Z"
+  },
+  "RAVX-TYED5TC52E7K": {
+    "plan": "أسبوعي",
+    "price": 15,
+    "days": 7,
+    "type": "unlimited_7d",
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.581Z"
+  },
+  "RAVX-XAMRRUZDUUAY": {
+    "plan": "أسبوعي",
+    "price": 15,
+    "days": 7,
+    "type": "unlimited_7d",
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.581Z"
+  },
+  "RAVX-U9NNCMVR4LVE": {
+    "plan": "أسبوعي",
+    "price": 15,
+    "days": 7,
+    "type": "unlimited_7d",
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.581Z"
+  },
+  "RAVX-RSSJ96CVNTZK": {
+    "plan": "أسبوعي",
+    "price": 15,
+    "days": 7,
+    "type": "unlimited_7d",
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.581Z"
+  },
+  "RAVX-92PH2FAGX4X6": {
+    "plan": "أسبوعي",
+    "price": 15,
+    "days": 7,
+    "type": "unlimited_7d",
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.581Z"
+  },
+  "RAVX-ZXVA6MJVK6MH": {
+    "plan": "أسبوعي",
+    "price": 15,
+    "days": 7,
+    "type": "unlimited_7d",
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.581Z"
+  },
+  "RAVX-Q2YTSRTV57EX": {
+    "plan": "أسبوعي",
+    "price": 15,
+    "days": 7,
+    "type": "unlimited_7d",
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.581Z"
+  },
+  "RAVX-LRDFGHVSR2GL": {
+    "plan": "أسبوعي",
+    "price": 15,
+    "days": 7,
+    "type": "unlimited_7d",
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.581Z"
+  },
+  "RAVX-UFT3WXY4B324": {
+    "plan": "أسبوعي",
+    "price": 15,
+    "days": 7,
+    "type": "unlimited_7d",
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.581Z"
+  },
+  "RAVX-S8JTGF4H8UQ5": {
+    "plan": "أسبوعي",
+    "price": 15,
+    "days": 7,
+    "type": "unlimited_7d",
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.581Z"
+  },
+  "RAVX-MV9Z4FTFW4TF": {
+    "plan": "أسبوعي",
+    "price": 15,
+    "days": 7,
+    "type": "unlimited_7d",
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.581Z"
+  },
+  "RAVX-WQN9NF44CSXH": {
+    "plan": "أسبوعي",
+    "price": 15,
+    "days": 7,
+    "type": "unlimited_7d",
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.581Z"
+  },
+  "RAVX-YLCQUEFSBC5L": {
+    "plan": "أسبوعي",
+    "price": 15,
+    "days": 7,
+    "type": "unlimited_7d",
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.581Z"
+  },
+  "RAVX-HCDTM5K4WBU6": {
+    "plan": "أسبوعي",
+    "price": 15,
+    "days": 7,
+    "type": "unlimited_7d",
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.582Z"
   },
-  "RAVX-EITAZ5LJB2": {
-    "plan": "يومي",
-    "price": 5,
-    "days": 1,
-    "type": "unlimited_24h",
-    "used": false
+  "RAVX-BPAC43WM4KMU": {
+    "plan": "أسبوعي",
+    "price": 15,
+    "days": 7,
+    "type": "unlimited_7d",
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.582Z"
   },
-  "RAVX-YV56OYTQNH": {
-    "plan": "يومي",
-    "price": 5,
-    "days": 1,
-    "type": "unlimited_24h",
-    "used": false
+  "RAVX-5VRUEA8G553H": {
+    "plan": "أسبوعي",
+    "price": 15,
+    "days": 7,
+    "type": "unlimited_7d",
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.582Z"
   },
-  "RAVX-LKFY2WPROR": {
-    "plan": "يومي",
-    "price": 5,
-    "days": 1,
-    "type": "unlimited_24h",
-    "used": false
+  "RAVX-QZAZLDZYKW7U": {
+    "plan": "أسبوعي",
+    "price": 15,
+    "days": 7,
+    "type": "unlimited_7d",
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.582Z"
   },
-  "RAVX-60F2C8KWHS": {
-    "plan": "يومي",
-    "price": 5,
-    "days": 1,
-    "type": "unlimited_24h",
-    "used": false
+  "RAVX-4CGN8C2UQV5B": {
+    "plan": "أسبوعي",
+    "price": 15,
+    "days": 7,
+    "type": "unlimited_7d",
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.582Z"
   },
-  "RAVX-DFN3R0X79E": {
-    "plan": "يومي",
-    "price": 5,
-    "days": 1,
-    "type": "unlimited_24h",
-    "used": false
+  "RAVX-NL4A7KJR8GYL": {
+    "plan": "أسبوعي",
+    "price": 15,
+    "days": 7,
+    "type": "unlimited_7d",
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.582Z"
   },
-  "RAVX-YMMDF05WAZ": {
-    "plan": "يومي",
-    "price": 5,
-    "days": 1,
-    "type": "unlimited_24h",
-    "used": false
+  "RAVX-LSVVBNNMV4W4": {
+    "plan": "أسبوعي",
+    "price": 15,
+    "days": 7,
+    "type": "unlimited_7d",
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.582Z"
   },
-  "RAVX-Z2QCNPEIHH": {
-    "plan": "يومي",
-    "price": 5,
-    "days": 1,
-    "type": "unlimited_24h",
-    "used": false
+  "RAVX-LQKJXV7TQERN": {
+    "plan": "أسبوعي",
+    "price": 15,
+    "days": 7,
+    "type": "unlimited_7d",
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.582Z"
   },
-  "RAVX-243J623GJM": {
-    "plan": "يومي",
-    "price": 5,
-    "days": 1,
-    "type": "unlimited_24h",
-    "used": false
+  "RAVX-M4SSF245EUZ7": {
+    "plan": "أسبوعي",
+    "price": 15,
+    "days": 7,
+    "type": "unlimited_7d",
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.582Z"
   },
-  "RAVX-Z6UP9EL91M": {
-    "plan": "يومي",
-    "price": 5,
-    "days": 1,
-    "type": "unlimited_24h",
-    "used": false
+  "RAVX-JL7DG9PLWH9E": {
+    "plan": "أسبوعي",
+    "price": 15,
+    "days": 7,
+    "type": "unlimited_7d",
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.582Z"
   },
-  "RAVX-5Z23XJIZYL": {
-    "plan": "يومي",
-    "price": 5,
-    "days": 1,
-    "type": "unlimited_24h",
-    "used": false
+  "RAVX-J4VAKFFVRBTG": {
+    "plan": "أسبوعي",
+    "price": 15,
+    "days": 7,
+    "type": "unlimited_7d",
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.582Z"
   },
-  "RAVX-YQQE8T5VP5": {
+  "RAVX-VBXKJZ844S63": {
     "plan": "أسبوعي",
     "price": 15,
     "days": 7,
     "type": "unlimited_7d",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.582Z"
   },
-  "RAVX-WV2T529C8O": {
+  "RAVX-U5ZDUS3NNFE7": {
     "plan": "أسبوعي",
     "price": 15,
     "days": 7,
     "type": "unlimited_7d",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.582Z"
   },
-  "RAVX-6TVJF0PWGC": {
+  "RAVX-CWL9TVG4SD4Q": {
     "plan": "أسبوعي",
     "price": 15,
     "days": 7,
     "type": "unlimited_7d",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.582Z"
   },
-  "RAVX-B8V885MKRC": {
+  "RAVX-RS7BXDS3VKM5": {
     "plan": "أسبوعي",
     "price": 15,
     "days": 7,
     "type": "unlimited_7d",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.582Z"
   },
-  "RAVX-N4IEJ5TMM1": {
+  "RAVX-DGGQY5KQDEQH": {
     "plan": "أسبوعي",
     "price": 15,
     "days": 7,
     "type": "unlimited_7d",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.582Z"
   },
-  "RAVX-Z2EF9K2Q01": {
+  "RAVX-FPZNXB4WLBEG": {
     "plan": "أسبوعي",
     "price": 15,
     "days": 7,
     "type": "unlimited_7d",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.582Z"
   },
-  "RAVX-XFRS2RUC8U": {
+  "RAVX-2EH3RFB2KCJZ": {
     "plan": "أسبوعي",
     "price": 15,
     "days": 7,
     "type": "unlimited_7d",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.582Z"
   },
-  "RAVX-I9RRVJDX1V": {
+  "RAVX-WYTZH8Y9DDZB": {
     "plan": "أسبوعي",
     "price": 15,
     "days": 7,
     "type": "unlimited_7d",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.582Z"
   },
-  "RAVX-VLV2T8BCYW": {
+  "RAVX-B9FFPABTNEWG": {
     "plan": "أسبوعي",
     "price": 15,
     "days": 7,
     "type": "unlimited_7d",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.582Z"
   },
-  "RAVX-FK6JN49TT0": {
+  "RAVX-TAWAAG33B8Q9": {
     "plan": "أسبوعي",
     "price": 15,
     "days": 7,
     "type": "unlimited_7d",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.582Z"
   },
-  "RAVX-ICA4OAPUPE": {
+  "RAVX-FZQY6N3HACCD": {
     "plan": "أسبوعي",
     "price": 15,
     "days": 7,
     "type": "unlimited_7d",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.582Z"
   },
-  "RAVX-EUG1QDK3LG": {
+  "RAVX-2MLKN9BT48YR": {
     "plan": "أسبوعي",
     "price": 15,
     "days": 7,
     "type": "unlimited_7d",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.582Z"
   },
-  "RAVX-S6X8PMNPBX": {
+  "RAVX-2FYNLATLEPUG": {
     "plan": "أسبوعي",
     "price": 15,
     "days": 7,
     "type": "unlimited_7d",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.582Z"
   },
-  "RAVX-1281J4THKV": {
+  "RAVX-U4VMZTB4BQY6": {
     "plan": "أسبوعي",
     "price": 15,
     "days": 7,
     "type": "unlimited_7d",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.582Z"
   },
-  "RAVX-0FKADTIRI0": {
+  "RAVX-TPD8FLZBEEPS": {
     "plan": "أسبوعي",
     "price": 15,
     "days": 7,
     "type": "unlimited_7d",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.582Z"
   },
-  "RAVX-Y4FK8CJHK5": {
+  "RAVX-5NWUGEWDM3B7": {
     "plan": "أسبوعي",
     "price": 15,
     "days": 7,
     "type": "unlimited_7d",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.582Z"
   },
-  "RAVX-OD70YH9RUN": {
+  "RAVX-GTQ6YYPYP5FE": {
     "plan": "أسبوعي",
     "price": 15,
     "days": 7,
     "type": "unlimited_7d",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.582Z"
   },
-  "RAVX-1UBFC1B9SI": {
+  "RAVX-RUDNHKBGXSLT": {
     "plan": "أسبوعي",
     "price": 15,
     "days": 7,
     "type": "unlimited_7d",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.582Z"
   },
-  "RAVX-611I5VWPT7": {
+  "RAVX-3QLT2KHBVP55": {
     "plan": "أسبوعي",
     "price": 15,
     "days": 7,
     "type": "unlimited_7d",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.582Z"
   },
-  "RAVX-LHLM5FRW3I": {
+  "RAVX-XTJLHEH8V46N": {
     "plan": "أسبوعي",
     "price": 15,
     "days": 7,
     "type": "unlimited_7d",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.582Z"
   },
-  "RAVX-SAF9VGWOHL": {
+  "RAVX-HT2RQ37A73EF": {
     "plan": "أسبوعي",
     "price": 15,
     "days": 7,
     "type": "unlimited_7d",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.582Z"
   },
-  "RAVX-BSZL1MY2R1": {
+  "RAVX-6DYRXVYC2DWJ": {
     "plan": "أسبوعي",
     "price": 15,
     "days": 7,
     "type": "unlimited_7d",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.582Z"
   },
-  "RAVX-M3NJN0ZQCI": {
+  "RAVX-BU4MHUJEYYWE": {
     "plan": "أسبوعي",
     "price": 15,
     "days": 7,
     "type": "unlimited_7d",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.582Z"
   },
-  "RAVX-3JALOV4SZM": {
+  "RAVX-D7KAG6J8NMVH": {
     "plan": "أسبوعي",
     "price": 15,
     "days": 7,
     "type": "unlimited_7d",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.582Z"
   },
-  "RAVX-UHQ5THFEES": {
+  "RAVX-C9X4TYQS5BGU": {
     "plan": "أسبوعي",
     "price": 15,
     "days": 7,
     "type": "unlimited_7d",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.582Z"
   },
-  "RAVX-OCPD9HMT5A": {
+  "RAVX-YUUEJN9WPV3H": {
     "plan": "أسبوعي",
     "price": 15,
     "days": 7,
     "type": "unlimited_7d",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.582Z"
   },
-  "RAVX-EBCX7F8T6I": {
+  "RAVX-2TQY66NV648H": {
     "plan": "أسبوعي",
     "price": 15,
     "days": 7,
     "type": "unlimited_7d",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.582Z"
   },
-  "RAVX-K7A8X23UE0": {
+  "RAVX-GKCRSNMS9XVG": {
     "plan": "أسبوعي",
     "price": 15,
     "days": 7,
     "type": "unlimited_7d",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.582Z"
   },
-  "RAVX-8G94MW5636": {
+  "RAVX-KB9U2TSFMLSV": {
     "plan": "أسبوعي",
     "price": 15,
     "days": 7,
     "type": "unlimited_7d",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.582Z"
   },
-  "RAVX-VE3QGY585V": {
+  "RAVX-VHWC73DMPCJH": {
     "plan": "أسبوعي",
     "price": 15,
     "days": 7,
     "type": "unlimited_7d",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.582Z"
   },
-  "RAVX-C8INJ9T2FY": {
+  "RAVX-JXXXJTDJXP5G": {
     "plan": "أسبوعي",
     "price": 15,
     "days": 7,
     "type": "unlimited_7d",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.582Z"
   },
-  "RAVX-PWC720Z7QD": {
+  "RAVX-Z3PEKJA4VQHE": {
     "plan": "أسبوعي",
     "price": 15,
     "days": 7,
     "type": "unlimited_7d",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.582Z"
   },
-  "RAVX-KVOES5JNKP": {
+  "RAVX-DKLSZ5RAUS55": {
     "plan": "أسبوعي",
     "price": 15,
     "days": 7,
     "type": "unlimited_7d",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.582Z"
   },
-  "RAVX-I3LQ4Q94K3": {
+  "RAVX-WKN57V5H295E": {
     "plan": "أسبوعي",
     "price": 15,
     "days": 7,
     "type": "unlimited_7d",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.582Z"
   },
-  "RAVX-690TRWT98L": {
+  "RAVX-KVF2HRV8ZWSV": {
     "plan": "أسبوعي",
     "price": 15,
     "days": 7,
     "type": "unlimited_7d",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.582Z"
   },
-  "RAVX-N1FX7IAZC3": {
+  "RAVX-3Q5KAYM2X3ZP": {
     "plan": "أسبوعي",
     "price": 15,
     "days": 7,
     "type": "unlimited_7d",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.582Z"
   },
-  "RAVX-V5U0EQWRS5": {
+  "RAVX-KENXS63MR6GH": {
     "plan": "أسبوعي",
     "price": 15,
     "days": 7,
     "type": "unlimited_7d",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.582Z"
   },
-  "RAVX-TKTQH4U9M8": {
+  "RAVX-5ERLDGSS7PAT": {
     "plan": "أسبوعي",
     "price": 15,
     "days": 7,
     "type": "unlimited_7d",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.582Z"
   },
-  "RAVX-HYA83TFIWU": {
+  "RAVX-LD53TK3QBZMT": {
     "plan": "أسبوعي",
     "price": 15,
     "days": 7,
     "type": "unlimited_7d",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.582Z"
   },
-  "RAVX-FPJMOAVRRX": {
+  "RAVX-PB9HVASRD5YX": {
     "plan": "أسبوعي",
     "price": 15,
     "days": 7,
     "type": "unlimited_7d",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.582Z"
   },
-  "RAVX-NL9XXQTK47": {
+  "RAVX-AZ6SSXRNC54Y": {
     "plan": "أسبوعي",
     "price": 15,
     "days": 7,
     "type": "unlimited_7d",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.582Z"
   },
-  "RAVX-SNGX3XSNP1": {
+  "RAVX-SKSJ2CKAAMT6": {
     "plan": "أسبوعي",
     "price": 15,
     "days": 7,
     "type": "unlimited_7d",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.582Z"
   },
-  "RAVX-4CS13H046U": {
+  "RAVX-5C7UAF7RNZFZ": {
     "plan": "أسبوعي",
     "price": 15,
     "days": 7,
     "type": "unlimited_7d",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.582Z"
   },
-  "RAVX-KL7YVAQRR9": {
+  "RAVX-FWWTYWTJF4QF": {
     "plan": "أسبوعي",
     "price": 15,
     "days": 7,
     "type": "unlimited_7d",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.582Z"
   },
-  "RAVX-CCQ1LPQ46F": {
+  "RAVX-7L5M5F6NECXQ": {
     "plan": "أسبوعي",
     "price": 15,
     "days": 7,
     "type": "unlimited_7d",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.582Z"
   },
-  "RAVX-GN1MT0Y6RT": {
+  "RAVX-F28DJDGGESPL": {
     "plan": "أسبوعي",
     "price": 15,
     "days": 7,
     "type": "unlimited_7d",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.582Z"
   },
-  "RAVX-4673IRIIBP": {
+  "RAVX-JHX25ERQYP5D": {
     "plan": "أسبوعي",
     "price": 15,
     "days": 7,
     "type": "unlimited_7d",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.582Z"
   },
-  "RAVX-EV6LNNOIJ8": {
+  "RAVX-D55RNBYQ8TFM": {
     "plan": "أسبوعي",
     "price": 15,
     "days": 7,
     "type": "unlimited_7d",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.582Z"
   },
-  "RAVX-T4FVNC49Z9": {
+  "RAVX-TUFEZ9Y97EDQ": {
     "plan": "أسبوعي",
     "price": 15,
     "days": 7,
     "type": "unlimited_7d",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.582Z"
   },
-  "RAVX-FDRBDWO84L": {
+  "RAVX-VU4QHJK4E3NY": {
     "plan": "أسبوعي",
     "price": 15,
     "days": 7,
     "type": "unlimited_7d",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.582Z"
   },
-  "RAVX-80TVFA1SEL": {
+  "RAVX-CSGY878F7DVA": {
     "plan": "أسبوعي",
     "price": 15,
     "days": 7,
     "type": "unlimited_7d",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.582Z"
   },
-  "RAVX-NCHJLRMXBR": {
+  "RAVX-B49H8558CG3J": {
     "plan": "أسبوعي",
     "price": 15,
     "days": 7,
     "type": "unlimited_7d",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.582Z"
   },
-  "RAVX-2L5TQ9VNQG": {
+  "RAVX-2VMHUAT7PPWP": {
     "plan": "أسبوعي",
     "price": 15,
     "days": 7,
     "type": "unlimited_7d",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.582Z"
   },
-  "RAVX-XLFRV9I6AD": {
+  "RAVX-MZT6HX28DZHQ": {
     "plan": "أسبوعي",
     "price": 15,
     "days": 7,
     "type": "unlimited_7d",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.582Z"
   },
-  "RAVX-PLKRDKQEZJ": {
+  "RAVX-E5Q68CUJ3BW2": {
     "plan": "أسبوعي",
     "price": 15,
     "days": 7,
     "type": "unlimited_7d",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.582Z"
   },
-  "RAVX-EZXY9AXNNJ": {
+  "RAVX-VUACF5Q3EA44": {
     "plan": "أسبوعي",
     "price": 15,
     "days": 7,
     "type": "unlimited_7d",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.582Z"
   },
-  "RAVX-0G1HIC2Y37": {
+  "RAVX-LH6B4TETJUFD": {
     "plan": "أسبوعي",
     "price": 15,
     "days": 7,
     "type": "unlimited_7d",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.582Z"
   },
-  "RAVX-KJB70P93K8": {
+  "RAVX-QD8ASM2MTQTT": {
     "plan": "أسبوعي",
     "price": 15,
     "days": 7,
     "type": "unlimited_7d",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.582Z"
   },
-  "RAVX-N58QV7R2GW": {
+  "RAVX-TTS6592KF7BG": {
     "plan": "أسبوعي",
     "price": 15,
     "days": 7,
     "type": "unlimited_7d",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.582Z"
   },
-  "RAVX-YR9IWGQZTD": {
+  "RAVX-83653LXBWHDN": {
     "plan": "أسبوعي",
     "price": 15,
     "days": 7,
     "type": "unlimited_7d",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.582Z"
   },
-  "RAVX-MFT60CXNCF": {
+  "RAVX-2G5PQ9JCS7CL": {
     "plan": "أسبوعي",
     "price": 15,
     "days": 7,
     "type": "unlimited_7d",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.582Z"
   },
-  "RAVX-WKLL2J14S5": {
+  "RAVX-LPS7U39PMRHS": {
     "plan": "أسبوعي",
     "price": 15,
     "days": 7,
     "type": "unlimited_7d",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.582Z"
   },
-  "RAVX-Y1FQY8WREC": {
+  "RAVX-7NNJY7R393TN": {
     "plan": "أسبوعي",
     "price": 15,
     "days": 7,
     "type": "unlimited_7d",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.582Z"
   },
-  "RAVX-Q6VGFFCSD1": {
+  "RAVX-DMNCX9AU2W7F": {
     "plan": "أسبوعي",
     "price": 15,
     "days": 7,
     "type": "unlimited_7d",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.582Z"
   },
-  "RAVX-BIGWCHCF55": {
+  "RAVX-FQ6YBDG22MDQ": {
     "plan": "أسبوعي",
     "price": 15,
     "days": 7,
     "type": "unlimited_7d",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.582Z"
   },
-  "RAVX-QQWEZV5D89": {
+  "RAVX-VEVWVDUH5CHJ": {
     "plan": "أسبوعي",
     "price": 15,
     "days": 7,
     "type": "unlimited_7d",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.582Z"
   },
-  "RAVX-SK1HQM9MGF": {
+  "RAVX-5HCVDGPQ7NL3": {
     "plan": "أسبوعي",
     "price": 15,
     "days": 7,
     "type": "unlimited_7d",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.582Z"
   },
-  "RAVX-A4DW729DIV": {
+  "RAVX-RK2QLPYFFCKH": {
     "plan": "أسبوعي",
     "price": 15,
     "days": 7,
     "type": "unlimited_7d",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.582Z"
   },
-  "RAVX-IAAPZK0IK4": {
+  "RAVX-NAASMM2JF9R7": {
     "plan": "أسبوعي",
     "price": 15,
     "days": 7,
     "type": "unlimited_7d",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.582Z"
   },
-  "RAVX-6GDUWUW1YD": {
+  "RAVX-QAX3ELLAKDMV": {
     "plan": "أسبوعي",
     "price": 15,
     "days": 7,
     "type": "unlimited_7d",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.582Z"
   },
-  "RAVX-NUP57TUX18": {
+  "RAVX-R2EEKF6899A2": {
     "plan": "أسبوعي",
     "price": 15,
     "days": 7,
     "type": "unlimited_7d",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.582Z"
   },
-  "RAVX-5WLSAKHFCE": {
+  "RAVX-YKWYCJ5CPV42": {
     "plan": "أسبوعي",
     "price": 15,
     "days": 7,
     "type": "unlimited_7d",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.582Z"
   },
-  "RAVX-CJHYFCA8X9": {
+  "RAVX-BDE6BMDQ9CGG": {
     "plan": "أسبوعي",
     "price": 15,
     "days": 7,
     "type": "unlimited_7d",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.582Z"
   },
-  "RAVX-X5398E7OUE": {
+  "RAVX-WRRBKJ6V3JTJ": {
     "plan": "أسبوعي",
     "price": 15,
     "days": 7,
     "type": "unlimited_7d",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.582Z"
   },
-  "RAVX-SFFMYEWTZG": {
+  "RAVX-ZT75G8G7JZUP": {
     "plan": "أسبوعي",
     "price": 15,
     "days": 7,
     "type": "unlimited_7d",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.582Z"
+  },
+  "RAVX-K22ELU26NP6S": {
+    "plan": "شهري",
+    "price": 25,
+    "days": 30,
+    "type": "unlimited_support",
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.582Z"
+  },
+  "RAVX-E5P44ZHSPSCQ": {
+    "plan": "شهري",
+    "price": 25,
+    "days": 30,
+    "type": "unlimited_support",
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.582Z"
+  },
+  "RAVX-L7U8YWLLA46J": {
+    "plan": "شهري",
+    "price": 25,
+    "days": 30,
+    "type": "unlimited_support",
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.582Z"
+  },
+  "RAVX-XYXFNS5N3APT": {
+    "plan": "شهري",
+    "price": 25,
+    "days": 30,
+    "type": "unlimited_support",
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.582Z"
+  },
+  "RAVX-X39AS66CC74D": {
+    "plan": "شهري",
+    "price": 25,
+    "days": 30,
+    "type": "unlimited_support",
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.582Z"
+  },
+  "RAVX-PLT9WRJ733MK": {
+    "plan": "شهري",
+    "price": 25,
+    "days": 30,
+    "type": "unlimited_support",
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.582Z"
+  },
+  "RAVX-9MS6Z4X97QG6": {
+    "plan": "شهري",
+    "price": 25,
+    "days": 30,
+    "type": "unlimited_support",
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.582Z"
+  },
+  "RAVX-DV8F3546WJBL": {
+    "plan": "شهري",
+    "price": 25,
+    "days": 30,
+    "type": "unlimited_support",
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.582Z"
+  },
+  "RAVX-HBGFUJ34USLZ": {
+    "plan": "شهري",
+    "price": 25,
+    "days": 30,
+    "type": "unlimited_support",
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.582Z"
+  },
+  "RAVX-C5YKWNEESB82": {
+    "plan": "شهري",
+    "price": 25,
+    "days": 30,
+    "type": "unlimited_support",
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.582Z"
+  },
+  "RAVX-AXFG6DZNZWC9": {
+    "plan": "شهري",
+    "price": 25,
+    "days": 30,
+    "type": "unlimited_support",
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.582Z"
+  },
+  "RAVX-MBZTBVN6LUPF": {
+    "plan": "شهري",
+    "price": 25,
+    "days": 30,
+    "type": "unlimited_support",
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.582Z"
+  },
+  "RAVX-BDYDQ87PHLV4": {
+    "plan": "شهري",
+    "price": 25,
+    "days": 30,
+    "type": "unlimited_support",
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.582Z"
+  },
+  "RAVX-EHV87WQAZG7F": {
+    "plan": "شهري",
+    "price": 25,
+    "days": 30,
+    "type": "unlimited_support",
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.582Z"
+  },
+  "RAVX-DPTU6JKL42FT": {
+    "plan": "شهري",
+    "price": 25,
+    "days": 30,
+    "type": "unlimited_support",
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.582Z"
+  },
+  "RAVX-NEEHFEJDVL4J": {
+    "plan": "شهري",
+    "price": 25,
+    "days": 30,
+    "type": "unlimited_support",
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.582Z"
+  },
+  "RAVX-ES872VQJMHWK": {
+    "plan": "شهري",
+    "price": 25,
+    "days": 30,
+    "type": "unlimited_support",
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.582Z"
+  },
+  "RAVX-7JW3C95TM364": {
+    "plan": "شهري",
+    "price": 25,
+    "days": 30,
+    "type": "unlimited_support",
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.582Z"
+  },
+  "RAVX-V5BFDGSPLJWZ": {
+    "plan": "شهري",
+    "price": 25,
+    "days": 30,
+    "type": "unlimited_support",
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.582Z"
+  },
+  "RAVX-26RW9T77A4TV": {
+    "plan": "شهري",
+    "price": 25,
+    "days": 30,
+    "type": "unlimited_support",
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.582Z"
+  },
+  "RAVX-P9VYTJBNVET2": {
+    "plan": "شهري",
+    "price": 25,
+    "days": 30,
+    "type": "unlimited_support",
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.582Z"
+  },
+  "RAVX-VTN9E3FGHL94": {
+    "plan": "شهري",
+    "price": 25,
+    "days": 30,
+    "type": "unlimited_support",
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.582Z"
   },
-  "RAVX-ZGX4RFIKTL": {
+  "RAVX-LVEHKPMZHN8E": {
     "plan": "شهري",
     "price": 25,
     "days": 30,
     "type": "unlimited_support",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.582Z"
   },
-  "RAVX-12SG61YBDC": {
+  "RAVX-LLVCRAVS5LAR": {
     "plan": "شهري",
     "price": 25,
     "days": 30,
     "type": "unlimited_support",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.582Z"
   },
-  "RAVX-9YO9B4L9TF": {
+  "RAVX-2LYCJEZMC79E": {
     "plan": "شهري",
     "price": 25,
     "days": 30,
     "type": "unlimited_support",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.582Z"
   },
-  "RAVX-87P2B8N0JU": {
+  "RAVX-8B2K6JZYWSYG": {
     "plan": "شهري",
     "price": 25,
     "days": 30,
     "type": "unlimited_support",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.582Z"
   },
-  "RAVX-BYPU6W6PBZ": {
+  "RAVX-877H8DMU72ZX": {
     "plan": "شهري",
     "price": 25,
     "days": 30,
     "type": "unlimited_support",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.582Z"
   },
-  "RAVX-6AE1JK4KWR": {
+  "RAVX-CQX4PY5C9R7S": {
     "plan": "شهري",
     "price": 25,
     "days": 30,
     "type": "unlimited_support",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.582Z"
   },
-  "RAVX-PM66BKZLPD": {
+  "RAVX-8Q84JHMUJ3K6": {
     "plan": "شهري",
     "price": 25,
     "days": 30,
     "type": "unlimited_support",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.582Z"
   },
-  "RAVX-ELTKRJ6K6X": {
+  "RAVX-5334NK9EZ2HZ": {
     "plan": "شهري",
     "price": 25,
     "days": 30,
     "type": "unlimited_support",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.582Z"
   },
-  "RAVX-YEK494L3YD": {
+  "RAVX-L34G6JWBQU58": {
     "plan": "شهري",
     "price": 25,
     "days": 30,
     "type": "unlimited_support",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.582Z"
   },
-  "RAVX-GP32CZLYR8": {
+  "RAVX-T74UGGS6ZT58": {
     "plan": "شهري",
     "price": 25,
     "days": 30,
     "type": "unlimited_support",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.582Z"
   },
-  "RAVX-M0OVOQ8X0D": {
+  "RAVX-LUCXAE6KQPHN": {
     "plan": "شهري",
     "price": 25,
     "days": 30,
     "type": "unlimited_support",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.582Z"
   },
-  "RAVX-TORB4JHMOM": {
+  "RAVX-K2X5A338TMLX": {
     "plan": "شهري",
     "price": 25,
     "days": 30,
     "type": "unlimited_support",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.582Z"
   },
-  "RAVX-ICARZB3OH1": {
+  "RAVX-4K9QQNBFPZEY": {
     "plan": "شهري",
     "price": 25,
     "days": 30,
     "type": "unlimited_support",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.582Z"
   },
-  "RAVX-RVOQWUEEUH": {
+  "RAVX-SGCCB6D6RXTQ": {
     "plan": "شهري",
     "price": 25,
     "days": 30,
     "type": "unlimited_support",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.582Z"
   },
-  "RAVX-JL42EATI8V": {
+  "RAVX-SV4DX7LRXFJ6": {
     "plan": "شهري",
     "price": 25,
     "days": 30,
     "type": "unlimited_support",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.583Z"
   },
-  "RAVX-3LT34HHGYC": {
+  "RAVX-PAPPGV83DPRU": {
     "plan": "شهري",
     "price": 25,
     "days": 30,
     "type": "unlimited_support",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.583Z"
   },
-  "RAVX-Z6MVN1G67J": {
+  "RAVX-7YHHVN2BKPZ8": {
     "plan": "شهري",
     "price": 25,
     "days": 30,
     "type": "unlimited_support",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.583Z"
   },
-  "RAVX-4QSXA88MFA": {
+  "RAVX-R3478M72V2H5": {
     "plan": "شهري",
     "price": 25,
     "days": 30,
     "type": "unlimited_support",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.583Z"
   },
-  "RAVX-PQ7V8ACG2D": {
+  "RAVX-WEWVMTE2FF6F": {
     "plan": "شهري",
     "price": 25,
     "days": 30,
     "type": "unlimited_support",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.583Z"
   },
-  "RAVX-CCXWFYQK0Y": {
+  "RAVX-P8D5VX6G3G85": {
     "plan": "شهري",
     "price": 25,
     "days": 30,
     "type": "unlimited_support",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.583Z"
   },
-  "RAVX-XHX0FG96EC": {
+  "RAVX-USSZGVGJXE4B": {
     "plan": "شهري",
     "price": 25,
     "days": 30,
     "type": "unlimited_support",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.583Z"
   },
-  "RAVX-1NDPDTO1HM": {
+  "RAVX-VJCVGPL2LELE": {
     "plan": "شهري",
     "price": 25,
     "days": 30,
     "type": "unlimited_support",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.583Z"
   },
-  "RAVX-GWSLJ3C9BS": {
+  "RAVX-9JC5RQ2EMYCP": {
     "plan": "شهري",
     "price": 25,
     "days": 30,
     "type": "unlimited_support",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.583Z"
   },
-  "RAVX-AXMGHNX9W3": {
+  "RAVX-6FTYGQEFNG5P": {
     "plan": "شهري",
     "price": 25,
     "days": 30,
     "type": "unlimited_support",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.583Z"
   },
-  "RAVX-K4IXS3MAMJ": {
+  "RAVX-NMFNC2QV97BW": {
     "plan": "شهري",
     "price": 25,
     "days": 30,
     "type": "unlimited_support",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.583Z"
   },
-  "RAVX-QPI2SP3Z4B": {
+  "RAVX-YVEA8FF5VV2M": {
     "plan": "شهري",
     "price": 25,
     "days": 30,
     "type": "unlimited_support",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.583Z"
   },
-  "RAVX-31RRJTB56T": {
+  "RAVX-C5JF39MLFFTH": {
     "plan": "شهري",
     "price": 25,
     "days": 30,
     "type": "unlimited_support",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.583Z"
   },
-  "RAVX-H8BVXDOIUT": {
+  "RAVX-FDSFWSNM83UJ": {
     "plan": "شهري",
     "price": 25,
     "days": 30,
     "type": "unlimited_support",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.583Z"
   },
-  "RAVX-860TUKG34D": {
+  "RAVX-8DZFVSJ3JHN3": {
     "plan": "شهري",
     "price": 25,
     "days": 30,
     "type": "unlimited_support",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.583Z"
   },
-  "RAVX-43LLE7U1JE": {
+  "RAVX-N242MCS63ZUK": {
     "plan": "شهري",
     "price": 25,
     "days": 30,
     "type": "unlimited_support",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.583Z"
   },
-  "RAVX-Z1KWN6205I": {
+  "RAVX-F3D2WNR8QKFG": {
     "plan": "شهري",
     "price": 25,
     "days": 30,
     "type": "unlimited_support",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.583Z"
   },
-  "RAVX-MV9AWGPPMO": {
+  "RAVX-CYEW8WCWLGT6": {
     "plan": "شهري",
     "price": 25,
     "days": 30,
     "type": "unlimited_support",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.583Z"
   },
-  "RAVX-TEZ7UWLY8G": {
+  "RAVX-K4BWTTPMWEGF": {
     "plan": "شهري",
     "price": 25,
     "days": 30,
     "type": "unlimited_support",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.583Z"
   },
-  "RAVX-MCOQHSPWCD": {
+  "RAVX-QMKLSV2H84RX": {
     "plan": "شهري",
     "price": 25,
     "days": 30,
     "type": "unlimited_support",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.583Z"
   },
-  "RAVX-3E4F9SUE26": {
+  "RAVX-BRKJXQNKBE35": {
     "plan": "شهري",
     "price": 25,
     "days": 30,
     "type": "unlimited_support",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.583Z"
   },
-  "RAVX-INTR9P4UDF": {
+  "RAVX-NTFTSGX7C7L8": {
     "plan": "شهري",
     "price": 25,
     "days": 30,
     "type": "unlimited_support",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.583Z"
   },
-  "RAVX-KATENDJEFP": {
+  "RAVX-J8A46SY6EC2P": {
     "plan": "شهري",
     "price": 25,
     "days": 30,
     "type": "unlimited_support",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.583Z"
   },
-  "RAVX-N2XE2DGDL7": {
+  "RAVX-U3N5M9QA3AWQ": {
     "plan": "شهري",
     "price": 25,
     "days": 30,
     "type": "unlimited_support",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.583Z"
   },
-  "RAVX-XRNV2MHFX1": {
+  "RAVX-9EPY345S8GSP": {
     "plan": "شهري",
     "price": 25,
     "days": 30,
     "type": "unlimited_support",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.583Z"
   },
-  "RAVX-IWOEHOBK5Q": {
+  "RAVX-PTYYPFSYSQVB": {
     "plan": "شهري",
     "price": 25,
     "days": 30,
     "type": "unlimited_support",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.583Z"
   },
-  "RAVX-YK5ARNXTYP": {
+  "RAVX-RJFHE663KHC6": {
     "plan": "شهري",
     "price": 25,
     "days": 30,
     "type": "unlimited_support",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.583Z"
   },
-  "RAVX-0EJOKI0TP7": {
+  "RAVX-SZKGFDMM8UV3": {
     "plan": "شهري",
     "price": 25,
     "days": 30,
     "type": "unlimited_support",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.583Z"
   },
-  "RAVX-6BRVWC5JZ2": {
+  "RAVX-63ACENT426CY": {
     "plan": "شهري",
     "price": 25,
     "days": 30,
     "type": "unlimited_support",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.583Z"
   },
-  "RAVX-ZYG089AW65": {
+  "RAVX-T9BZ2GLNF4RM": {
     "plan": "شهري",
     "price": 25,
     "days": 30,
     "type": "unlimited_support",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.583Z"
   },
-  "RAVX-EMMG513EYW": {
+  "RAVX-Q57ASH4L8MS6": {
     "plan": "شهري",
     "price": 25,
     "days": 30,
     "type": "unlimited_support",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.583Z"
   },
-  "RAVX-LER7P1CK7H": {
+  "RAVX-PEL8AG7JU6SZ": {
     "plan": "شهري",
     "price": 25,
     "days": 30,
     "type": "unlimited_support",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.583Z"
   },
-  "RAVX-V5J1QGWUYW": {
+  "RAVX-ZWB7VV9VLMES": {
     "plan": "شهري",
     "price": 25,
     "days": 30,
     "type": "unlimited_support",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.583Z"
   },
-  "RAVX-L4NHSM0XFG": {
+  "RAVX-BZBD5W9UJ4QC": {
     "plan": "شهري",
     "price": 25,
     "days": 30,
     "type": "unlimited_support",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.583Z"
   },
-  "RAVX-JQGB66YL5S": {
+  "RAVX-LZTQXTM3PHTE": {
     "plan": "شهري",
     "price": 25,
     "days": 30,
     "type": "unlimited_support",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.583Z"
   },
-  "RAVX-9T8GCWLXOJ": {
+  "RAVX-RU9W2QLN43EX": {
     "plan": "شهري",
     "price": 25,
     "days": 30,
     "type": "unlimited_support",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.583Z"
   },
-  "RAVX-XI0SST3SPA": {
+  "RAVX-77MNVRWBE5E4": {
     "plan": "شهري",
     "price": 25,
     "days": 30,
     "type": "unlimited_support",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.583Z"
   },
-  "RAVX-L3RPVVC3O1": {
+  "RAVX-7H7ETHFAC6QS": {
     "plan": "شهري",
     "price": 25,
     "days": 30,
     "type": "unlimited_support",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.583Z"
   },
-  "RAVX-5SIS6ISP8O": {
+  "RAVX-HS3W4FNMGUJD": {
     "plan": "شهري",
     "price": 25,
     "days": 30,
     "type": "unlimited_support",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.583Z"
   },
-  "RAVX-GJHPL3RUDS": {
+  "RAVX-X4WV5NK94R9L": {
     "plan": "شهري",
     "price": 25,
     "days": 30,
     "type": "unlimited_support",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.583Z"
   },
-  "RAVX-MK27RZOSXT": {
+  "RAVX-QVNNB3243ZF9": {
     "plan": "شهري",
     "price": 25,
     "days": 30,
     "type": "unlimited_support",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.583Z"
   },
-  "RAVX-33DFRZ6HMK": {
+  "RAVX-AGVZL39FSM5Z": {
     "plan": "شهري",
     "price": 25,
     "days": 30,
     "type": "unlimited_support",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.583Z"
   },
-  "RAVX-SKKULCYW4X": {
+  "RAVX-SEVBU23BH6B7": {
     "plan": "شهري",
     "price": 25,
     "days": 30,
     "type": "unlimited_support",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.583Z"
   },
-  "RAVX-0XSJJE4Z12": {
+  "RAVX-CXKXH2TMV3BD": {
     "plan": "شهري",
     "price": 25,
     "days": 30,
     "type": "unlimited_support",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.583Z"
   },
-  "RAVX-I8HZ4T8JJ1": {
+  "RAVX-PNDSQPFY34V2": {
     "plan": "شهري",
     "price": 25,
     "days": 30,
     "type": "unlimited_support",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.583Z"
   },
-  "RAVX-H3ATOOBGTI": {
+  "RAVX-2D9R39D3X95N": {
     "plan": "شهري",
     "price": 25,
     "days": 30,
     "type": "unlimited_support",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.583Z"
   },
-  "RAVX-YRJA9F6DUD": {
+  "RAVX-SVVM5CGYMC8L": {
     "plan": "شهري",
     "price": 25,
     "days": 30,
     "type": "unlimited_support",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.583Z"
   },
-  "RAVX-OVDJRXEQHX": {
+  "RAVX-75ZHBVEJERT6": {
     "plan": "شهري",
     "price": 25,
     "days": 30,
     "type": "unlimited_support",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.583Z"
   },
-  "RAVX-9JRPEUQ439": {
+  "RAVX-66TJMW2S7L5Q": {
     "plan": "شهري",
     "price": 25,
     "days": 30,
     "type": "unlimited_support",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.583Z"
   },
-  "RAVX-UXUXPXYDWG": {
+  "RAVX-WS3YHRWEGG6B": {
     "plan": "شهري",
     "price": 25,
     "days": 30,
     "type": "unlimited_support",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.583Z"
   },
-  "RAVX-5SNUPYRHGU": {
+  "RAVX-MTG8CBZG8JVV": {
     "plan": "شهري",
     "price": 25,
     "days": 30,
     "type": "unlimited_support",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.583Z"
   },
-  "RAVX-K3RTSTS6ES": {
+  "RAVX-UJLBZZY966MF": {
     "plan": "شهري",
     "price": 25,
     "days": 30,
     "type": "unlimited_support",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.583Z"
   },
-  "RAVX-7U5VELS3WE": {
+  "RAVX-9P7FWKU9TEUR": {
     "plan": "شهري",
     "price": 25,
     "days": 30,
     "type": "unlimited_support",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.583Z"
   },
-  "RAVX-SK7T21N8TX": {
+  "RAVX-C5PVYQLDF8H9": {
     "plan": "شهري",
     "price": 25,
     "days": 30,
     "type": "unlimited_support",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.583Z"
   },
-  "RAVX-H16WM4CHPR": {
+  "RAVX-Q8VNMUXZ7WY8": {
     "plan": "شهري",
     "price": 25,
     "days": 30,
     "type": "unlimited_support",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.583Z"
   },
-  "RAVX-CQZX7RCN39": {
+  "RAVX-PDCVZ3V3EWWB": {
     "plan": "شهري",
     "price": 25,
     "days": 30,
     "type": "unlimited_support",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.583Z"
   },
-  "RAVX-FBWJV8IMIF": {
+  "RAVX-32396PTT7PS3": {
     "plan": "شهري",
     "price": 25,
     "days": 30,
     "type": "unlimited_support",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.583Z"
   },
-  "RAVX-6YCUWLG2PV": {
+  "RAVX-7RJ9HFH75G3M": {
     "plan": "شهري",
     "price": 25,
     "days": 30,
     "type": "unlimited_support",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.583Z"
   },
-  "RAVX-3PH6L0YRBW": {
+  "RAVX-MZFZ7ZNAQFHQ": {
     "plan": "شهري",
     "price": 25,
     "days": 30,
     "type": "unlimited_support",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.583Z"
   },
-  "RAVX-YK43PZTWGK": {
+  "RAVX-YMTD8HCQFUY9": {
     "plan": "شهري",
     "price": 25,
     "days": 30,
     "type": "unlimited_support",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.583Z"
   },
-  "RAVX-B9WFMK0QIS": {
+  "RAVX-CUGC2Y4YXE42": {
     "plan": "شهري",
     "price": 25,
     "days": 30,
     "type": "unlimited_support",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.583Z"
+  },
+  "RAVX-TPXVX6QTZ4EB": {
+    "plan": "شهري",
+    "price": 25,
+    "days": 30,
+    "type": "unlimited_support",
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.583Z"
+  },
+  "RAVX-9SC42JRVSATQ": {
+    "plan": "شهري",
+    "price": 25,
+    "days": 30,
+    "type": "unlimited_support",
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.583Z"
+  },
+  "RAVX-HXHPDCSAUHEX": {
+    "plan": "شهري",
+    "price": 25,
+    "days": 30,
+    "type": "unlimited_support",
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.583Z"
+  },
+  "RAVX-QJC7VPMJBYAB": {
+    "plan": "مدى الحياة",
+    "price": 200,
+    "days": -1,
+    "type": "lifetime",
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.583Z"
+  },
+  "RAVX-MVBMQBFNLSUX": {
+    "plan": "مدى الحياة",
+    "price": 200,
+    "days": -1,
+    "type": "lifetime",
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.583Z"
+  },
+  "RAVX-XMMGWHEVWHX6": {
+    "plan": "مدى الحياة",
+    "price": 200,
+    "days": -1,
+    "type": "lifetime",
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.583Z"
+  },
+  "RAVX-5NNDDDDH2FX4": {
+    "plan": "مدى الحياة",
+    "price": 200,
+    "days": -1,
+    "type": "lifetime",
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.583Z"
+  },
+  "RAVX-NNBZMJEJ7CU7": {
+    "plan": "مدى الحياة",
+    "price": 200,
+    "days": -1,
+    "type": "lifetime",
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.583Z"
+  },
+  "RAVX-GN8DK4ZEV6EZ": {
+    "plan": "مدى الحياة",
+    "price": 200,
+    "days": -1,
+    "type": "lifetime",
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.583Z"
+  },
+  "RAVX-WG5CFFYVMZ9F": {
+    "plan": "مدى الحياة",
+    "price": 200,
+    "days": -1,
+    "type": "lifetime",
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.583Z"
+  },
+  "RAVX-FRH8LZ73K75X": {
+    "plan": "مدى الحياة",
+    "price": 200,
+    "days": -1,
+    "type": "lifetime",
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.583Z"
+  },
+  "RAVX-4YCBZ2QX8BTT": {
+    "plan": "مدى الحياة",
+    "price": 200,
+    "days": -1,
+    "type": "lifetime",
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.583Z"
+  },
+  "RAVX-P8HJTVJU83WA": {
+    "plan": "مدى الحياة",
+    "price": 200,
+    "days": -1,
+    "type": "lifetime",
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.583Z"
   },
-  "RAVX-9K008GH8BP": {
+  "RAVX-YGYS8GV3BV4J": {
     "plan": "مدى الحياة",
     "price": 200,
     "days": -1,
     "type": "lifetime",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.583Z"
   },
-  "RAVX-GXO6U2KO9Z": {
+  "RAVX-STKTQRHJBPKN": {
     "plan": "مدى الحياة",
     "price": 200,
     "days": -1,
     "type": "lifetime",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.583Z"
   },
-  "RAVX-EQ6WODVRQ1": {
+  "RAVX-NZHKVAUT3H3D": {
     "plan": "مدى الحياة",
     "price": 200,
     "days": -1,
     "type": "lifetime",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.583Z"
   },
-  "RAVX-LJ0V82E0DE": {
+  "RAVX-USKFUWL2G85W": {
     "plan": "مدى الحياة",
     "price": 200,
     "days": -1,
     "type": "lifetime",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.583Z"
   },
-  "RAVX-BMTBTZ9Q4B": {
+  "RAVX-NMSZV85NZE4M": {
     "plan": "مدى الحياة",
     "price": 200,
     "days": -1,
     "type": "lifetime",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.583Z"
   },
-  "RAVX-QOQO5B960Z": {
+  "RAVX-45FMKFJ459LV": {
     "plan": "مدى الحياة",
     "price": 200,
     "days": -1,
     "type": "lifetime",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.583Z"
   },
-  "RAVX-BFYEG3Y0QZ": {
+  "RAVX-GLMRK5XMV6MU": {
     "plan": "مدى الحياة",
     "price": 200,
     "days": -1,
     "type": "lifetime",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.583Z"
   },
-  "RAVX-UCZ71Z1NX9": {
+  "RAVX-72ULXUCUV57N": {
     "plan": "مدى الحياة",
     "price": 200,
     "days": -1,
     "type": "lifetime",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.583Z"
   },
-  "RAVX-KMSPTA10QF": {
+  "RAVX-2N4UDBB8XLBL": {
     "plan": "مدى الحياة",
     "price": 200,
     "days": -1,
     "type": "lifetime",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.583Z"
   },
-  "RAVX-VXXTZXGKBX": {
+  "RAVX-XDZCM8SKBFQN": {
     "plan": "مدى الحياة",
     "price": 200,
     "days": -1,
     "type": "lifetime",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.583Z"
   },
-  "RAVX-29Z0R6NK8J": {
+  "RAVX-RTMNVF3A84ZG": {
     "plan": "مدى الحياة",
     "price": 200,
     "days": -1,
     "type": "lifetime",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.583Z"
   },
-  "RAVX-OYM19SC6D5": {
+  "RAVX-MVD4V5TJRJBH": {
     "plan": "مدى الحياة",
     "price": 200,
     "days": -1,
     "type": "lifetime",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.583Z"
   },
-  "RAVX-IL40JIV2TM": {
+  "RAVX-JBFCPDCQQAX6": {
     "plan": "مدى الحياة",
     "price": 200,
     "days": -1,
     "type": "lifetime",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.583Z"
   },
-  "RAVX-IAF7GP4SHQ": {
+  "RAVX-AHU4JNG86RUE": {
     "plan": "مدى الحياة",
     "price": 200,
     "days": -1,
     "type": "lifetime",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.583Z"
   },
-  "RAVX-K9EOIA1FDV": {
+  "RAVX-XQLSLPNMXEB8": {
     "plan": "مدى الحياة",
     "price": 200,
     "days": -1,
     "type": "lifetime",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.583Z"
   },
-  "RAVX-Q1KO4HX03P": {
+  "RAVX-XRQYLSC8CK4Q": {
     "plan": "مدى الحياة",
     "price": 200,
     "days": -1,
     "type": "lifetime",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.583Z"
   },
-  "RAVX-45HOMIFMB8": {
+  "RAVX-P6R3SNBJR44G": {
     "plan": "مدى الحياة",
     "price": 200,
     "days": -1,
     "type": "lifetime",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.583Z"
   },
-  "RAVX-HT0X4FSCJZ": {
+  "RAVX-UKDY5T6RBLC8": {
     "plan": "مدى الحياة",
     "price": 200,
     "days": -1,
     "type": "lifetime",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.583Z"
   },
-  "RAVX-1MUSOOYSTS": {
+  "RAVX-TQLASNFC4JYH": {
     "plan": "مدى الحياة",
     "price": 200,
     "days": -1,
     "type": "lifetime",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.583Z"
   },
-  "RAVX-8MUTBQW0C5": {
+  "RAVX-MZA3G3YSRDHM": {
     "plan": "مدى الحياة",
     "price": 200,
     "days": -1,
     "type": "lifetime",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.583Z"
   },
-  "RAVX-LAD5S974X2": {
+  "RAVX-A5GMB96UGXN5": {
     "plan": "مدى الحياة",
     "price": 200,
     "days": -1,
     "type": "lifetime",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.583Z"
   },
-  "RAVX-2TL7PAUZ4A": {
+  "RAVX-FDEPD3J2N7Z9": {
     "plan": "مدى الحياة",
     "price": 200,
     "days": -1,
     "type": "lifetime",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.583Z"
   },
-  "RAVX-G433383D2P": {
+  "RAVX-VRLSZEFJ77ZR": {
     "plan": "مدى الحياة",
     "price": 200,
     "days": -1,
     "type": "lifetime",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.583Z"
   },
-  "RAVX-JQ3DT6FKOD": {
+  "RAVX-BLHT2HQEGJ2W": {
     "plan": "مدى الحياة",
     "price": 200,
     "days": -1,
     "type": "lifetime",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.583Z"
   },
-  "RAVX-ZKNNM9DS69": {
+  "RAVX-3NVPFZXTHGGT": {
     "plan": "مدى الحياة",
     "price": 200,
     "days": -1,
     "type": "lifetime",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.583Z"
   },
-  "RAVX-H34C4YQUJX": {
+  "RAVX-QC2LSR9BUS6Y": {
     "plan": "مدى الحياة",
     "price": 200,
     "days": -1,
     "type": "lifetime",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.583Z"
   },
-  "RAVX-FD95XESM39": {
+  "RAVX-JNTVVSTHDWNS": {
     "plan": "مدى الحياة",
     "price": 200,
     "days": -1,
     "type": "lifetime",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.583Z"
   },
-  "RAVX-N4NCNSLWGP": {
+  "RAVX-FW2EEP8YNR5Y": {
     "plan": "مدى الحياة",
     "price": 200,
     "days": -1,
     "type": "lifetime",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.583Z"
   },
-  "RAVX-UP9DZWR483": {
+  "RAVX-3VUGNSW4LNRU": {
     "plan": "مدى الحياة",
     "price": 200,
     "days": -1,
     "type": "lifetime",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.583Z"
   },
-  "RAVX-5U6ZDGSJEN": {
+  "RAVX-HLPDS9B7UJLV": {
     "plan": "مدى الحياة",
     "price": 200,
     "days": -1,
     "type": "lifetime",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.583Z"
   },
-  "RAVX-Y02RLERUY9": {
+  "RAVX-R9CVM7UTULAU": {
     "plan": "مدى الحياة",
     "price": 200,
     "days": -1,
     "type": "lifetime",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.583Z"
   },
-  "RAVX-DCYAPZY8C4": {
+  "RAVX-SKWMUH7VKQBN": {
     "plan": "مدى الحياة",
     "price": 200,
     "days": -1,
     "type": "lifetime",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.583Z"
   },
-  "RAVX-KXOF0WSTWJ": {
+  "RAVX-GYTBQLCTHLUU": {
     "plan": "مدى الحياة",
     "price": 200,
     "days": -1,
     "type": "lifetime",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.583Z"
   },
-  "RAVX-M8BL6U74YY": {
+  "RAVX-KBZHKVCVUC5V": {
     "plan": "مدى الحياة",
     "price": 200,
     "days": -1,
     "type": "lifetime",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.583Z"
   },
-  "RAVX-ZYRBIG3HQ5": {
+  "RAVX-9XB96A9NFDBU": {
     "plan": "مدى الحياة",
     "price": 200,
     "days": -1,
     "type": "lifetime",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.583Z"
   },
-  "RAVX-A0Y4EBI7EC": {
+  "RAVX-6CWCJRRLR4DU": {
     "plan": "مدى الحياة",
     "price": 200,
     "days": -1,
     "type": "lifetime",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.583Z"
   },
-  "RAVX-KOHWQ31J5Z": {
+  "RAVX-ABWL23E4L6CH": {
     "plan": "مدى الحياة",
     "price": 200,
     "days": -1,
     "type": "lifetime",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.583Z"
   },
-  "RAVX-L4SQEJHG3U": {
+  "RAVX-XMXDYUMF98Q6": {
     "plan": "مدى الحياة",
     "price": 200,
     "days": -1,
     "type": "lifetime",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.584Z"
   },
-  "RAVX-URQQQCCAAK": {
+  "RAVX-VHE6YYZ9TSZJ": {
     "plan": "مدى الحياة",
     "price": 200,
     "days": -1,
     "type": "lifetime",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.584Z"
   },
-  "RAVX-96LYBGY5GQ": {
+  "RAVX-JP2PQ5TDCKHM": {
     "plan": "مدى الحياة",
     "price": 200,
     "days": -1,
     "type": "lifetime",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.584Z"
   },
-  "RAVX-0Y82D80K8Z": {
+  "RAVX-YT3GBKZTRATK": {
     "plan": "مدى الحياة",
     "price": 200,
     "days": -1,
     "type": "lifetime",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.584Z"
   },
-  "RAVX-QEC3KDRMXH": {
+  "RAVX-QZ8TKRXB7BC4": {
     "plan": "مدى الحياة",
     "price": 200,
     "days": -1,
     "type": "lifetime",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.584Z"
   },
-  "RAVX-K4ZG22GFEX": {
+  "RAVX-X6B6QCSY6HHG": {
     "plan": "مدى الحياة",
     "price": 200,
     "days": -1,
     "type": "lifetime",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.585Z"
   },
-  "RAVX-L8UUONJQT4": {
+  "RAVX-X7XUL5TT7WVH": {
     "plan": "مدى الحياة",
     "price": 200,
     "days": -1,
     "type": "lifetime",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.585Z"
   },
-  "RAVX-GC1QWUTEJ0": {
+  "RAVX-RB3BT2X48MTE": {
     "plan": "مدى الحياة",
     "price": 200,
     "days": -1,
     "type": "lifetime",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.585Z"
   },
-  "RAVX-FTN8H1U7BP": {
+  "RAVX-RFLLX4VS528N": {
     "plan": "مدى الحياة",
     "price": 200,
     "days": -1,
     "type": "lifetime",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.585Z"
   },
-  "RAVX-JBTBN9XH2G": {
+  "RAVX-468TB6AT6SHY": {
     "plan": "مدى الحياة",
     "price": 200,
     "days": -1,
     "type": "lifetime",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.585Z"
   },
-  "RAVX-CU5UI8T6NB": {
+  "RAVX-M9MYME6777V7": {
     "plan": "مدى الحياة",
     "price": 200,
     "days": -1,
     "type": "lifetime",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.585Z"
   },
-  "RAVX-I0YRP035QQ": {
+  "RAVX-PJZB5WPYJD46": {
     "plan": "مدى الحياة",
     "price": 200,
     "days": -1,
     "type": "lifetime",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.585Z"
   },
-  "RAVX-LLZONME041": {
+  "RAVX-QRZSFKLHQCLH": {
     "plan": "مدى الحياة",
     "price": 200,
     "days": -1,
     "type": "lifetime",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.585Z"
   },
-  "RAVX-6N5IPOF8QL": {
+  "RAVX-XEYP89B6NM2T": {
     "plan": "مدى الحياة",
     "price": 200,
     "days": -1,
     "type": "lifetime",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.585Z"
   },
-  "RAVX-GUR9BECQOL": {
+  "RAVX-ZE53Z4ZZCBPH": {
     "plan": "مدى الحياة",
     "price": 200,
     "days": -1,
     "type": "lifetime",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.589Z"
   },
-  "RAVX-ISD4Q9RY3J": {
+  "RAVX-S5SZWW8YCQBC": {
     "plan": "مدى الحياة",
     "price": 200,
     "days": -1,
     "type": "lifetime",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.589Z"
   },
-  "RAVX-OYDRMT7PMT": {
+  "RAVX-T2B3CLU8AEDP": {
     "plan": "مدى الحياة",
     "price": 200,
     "days": -1,
     "type": "lifetime",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.589Z"
   },
-  "RAVX-KIG7FY86I7": {
+  "RAVX-HK5Y63GSNRW6": {
     "plan": "مدى الحياة",
     "price": 200,
     "days": -1,
     "type": "lifetime",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.589Z"
   },
-  "RAVX-08J71IOYWU": {
+  "RAVX-TGWTF4XVZ376": {
     "plan": "مدى الحياة",
     "price": 200,
     "days": -1,
     "type": "lifetime",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.589Z"
   },
-  "RAVX-95WDBQ0ZA9": {
+  "RAVX-BZ2LU42X9XU9": {
     "plan": "مدى الحياة",
     "price": 200,
     "days": -1,
     "type": "lifetime",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.589Z"
   },
-  "RAVX-N4WWR8U894": {
+  "RAVX-PE5539LXWBQX": {
     "plan": "مدى الحياة",
     "price": 200,
     "days": -1,
     "type": "lifetime",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.589Z"
   },
-  "RAVX-4FICSD7WZD": {
+  "RAVX-8KXSKQ8M7TG9": {
     "plan": "مدى الحياة",
     "price": 200,
     "days": -1,
     "type": "lifetime",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.589Z"
   },
-  "RAVX-LR2WX5KWM7": {
+  "RAVX-85PXZ58ACDF2": {
     "plan": "مدى الحياة",
     "price": 200,
     "days": -1,
     "type": "lifetime",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.589Z"
   },
-  "RAVX-ZA9IFGUJGC": {
+  "RAVX-LHXEGVQR39VB": {
     "plan": "مدى الحياة",
     "price": 200,
     "days": -1,
     "type": "lifetime",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.589Z"
   },
-  "RAVX-DKKI3104BL": {
+  "RAVX-H5GSXWVX7XA4": {
     "plan": "مدى الحياة",
     "price": 200,
     "days": -1,
     "type": "lifetime",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.589Z"
   },
-  "RAVX-4R3FS90FC7": {
+  "RAVX-ZRZUR4BTGYEE": {
     "plan": "مدى الحياة",
     "price": 200,
     "days": -1,
     "type": "lifetime",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.589Z"
   },
-  "RAVX-4G3HOJHYHK": {
+  "RAVX-9R7RHMKZWHBT": {
     "plan": "مدى الحياة",
     "price": 200,
     "days": -1,
     "type": "lifetime",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.589Z"
   },
-  "RAVX-D23059DBJH": {
+  "RAVX-77KKC887QKQG": {
     "plan": "مدى الحياة",
     "price": 200,
     "days": -1,
     "type": "lifetime",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.589Z"
   },
-  "RAVX-BOGCXVOFHE": {
+  "RAVX-AXW7SJ37YFLL": {
     "plan": "مدى الحياة",
     "price": 200,
     "days": -1,
     "type": "lifetime",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.589Z"
   },
-  "RAVX-62WK4797ZV": {
+  "RAVX-LF6PRHVFSVED": {
     "plan": "مدى الحياة",
     "price": 200,
     "days": -1,
     "type": "lifetime",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.589Z"
   },
-  "RAVX-3W49T7LGCP": {
+  "RAVX-6VGEKWL28WYJ": {
     "plan": "مدى الحياة",
     "price": 200,
     "days": -1,
     "type": "lifetime",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.589Z"
   },
-  "RAVX-WKCDW0AAIV": {
+  "RAVX-B9TCE755ETLW": {
     "plan": "مدى الحياة",
     "price": 200,
     "days": -1,
     "type": "lifetime",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.589Z"
   },
-  "RAVX-332F9C9JGE": {
+  "RAVX-XBUSBSK69DND": {
     "plan": "مدى الحياة",
     "price": 200,
     "days": -1,
     "type": "lifetime",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.589Z"
   },
-  "RAVX-M1ZYKT73NG": {
+  "RAVX-554UJTCT2LBQ": {
     "plan": "مدى الحياة",
     "price": 200,
     "days": -1,
     "type": "lifetime",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.589Z"
   },
-  "RAVX-80HSS12U29": {
+  "RAVX-PVJMYYCTNTNJ": {
     "plan": "مدى الحياة",
     "price": 200,
     "days": -1,
     "type": "lifetime",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.589Z"
   },
-  "RAVX-2373LHG69A": {
+  "RAVX-M7Q47L73ET27": {
     "plan": "مدى الحياة",
     "price": 200,
     "days": -1,
     "type": "lifetime",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.589Z"
   },
-  "RAVX-T5NULJ84D5": {
+  "RAVX-5E97GN9AZBRP": {
     "plan": "مدى الحياة",
     "price": 200,
     "days": -1,
     "type": "lifetime",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.589Z"
   },
-  "RAVX-MNR3ZUJ39X": {
+  "RAVX-JTMATJRCU2LC": {
     "plan": "مدى الحياة",
     "price": 200,
     "days": -1,
     "type": "lifetime",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.589Z"
   },
-  "RAVX-D1WNQKNG5L": {
+  "RAVX-MQW6AYACZEYG": {
     "plan": "مدى الحياة",
     "price": 200,
     "days": -1,
     "type": "lifetime",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.589Z"
   },
-  "RAVX-7DJ5TFIUH2": {
+  "RAVX-Z7WT8MKUKL8X": {
     "plan": "مدى الحياة",
     "price": 200,
     "days": -1,
     "type": "lifetime",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.589Z"
   },
-  "RAVX-GUJ2X0WH43": {
+  "RAVX-UJ88S4STZM2V": {
     "plan": "مدى الحياة",
     "price": 200,
     "days": -1,
     "type": "lifetime",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.589Z"
   },
-  "RAVX-MBDD4ALJD6": {
+  "RAVX-EFDWRXBNV3QU": {
     "plan": "مدى الحياة",
     "price": 200,
     "days": -1,
     "type": "lifetime",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.589Z"
   },
-  "RAVX-KXWM08E4XL": {
+  "RAVX-SYD7MHFMQ3VE": {
     "plan": "مدى الحياة",
     "price": 200,
     "days": -1,
     "type": "lifetime",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.589Z"
   },
-  "RAVX-HWGVVYMSKV": {
+  "RAVX-77D36TTED84Q": {
     "plan": "مدى الحياة",
     "price": 200,
     "days": -1,
     "type": "lifetime",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.589Z"
   },
-  "RAVX-XIY40CHNFW": {
+  "RAVX-DNMEPFFNJ34A": {
     "plan": "مدى الحياة",
     "price": 200,
     "days": -1,
     "type": "lifetime",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.589Z"
   },
-  "RAVX-TUSPDQIMN2": {
+  "RAVX-TNT8CJHPBVRC": {
     "plan": "مدى الحياة",
     "price": 200,
     "days": -1,
     "type": "lifetime",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.589Z"
   },
-  "RAVX-JOP9N61YNL": {
+  "RAVX-VU574PY3PT5H": {
     "plan": "مدى الحياة",
     "price": 200,
     "days": -1,
     "type": "lifetime",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.589Z"
   },
-  "RAVX-Q74FU5RHB9": {
+  "RAVX-J45243NDRH7Z": {
     "plan": "مدى الحياة",
     "price": 200,
     "days": -1,
     "type": "lifetime",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.589Z"
   },
-  "RAVX-F83QO2BCIT": {
+  "RAVX-X836FFDUKZUN": {
     "plan": "مدى الحياة",
     "price": 200,
     "days": -1,
     "type": "lifetime",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.589Z"
   },
-  "RAVX-CCVG5V1SDD": {
+  "RAVX-8KWTJVNY4AGD": {
     "plan": "مدى الحياة",
     "price": 200,
     "days": -1,
     "type": "lifetime",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.589Z"
   },
-  "RAVX-AGU06XMGTA": {
+  "RAVX-D5T8SR7V7D8B": {
     "plan": "مدى الحياة",
     "price": 200,
     "days": -1,
     "type": "lifetime",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.589Z"
   },
-  "RAVX-TYS8VXNKCK": {
+  "RAVX-QYQW4H9DUELR": {
     "plan": "مدى الحياة",
     "price": 200,
     "days": -1,
     "type": "lifetime",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.589Z"
   },
-  "RAVX-FZ0HU6SL9M": {
+  "RAVX-Q7DDHBBXFHZM": {
     "plan": "مدى الحياة",
     "price": 200,
     "days": -1,
     "type": "lifetime",
-    "used": false
+    "maxEncrypts": null,
+    "used": false,
+    "createdAt": "2026-09-19T07:21:14.589Z"
   }
 }

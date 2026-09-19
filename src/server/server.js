@@ -5,6 +5,7 @@ const crypto = require('crypto');
 const os = require('os');
 const Busboy = require('busboy');
 const db = require('../database/db');
+const subs = require('../shared/subscriptions');
 
 const PUBLIC_DIR = path.resolve(__dirname, '../../public');
 const MAX_UPLOAD = Number(process.env.MAX_UPLOAD_BYTES || 5 * 1024 * 1024 * 1024);
@@ -95,37 +96,47 @@ setInterval(() => {
   for (const [k, b] of rateBuckets.entries()) if (b.resetAt < now) rateBuckets.delete(k);
 }, 5 * 60 * 1000).unref();
 
-// ==================== رصيد التشفير حسب الباقة (روم الصلاحيات) ====================
-// نفس ملف permissions.json اللي يديره البوت (index.js) — نقرأه ونكتبه هنا أيضاً
-// عشان نطبّق سقف عدد عمليات التشفير (مثل باقة "تجربة" المحدودة بعملية واحدة) على
-// تشفير الموقع أيضاً، وليس فقط تشفير الديسكورد.
-const PERMISSIONS_FILE = path.resolve(__dirname, '../../permissions.json');
-function loadPerm() { try { return JSON.parse(fs.readFileSync(PERMISSIONS_FILE, 'utf8')); } catch (e) { return {}; } }
-function savePerm(data) { try { fs.writeFileSync(PERMISSIONS_FILE, JSON.stringify(data, null, 4), 'utf8'); } catch (e) { console.error('[WEB] permissions save failed:', e.message); } }
-function checkEncryptCredit(userId) {
-  const perms = loadPerm();
-  const entry = perms[userId];
-  if (!entry || !entry.maxEncrypts) return { ok: true };
-  if ((entry.usedEncrypts || 0) >= entry.maxEncrypts) return { ok: false, message: 'استهلكت رصيد التشفير المتاح ضمن باقتك، جدّد اشتراكك للمتابعة.' };
-  return { ok: true };
+// ==================== الاشتراك ورصيد التشفير (مشترك مع البوت) ====================
+// كل القرارات تُقرأ لحظياً من محرك الاشتراكات (permissions.json) لا من الجلسة.
+// قبل كذا كان الموقع يعتمد على user.canEncrypt المخزّن في الجلسة والمحدَّث كل 3
+// دقائق، فيقدر العضو يشفّر أكثر من مرة خلال هذه الفجوة بعد ما ينتهي رصيده.
+function subscriptionInfo(userId) { return subs.getStatus(userId); }
+
+// سحب رتبة الاشتراك من Discord مباشرة من الموقع (لا ننتظر دورة البوت).
+async function removeRoleNow(userId, entry) {
+  const guildId = entry?.guildId || cfg.guildId;
+  const roleId = entry?.roleId || cfg.roleId;
+  if (!cfg.botToken || !guildId || !roleId) return false;
+  try {
+    await discordApi(`/guilds/${guildId}/members/${userId}/roles/${roleId}`, { method: 'DELETE', headers: { Authorization: `Bot ${cfg.botToken}` } });
+    return true;
+  } catch (e) {
+    console.error('[WEB] role removal failed:', e.message);
+    return false;
+  }
 }
-async function consumeEncryptCredit(userId) {
-  const perms = loadPerm();
-  const entry = perms[userId];
-  if (!entry || !entry.maxEncrypts) return;
-  entry.usedEncrypts = (entry.usedEncrypts || 0) + 1;
-  // مهم: لا نحذف السجل حتى لو انتهى الرصيد. لو حذفناه، وفشل حذف الرتبة من
-  // Discord لأي سبب (توكن ناقص، تأخير مؤقت من الـ API...)، بيصير المستخدم
-  // قادر يكرر التشفير من جديد لأن checkEncryptCredit ما بيلقى سجل يمنعه.
-  // نبقي السجل بحالة "مستهلك" دائماً فيبقى الحظر قائم بغض النظر عن نجاح حذف الرتبة.
-  if (entry.usedEncrypts >= entry.maxEncrypts) {
-    entry.exhausted = true;
-    if (cfg.botToken && cfg.guildId && entry.roleId) {
-      try { await discordApi(`/guilds/${cfg.guildId}/members/${userId}/roles/${entry.roleId}`, { method: 'DELETE', headers: { Authorization: `Bot ${cfg.botToken}` } }); } catch (e) { console.error('[WEB] role removal after credit exhausted:', e.message); }
+
+// إبطال صلاحية التشفير في كل جلسات هذا المستخدم فوراً — عشان الواجهة تتحدث
+// لحظة انتهاء الرصيد بدل ما تنتظر دورة التحديث (هذا سبب "الموقع يتأخر").
+function invalidateUserSessions(userId, canEncrypt = false) {
+  let changed = false;
+  for (const session of sessions.values()) {
+    if (session?.user?.id === String(userId)) {
+      session.user.canEncrypt = canEncrypt;
+      session.user.permCheckedAt = Date.now();
+      changed = true;
     }
   }
-  savePerm(perms);
+  if (changed) saveSessionsToDisk();
 }
+
+// بعد نفاد الرصيد: قفل السجل (تم داخل subs.commit) + سحب الرتبة + إبطال الجلسات.
+async function finalizeExhausted(userId, entry) {
+  const ok = await removeRoleNow(userId, entry);
+  if (ok) subs.markRoleRemoved(userId);
+  invalidateUserSessions(userId, false);
+}
+
 // يمنع نفس المستخدم من إرسال أكثر من طلب تشفير بنفس اللحظة (يحمي رصيد الباقات
 // المحدودة من استهلاك مضاعف لو ضغط المستخدم الزر مرتين بسرعة).
 const encryptingNow = new Set();
@@ -165,6 +176,10 @@ async function getDiscordAccess(user, member) {
   const roles = member.roles || [];
   const adminById = cfg.adminIds.has(user.id) || user.id === process.env.OWNER_DISCORD_ID;
   if (adminById) return { canEncrypt: true, isAdmin: true };
+  // لو عنده سجل اشتراك في النظام، هو المرجع (لا ننتظر مزامنة الرتبة من Discord):
+  // يفعّل كود من الديسكورد → يقدر يشفّر من الموقع فوراً، وينتهي رصيده → يُمنع فوراً.
+  const sub = subs.getStatus(user.id);
+  if (sub.entry) return { canEncrypt: sub.active, isAdmin: false };
   if (!cfg.botToken || !cfg.guildId) return { canEncrypt: !!(cfg.roleId && roles.includes(cfg.roleId)), isAdmin: false };
   try {
     const guildMember = await discordApi(`/guilds/${cfg.guildId}/members/${user.id}`, { headers: { Authorization: `Bot ${cfg.botToken}` } });
@@ -255,16 +270,44 @@ function parseUpload(req) {
   });
 }
 async function encryptRoute(req, res) {
-  const user = requireUser(req, res, true);
+  const user = requireUser(req, res);
   if (!user) return;
 
-  const credit = checkEncryptCredit(user.id);
-  if (!credit.ok) return sendJson(res, 403, { success: false, message: credit.message });
+  // التحقق الحيّ: الأدمن مسموح دائماً، ومن عنده سجل اشتراك يُحكم عليه من السجل
+  // نفسه لحظياً، ومن ما عنده سجل (رتبة يدوية) يُحكم عليه من صلاحية الجلسة.
+  const sub = subscriptionInfo(user.id);
+  if (!user.isAdmin) {
+    if (sub.entry && !sub.active) {
+      invalidateUserSessions(user.id, false);
+      return sendJson(res, 403, { success: false, message: subs.inactiveReason(sub.entry) });
+    }
+    if (!sub.entry && !user.canEncrypt) {
+      return sendJson(res, 403, { success: false, message: 'لا تملك صلاحية التشفير. فعّل كود اشتراك أولاً.' });
+    }
+  }
 
   if (encryptingNow.has(user.id)) return sendJson(res, 409, { success: false, message: 'في عملية تشفير جارية بالفعل، انتظر انتهاءها.' });
   encryptingNow.add(user.id);
 
-  if (!engine?.encryptResource) { encryptingNow.delete(user.id); return sendJson(res, 503, { success: false, message: 'محرك التشفير غير متاح' }); }
+  // 🔒 حجز العملية من الرصيد قبل بدء المعالجة — نفس القفل الذي يستعمله البوت،
+  // فلا يمكن استهلاك عملية التجربة الواحدة مرتين (موقع + ديسكورد بنفس اللحظة).
+  let reserved = false, committed = false;
+  if (!user.isAdmin) {
+    const reservation = subs.reserve(user.id);
+    if (!reservation.ok) {
+      encryptingNow.delete(user.id);
+      invalidateUserSessions(user.id, false);
+      return sendJson(res, 403, { success: false, message: reservation.message });
+    }
+    reserved = reservation.tracked;
+  }
+
+  if (!engine?.encryptResource) {
+    if (reserved) subs.release(user.id);
+    encryptingNow.delete(user.id);
+    return sendJson(res, 503, { success: false, message: 'محرك التشفير غير متاح' });
+  }
+
   let upload;
   try {
     upload = await parseUpload(req);
@@ -276,10 +319,20 @@ async function encryptRoute(req, res) {
     if (!isValidTarget(targetIp)) throw Error('صيغة IP/دومين السيرفر غير صحيحة');
     const result = await engine.encryptResource({ inputZipPath: upload.filePath, targetIp, resourceName, encryptionMode, uploader: { id: user.id, name: user.username } });
     if (!result?.script || !fs.existsSync(db.getFilePath(result.script.savedFilename))) throw Error('فشل حفظ الملف المشفر');
-    await consumeEncryptCredit(user.id);
-    sendJson(res, 200, { success: true, script: publicScript(result.script) });
+
+    // تأكيد الاستهلاك فور نجاح التشفير، ثم سحب الرتبة وإبطال الجلسة فوراً لو نفد الرصيد
+    let subscription = null;
+    if (!user.isAdmin) {
+      const commit = subs.commit(user.id);
+      committed = true;
+      if (commit.exhausted) await finalizeExhausted(user.id, commit.entry);
+      subscription = subs.getStatus(user.id).info;
+    }
+    sendJson(res, 200, { success: true, script: publicScript(result.script), subscription });
   } catch (e) {
     console.error('[WEB] encryption:', e);
+    // فشل التشفير → إرجاع الحجز، العميل ما يخسر عملية من باقته
+    if (reserved && !committed) { try { subs.release(user.id); } catch (err) {} }
     sendJson(res, 400, { success: false, message: e.message || 'فشل التشفير' });
   } finally {
     encryptingNow.delete(user.id);
@@ -304,7 +357,23 @@ function createServer() {
       }
       if (p === '/api/auth/me') {
         const user = await refreshSessionPermissions(req);
-        return sendJson(res, 200, { success: true, user, oauthConfigured: !!(cfg.clientId && cfg.clientSecret && cfg.redirectUri && cfg.guildId), permissionRoleConfigured: !!cfg.roleId });
+        let subscription = null;
+        if (user) {
+          const sub = subscriptionInfo(user.id);
+          subscription = sub.info;
+          // مصدر الحقيقة للتشفير هو سجل الاشتراك، فنصحّح الجلسة فوراً عند أي تغيّر
+          if (sub.entry && !user.isAdmin && user.canEncrypt !== sub.active) {
+            user.canEncrypt = sub.active;
+            user.permCheckedAt = Date.now();
+            saveSessionsToDisk();
+          }
+        }
+        return sendJson(res, 200, { success: true, user, subscription, oauthConfigured: !!(cfg.clientId && cfg.clientSecret && cfg.redirectUri && cfg.guildId), permissionRoleConfigured: !!cfg.roleId });
+      }
+      if (p === '/api/subscription') {
+        const user = requireUser(req, res);
+        if (!user) return;
+        return sendJson(res, 200, { success: true, subscription: subscriptionInfo(user.id).info });
       }
       if (p === '/api/auth/logout') {
         const raw = cookieValue(req, 'ravx_session');

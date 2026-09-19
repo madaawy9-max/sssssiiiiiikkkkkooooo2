@@ -21,6 +21,7 @@ const http = require('http');
 const AdmZip = require('adm-zip');
 const db = require('./src/database/db');
 const { createServer } = require('./src/server/server');
+const subs = require('./src/shared/subscriptions');
 
 // ==================== إعدادات النظام ====================
 const TOKEN = process.env.DISCORD_BOT_TOKEN;
@@ -88,20 +89,10 @@ async function sendTempMessage(channel, content, seconds = 8) {
 const userSessionData = new Map();
 const adminGrantSession = new Map();
 
-function loadPermissions() {
-    try {
-        if (fs.existsSync(permissionsFilePath)) {
-            return JSON.parse(fs.readFileSync(permissionsFilePath, 'utf8'));
-        }
-    } catch (e) {}
-    return {};
-}
-
-function savePermissions(data) {
-    fs.writeFileSync(permissionsFilePath, JSON.stringify(data, null, 4), 'utf8');
-}
-
-let encryptPermissions = loadPermissions();
+// كل الصلاحيات تُقرأ وتُكتب عبر محرك الاشتراكات المشترك (src/shared/subscriptions.js).
+// ممنوع الاحتفاظ بنسخة في الذاكرة هنا: الموقع يعدّل نفس الملف، وأي نسخة قديمة
+// نحفظها لاحقاً كانت تمسح استهلاك الرصيد القادم من الموقع (ثغرة تكرار التجربة).
+function loadPermissions() { return subs.readPermissions(); }
 
 function loadPermissionCodes() {
     try {
@@ -153,82 +144,65 @@ async function logSubscriptionEvent({ userId, username, code, plan, source, expi
 }
 
 // ==================== إعدادات كل نوع باقة ====================
-// نعتمد على "type" المخزّن مع كل كود لتحديد المدة الحقيقية وسقف الاستخدام،
-// بدل الاعتماد فقط على حقل days المخزّن يدوياً (كان سبب خلل باقة "تجربة" التي
-// تنتهي فوراً لأن days=0 يساوي Date.now() + 0).
-const PLAN_LIMITS = {
-    single_script: { days: 3, maxEncrypts: 1 },   // تجربة: نافذة 3 أيام لاستخدام العملية الواحدة، تنتهي فور استهلاكها أو بعد 3 أيام أيهما أسبق
-    unlimited_24h: { days: 1, maxEncrypts: null }, // يومي
-    unlimited_7d: { days: 7, maxEncrypts: null },  // أسبوعي
-    unlimited_support: { days: 30, maxEncrypts: null }, // شهري
-    lifetime: { days: -1, maxEncrypts: null }      // مدى الحياة
-};
-
-// قفل بسيط (Mutex) يسلسل عمليات القراءة/الكتابة على ملفات الأكواد والصلاحيات
-// حتى لو وصل طلبان بنفس اللحظة (زر + رسالة، أو عضوان مختلفان)، فما ينصير
-// تعارض يخلي كود يُستخدم مرتين أو يضيع تحديث.
-let ioLock = Promise.resolve();
-function withLock(fn) {
-    const run = ioLock.then(fn, fn);
-    ioLock = run.then(() => {}, () => {});
-    return run;
-}
+// مصدرها الوحيد الآن محرك الاشتراكات المشترك، حتى يطبّق البوت والموقع نفس
+// المدد ونفس سقف عمليات التشفير بالضبط.
+const PLAN_LIMITS = subs.PLAN_LIMITS;
 
 async function redeemPermissionCode(code, userId, guildId) {
-    return withLock(() => {
-        const active = loadPermissions()[userId];
-        if (active && (active.expiresAt === -1 || (active.expiresAt && active.expiresAt > Date.now()))) {
-            return { ok: false, message: '⚠️ لديك اشتراك فعال بالفعل. انتظر انتهاءه قبل تفعيل كود جديد.' };
-        }
-        const codes = loadPermissionCodes();
-        const key = String(code || '').trim().toUpperCase();
-        const item = codes[key];
-        if (!item) return { ok: false, message: 'الكود غير صحيح.' };
-        if (item.used) return { ok: false, message: 'هذا الكود مستخدم مسبقاً ولا يمكن استخدامه مرة أخرى.' };
-
-        const limits = PLAN_LIMITS[item.type] || { days: Number(item.days) || 0, maxEncrypts: null };
-        const expiresAt = limits.days === -1 ? -1 : Date.now() + limits.days * 24 * 60 * 60 * 1000;
-
-        // نوسم الكود مستخدم فوراً داخل نفس القفل — يمنع أي سباق بين طلبين لنفس الكود
-        item.used = true;
-        item.usedBy = userId;
-        item.usedAt = Date.now();
-        savePermissionCodes(codes);
-
-        return { ok: true, days: limits.days, plan: item.plan, planType: item.type, maxEncrypts: limits.maxEncrypts, expiresAt, code: key };
+    return subs.redeem(code, userId, {
+        guildId,
+        roleId: GRANT_PERMISSION_ROLE_ID,
+        source: 'STORE_CODE'
     });
 }
 
+// صلاحية التشفير من الديسكورد:
+// - الأدمن دائماً مسموح.
+// - لو عنده سجل اشتراك: القرار من السجل فقط (منتهي/مستهلك = ممنوع فوراً،
+//   حتى لو بقيت الرتبة عالقة عليه في Discord لأي سبب).
+// - لو ما عنده سجل إطلاقاً (رتبة أعطاها أدمن يدوياً من داخل Discord): نعتمد الرتبة.
 function hasEncryptAccess(interaction) {
     if (interaction.member.permissions.has(PermissionFlagsBits.Administrator)) return true;
-    const entry = encryptPermissions[interaction.user.id];
-    if (!entry) return false;
-    if (entry.expiresAt !== -1 && entry.expiresAt && Date.now() > entry.expiresAt) return false;
-    if (entry.maxEncrypts && (entry.usedEncrypts || 0) >= entry.maxEncrypts) return false;
-    return true;
+    const { active, entry } = subs.getStatus(interaction.user.id);
+    if (entry) return active;
+    return !!(GRANT_PERMISSION_ROLE_ID && interaction.member.roles.cache.has(GRANT_PERMISSION_ROLE_ID));
 }
 
-// يستهلك رصيد تشفير واحد من باقة العضو (مثل التجربة المحدودة بعملية واحدة).
-// مهم: ما نحذف السجل نهائياً عند استهلاك الرصيد — نكتفي بتصفير صلاحية الوقت
-// (expiresAt بالماضي) عشان يقدر يشتري باقة جديدة لاحقاً، لكن نُبقي maxEncrypts/
-// usedEncrypts كما هي حتى موقع الويب (اللي يقرأ نفس الملف عبر checkEncryptCredit)
-// يستمر برفض أي محاولة تشفير إضافية حتى لو فشل حذف الرتبة من Discord لأي سبب.
-// أي إعادة استخدام لاحقة (شراء كود جديد) تستبدل هذا السجل بالكامل بسجل جديد.
+function encryptDenyMessage(userId) {
+    const { entry } = subs.getStatus(userId);
+    if (!entry) return '⛔ ما عندك اشتراك فعّال. فعّل كود اشتراك من روم الأكواد وبعدها ارجع.';
+    return `⛔ ${subs.inactiveReason(entry)}`;
+}
+
+// سحب الرتبة فوراً من العضو (يُستدعى لحظة استهلاك الرصيد أو انتهاء المدة —
+// بدون انتظار أي دورة فحص).
+async function removeSubscriptionRole(guildId, userId, roleId) {
+    try {
+        const guild = client.guilds.cache.get(guildId) || (guildId ? await client.guilds.fetch(guildId).catch(() => null) : null);
+        if (!guild || !roleId) return false;
+        const member = await guild.members.fetch(userId).catch(() => null);
+        if (!member) return true; // العضو غادر السيرفر — لا شيء لسحبه
+        if (!member.roles.cache.has(roleId)) return true;
+        await member.roles.remove(roleId);
+        return true;
+    } catch (e) {
+        console.error('[RAVX BOT] فشل سحب الرتبة:', e.message);
+        return false;
+    }
+}
+
+// تأكيد استهلاك عملية تشفير ناجحة + سحب فوري للرتبة عند نفاد الرصيد.
 async function consumeEncryptCredit(guild, userId) {
-    const entry = encryptPermissions[userId];
-    if (!entry || !entry.maxEncrypts) return;
-    entry.usedEncrypts = (entry.usedEncrypts || 0) + 1;
-    if (entry.usedEncrypts >= entry.maxEncrypts) {
-        entry.exhausted = true;
-        entry.expiresAt = Date.now() - 1; // يسمح بشراء باقة جديدة لاحقاً بدون ما يفتح ثغرة تشفير مجاني
+    const result = subs.commit(userId);
+    if (!result.tracked) return;
+    if (result.exhausted) {
+        const ok = await removeSubscriptionRole(result.entry.guildId || guild?.id, userId, result.entry.roleId);
+        if (ok) subs.markRoleRemoved(userId);
+        console.log(`[RAVX BOT] استهلك العضو ${userId} كامل رصيد التشفير (${result.entry.plan || 'تجربة'}) — تم القفل وسحب الرتبة فوراً.`);
         try {
-            const member = await guild.members.fetch(userId).catch(() => null);
-            if (member && entry.roleId) await member.roles.remove(entry.roleId).catch(() => {});
+            const user = await client.users.fetch(userId).catch(() => null);
+            if (user) await user.send('🔔 انتهى رصيد باقتك بعد عملية التشفير. سُحبت رتبة الاشتراك، وتقدر تفعّل كود جديد في أي وقت.').catch(() => {});
         } catch (e) {}
-        savePermissions(encryptPermissions);
-        console.log(`[RAVX BOT] استهلك العضو ${userId} كامل رصيد التشفير (${entry.plan || 'تجربة'}) وتم قفل الكود نهائياً.`);
-    } else {
-        savePermissions(encryptPermissions);
     }
 }
 
@@ -238,15 +212,12 @@ function canGrantPermissions(interaction) {
     return false;
 }
 
+// سحب صلاحية منتهية: نسحب الرتبة، ونبقي السجل محفوظاً بحالة "منتهٍ" بدل حذفه.
+// حذف السجل كان يفتح ثغرة: لو فشل سحب الرتبة، يختفي ما يمنع التشفير من الموقع.
+// السجل المنتهي لا يمنع العضو من تفعيل كود جديد (isActive = false).
 async function revokeExpiredPermission(guild, userId, entry) {
-    try {
-        const member = await guild.members.fetch(userId).catch(() => null);
-        if (member && entry.roleId) {
-            await member.roles.remove(entry.roleId).catch(() => {});
-        }
-    } catch (e) {}
-    delete encryptPermissions[userId];
-    savePermissions(encryptPermissions);
+    const ok = await removeSubscriptionRole(entry.guildId || guild?.id, userId, entry.roleId);
+    if (ok) subs.markRoleRemoved(userId);
 }
 
 function loadLicenses() {
@@ -927,23 +898,20 @@ new ButtonBuilder().setCustomId('btn_web_upload').setLabel('🌐 رفع من ا�
         // تنظيف فوري لأي اشتراك انتهى أثناء توقف البوت (قبل أول دورة فحص كل دقيقة)
         await checkExpiredSubscriptions();
 
-        // فحص دوري كل دقيقة
+        // فحص دوري كل 15 ثانية (كان كل دقيقة) — شبكة أمان فقط، لأن السحب الأساسي
+        // صار فورياً لحظة استهلاك الرصيد أو انتهاء المدة. هذه الدورة تلتقط الحالات
+        // التي فشل فيها نداء Discord سابقاً أو التي انتهت مدتها أثناء توقف البوت.
         setInterval(async () => {
-            const now = Date.now();
-            for (const [userId, entry] of Object.entries(encryptPermissions)) {
-                if (entry.exhausted) continue; // مستهلك بالكامل مسبقاً — سجل محفوظ عمداً لمنع تشفير إضافي، ما نحذفه هنا
-                if (entry.expiresAt !== -1 && entry.expiresAt && now > entry.expiresAt) {
-                    const guild = client.guilds.cache.get(entry.guildId);
-                    if (guild) {
-                        await revokeExpiredPermission(guild, userId, entry);
-                        console.log(`[RAVX BOT] انتهت صلاحية التشفير للعضو ${userId} وتم سحبها تلقائياً.`);
-                    } else {
-                        delete encryptPermissions[userId];
-                        savePermissions(encryptPermissions);
+            try {
+                for (const { userId, entry } of subs.pendingRevocations()) {
+                    const ok = await removeSubscriptionRole(entry.guildId, userId, entry.roleId);
+                    if (ok) {
+                        subs.markRoleRemoved(userId);
+                        console.log(`[RAVX BOT] انتهت صلاحية التشفير للعضو ${userId} وتم سحب الرتبة.`);
                     }
                 }
-            }
-        }, 60 * 1000);
+            } catch (e) { console.error('[RAVX BOT] دورة سحب الصلاحيات:', e.message); }
+        }, 15 * 1000);
 
     } catch (error) {
         console.error('خطأ في تشغيل RAVX:', error);
@@ -961,19 +929,8 @@ client.on('interactionCreate', async interaction => {
         const member = await interaction.guild.members.fetch(interaction.user.id);
         const role = interaction.guild.roles.cache.get(GRANT_PERMISSION_ROLE_ID);
         if (!role) return interaction.reply({content:'❌ رتبة الاشتراك غير موجودة', flags:MessageFlags.Ephemeral});
-        await member.roles.add(role);
-        encryptPermissions[interaction.user.id] = {
-            roleId: GRANT_PERMISSION_ROLE_ID,
-            guildId: interaction.guild.id,
-            expiresAt: result.expiresAt,
-            maxEncrypts: result.maxEncrypts,
-            usedEncrypts: 0,
-            plan: result.plan,
-            code: result.code,
-            grantedAt: Date.now(),
-            grantedBy: 'BUTTON'
-        };
-        savePermissions(encryptPermissions);
+        await member.roles.add(role).catch(() => {});
+        // السجل كُتب فعلياً داخل subs.redeem تحت قفل مشترك — ما نكتبه مرة ثانية من هنا
         await logSubscriptionEvent({ userId: interaction.user.id, username: interaction.user.tag, code: result.code, plan: result.plan, source: 'زر إدخال الكود', expiresAt: result.expiresAt });
         const successEmbed = new EmbedBuilder()
             .setColor(0x0099ff)
@@ -1020,7 +977,7 @@ if (interaction.customId === 'btn_web_upload') {
 if (interaction.customId === 'btn_start_protect') {
             if (!hasEncryptAccess(interaction)) {
                 return await interaction.reply({
-                    content: '⛔ ما عندك صلاحية استخدام ميزة التشفير. تواصل مع الإدارة عشان يمنحونك وصول.',
+                    content: encryptDenyMessage(interaction.user.id),
                     flags: MessageFlags.Ephemeral
                 });
             }
@@ -1095,20 +1052,22 @@ if (interaction.customId === 'btn_start_protect') {
                 return await interaction.reply({ content: '⛔ هذا الزر للإدارة فقط.', flags: MessageFlags.Ephemeral });
             }
 
-            encryptPermissions = loadPermissions();
-            const entries = Object.entries(encryptPermissions);
+            const entries = subs.all();
+            const activeOnes = entries.filter(e => e.active);
 
             if (entries.length === 0) {
                 return await interaction.reply({ content: '📭 ما فيه أي صلاحيات ممنوحة حالياً.', flags: MessageFlags.Ephemeral });
             }
 
-            const lines = entries.map(([uid, e]) => {
-                const expiry = e.expiresAt ? `<t:${Math.floor(e.expiresAt / 1000)}:R>` : '**دائمة**';
-                return `• <@${uid}> — رتبة <@&${e.roleId}> — تنتهي: ${expiry}`;
+            const lines = entries.slice(-25).map(e => {
+                const expiry = e.expiresAt === -1 ? '**دائمة**' : `<t:${Math.floor(e.expiresAt / 1000)}:R>`;
+                const credit = e.remaining === null ? 'غير محدود' : `${e.remaining}/${e.maxEncrypts}`;
+                const state = e.active ? '🟢 فعّال' : (e.exhausted ? '🔴 مستهلك' : '⚪ منتهٍ');
+                return `• <@${e.userId}> — ${e.plan} — ${state} — رصيد: ${credit} — ينتهي: ${expiry}`;
             });
 
             return await interaction.reply({
-                content: `### 📋 الصلاحيات الحالية\n${lines.join('\n')}`,
+                content: `### 📋 الصلاحيات (فعّالة: ${activeOnes.length} من ${entries.length})\n${lines.join('\n')}`,
                 flags: MessageFlags.Ephemeral
             });
         }
@@ -1199,6 +1158,7 @@ if (interaction.customId === 'btn_start_protect') {
             ? null
             : Date.now() + durationDaysMap[durationKey] * 24 * 60 * 60 * 1000;
 
+
         const guild = interaction.guild;
         const member = await guild.members.fetch(session.targetUserId).catch(() => null);
 
@@ -1209,14 +1169,12 @@ if (interaction.customId === 'btn_start_protect') {
 
         await member.roles.add(session.roleId).catch(() => {});
 
-        encryptPermissions[session.targetUserId] = {
+        subs.grantManual(session.targetUserId, {
             roleId: session.roleId,
             guildId: guild.id,
-            expiresAt,
-            grantedBy: interaction.user.id,
-            grantedAt: Date.now()
-        };
-        savePermissions(encryptPermissions);
+            days: durationKey === 'permanent' ? -1 : durationDaysMap[durationKey],
+            grantedBy: interaction.user.id
+        });
         adminGrantSession.delete(interaction.user.id);
 
         const expiryText = expiresAt ? `<t:${Math.floor(expiresAt / 1000)}:F>` : '**دائمة، ما تنتهي إلا بسحبها يدوياً**';
@@ -1315,6 +1273,15 @@ if (interaction.customId === 'btn_start_protect') {
             const fileUrl = attachment.url || attachment.proxyURL;
             const fileProxyUrl = attachment.proxyURL;
 
+            // 🔒 حجز عملية تشفير من رصيد الباقة قبل بدء أي معالجة.
+            // الحجز يتم داخل قفل مشترك مع الموقع، فلا يقدر العضو يشغّل عمليتين
+            // بنفس اللحظة (وحدة من الديسكورد ووحدة من الموقع) على رصيد واحد.
+            const reservation = subs.reserve(interaction.user.id);
+            if (!reservation.ok) {
+                return await interaction.editReply({ content: `⛔ ${reservation.message}`, components: [] }).catch(() => {});
+            }
+            let creditCommitted = false;
+
             // إشعار المستخدم بالبدء وتحديث الرد
             await interaction.editReply({
                 content: '⏳ **تم استلام الملف بنجاح!** جاري التحميل وفك الضغط وتشفير الأكواد بمحرك V8... برجاء الانتظار ثوانٍ...',
@@ -1409,6 +1376,7 @@ if (interaction.customId === 'btn_start_protect') {
                 // استهلاك رصيد التشفير لو العضو على باقة محدودة العدد (مثل التجربة) —
                 // بعدها يُسحب دوره تلقائياً ولا يقدر يكرر التشفير حتى لو الكود صار "منتهي" فقط لا "محذوف".
                 await consumeEncryptCredit(interaction.guild, interaction.user.id);
+                creditCommitted = true;
 
                 const webRow = new ActionRowBuilder().addComponents(
                     new ButtonBuilder()
@@ -1460,6 +1428,8 @@ if (interaction.customId === 'btn_start_protect') {
 
             } catch (err) {
                 console.error('Error in direct zip processing:', err);
+                // فشلت العملية → نرجّع الحجز حتى لا يخسر العميل رصيده مقابل عملية لم تكتمل
+                if (!creditCommitted) { try { subs.release(interaction.user.id); } catch (e) {} }
 
                 // حذف رسالة الملف حتى عند حدوث خطأ أثناء المعالجة
                 if (userMessage) {
@@ -1507,13 +1477,9 @@ if (interaction.customId === 'btn_start_protect') {
 
 // تنظيف الاشتراكات المنتهية عند تشغيل البوت
 async function checkExpiredSubscriptions() {
-    const now = Date.now();
-    for (const [userId, entry] of Object.entries(encryptPermissions)) {
-        if (entry.exhausted) continue; // نفس المنطق: سجل رصيد مستهلك، محفوظ عمداً
-        if (entry.expiresAt && entry.expiresAt !== -1 && now > entry.expiresAt) {
-            const guild = client.guilds.cache.get(entry.guildId);
-            if (guild) await revokeExpiredPermission(guild, userId, entry);
-        }
+    for (const { userId, entry } of subs.pendingRevocations()) {
+        const ok = await removeSubscriptionRole(entry.guildId, userId, entry.roleId);
+        if (ok) subs.markRoleRemoved(userId);
     }
 }
 
@@ -1562,18 +1528,7 @@ client.on('messageCreate', async (message) => {
             }
         }
 
-        encryptPermissions[message.author.id] = {
-            roleId: selectedRole,
-            guildId: message.guild?.id,
-            expiresAt: result.expiresAt,
-            maxEncrypts: result.maxEncrypts,
-            usedEncrypts: 0,
-            plan: result.plan,
-            code: result.code,
-            grantedBy: 'STORE_CODE',
-            grantedAt: Date.now()
-        };
-        savePermissions(encryptPermissions);
+        // السجل محفوظ مسبقاً داخل subs.redeem (قفل مشترك بين البوت والموقع)
         await logSubscriptionEvent({ userId: message.author.id, username: message.author.tag, code: result.code, plan: result.plan, source: 'روم الصلاحيات', expiresAt: result.expiresAt });
 
         await message.channel.send({

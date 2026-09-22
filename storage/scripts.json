@@ -1,0 +1,110 @@
+[
+  {
+    "id": "59d45fdb-da2c-49a3-8c4a-6bd43c75f9d2",
+    "code": "RAVX-ZTKUH",
+    "title": "qb-storerobbery",
+    "originalFilename": "RAVX_Secured_qb-storerobbery_32.zip",
+    "savedFilename": "RAVX_Secured_qb-storerobbery_32.zip",
+    "fileSize": 42920,
+    "fileExtension": "zip",
+    "targetIp": "32",
+    "resourceName": "qb-storerobbery",
+    "encryptionMode": "target",
+    "uploader": {
+      "name": ".s.i.k.o",
+      "id": "1259598819767746591"
+    },
+    "downloads": 0,
+    "createdAt": "2026-09-05T13:24:27.214Z"
+  },
+  {
+    "id": "d9aa24d2-fafe-444c-8071-aa85533fe4b0",
+    "code": "RAVX-GGQ3B",
+    "title": "DeeP-Time",
+    "originalFilename": "RAVX_Secured_DeeP-Time_2313.zip",
+    "savedFilename": "RAVX_Secured_DeeP-Time_2313.zip",
+    "fileSize": 6589,
+    "fileExtension": "zip",
+    "targetIp": "2313",
+    "resourceName": "DeeP-Time",
+    "encryptionMode": "target",
+    "uploader": {
+      "name": ".s.i.k.o",
+      "id": "1259598819767746591"
+    },
+    "downloads": 0,
+    "createdAt": "2026-09-05T07:35:01.984Z"
+  },
+  {
+    "id": "17659188-0bef-4999-a58c-cee691eadeaf",
+    "code": "RAVX-6UKT2",
+    "title": "DeeP-Time",
+    "originalFilename": "RAVX_Secured_DeeP-Time_132.zip",
+    "savedFilename": "RAVX_Secured_DeeP-Time_132.zip",
+    "fileSize": 4911,
+    "fileExtension": "zip",
+    "targetIp": "132",
+    "resourceName": "DeeP-Time",
+    "encryptionMode": "target",
+    "uploader": {
+      "name": ".s.i.k.o",
+      "id": "1259598819767746591"
+    },
+    "downloads": 0,
+    "createdAt": "2026-09-05T07:21:33.343Z"
+  },
+  {
+    "id": "a0471216-9ee1-4630-bd55-484f87812afe",
+    "code": "RAVX-AQHK6",
+    "title": "DeeP-Time",
+    "originalFilename": "RAVX_Secured_DeeP-Time_231.zip",
+    "savedFilename": "RAVX_Secured_DeeP-Time_231.zip",
+    "fileSize": 2723,
+    "fileExtension": "zip",
+    "targetIp": "231",
+    "resourceName": "DeeP-Time",
+    "encryptionMode": "none",
+    "uploader": {
+      "name": ".s.i.k.o",
+      "id": "1259598819767746591"
+    },
+    "downloads": 0,
+    "createdAt": "2026-09-05T06:42:11.701Z"
+  },
+  {
+    "id": "7fa73af4-68e2-4b67-b1e5-cf7b51894750",
+    "code": "RAVX-QYNQ2",
+    "title": "DeeP-Time",
+    "originalFilename": "RAVX_Secured_DeeP-Time_21213.zip",
+    "savedFilename": "RAVX_Secured_DeeP-Time_21213.zip",
+    "fileSize": 5097,
+    "fileExtension": "zip",
+    "targetIp": "21213",
+    "resourceName": "DeeP-Time",
+    "encryptionMode": "target",
+    "uploader": {
+      "name": ".s.i.k.o",
+      "id": "1259598819767746591"
+    },
+    "downloads": 2,
+    "createdAt": "2026-09-05T06:40:15.264Z"
+  },
+  {
+    "id": "f8db597d-da03-4ef6-90ec-da91b5138055",
+    "code": "RAVX-DEMO1",
+    "title": "qb-vehicleshop (تجريبي)",
+    "originalFilename": "RAVX_Secured_qb-vehicleshop_127_0_0_1.zip",
+    "savedFilename": "demo_ravx_script.zip",
+    "fileSize": 1048576,
+    "fileExtension": "zip",
+    "targetIp": "127.0.0.1",
+    "resourceName": "qb-vehicleshop",
+    "encryptionMode": "target",
+    "uploader": {
+      "name": "RAVX Admin",
+      "id": null
+    },
+    "downloads": 0,
+    "createdAt": "2026-09-05T06:33:19.237Z"
+  }
+]

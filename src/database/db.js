@@ -101,6 +101,74 @@ function saveScript({
   return newEntry;
 }
 
+// 🔑 يحجز كوداً فريداً ويحفظ سجلاً مبدئياً (pending) قبل حتى ما نبدأ نشفّر —
+// عشان نقدر ندمج الكود نفسه داخل ملف Lua (كمعرّف ترخيص) بدل الآي بي الخام.
+// كتابة السجل فوراً (بدون await بينها وبين توليد الكود) تمنع تكرار نفس الكود
+// لأن Node أحادي الخيط ولا يوجد نداء غير متزامن بينهما.
+function createPendingScript({ resourceName, targetIp = null, encryptionMode = 'target', uploaderName = 'RAVX User', uploaderId = null }) {
+  const db = readDatabase();
+  let code;
+  do { code = generateCode('RAVX'); } while (db.some(item => item.code.toUpperCase() === code.toUpperCase()));
+
+  const newEntry = {
+    id: crypto.randomUUID ? crypto.randomUUID() : Date.now().toString(),
+    code: code.toUpperCase(),
+    title: resourceName,
+    originalFilename: null,
+    savedFilename: null,
+    fileSize: 0,
+    fileExtension: 'zip',
+    targetIp,
+    resourceName,
+    encryptionMode,
+    uploader: { name: uploaderName, id: uploaderId },
+    downloads: 0,
+    createdAt: new Date().toISOString(),
+    pending: true
+  };
+  db.unshift(newEntry);
+  writeDatabase(db);
+  return newEntry;
+}
+
+// يُستدعى بعد نجاح التشفير وإنتاج الملف النهائي — يكمل بيانات السجل المبدئي.
+function finalizeScript(code, { originalFilename, savedFilename, fileSize }) {
+  const db = readDatabase();
+  const entry = db.find(s => s.code === String(code).toUpperCase());
+  if (!entry) return null;
+  entry.originalFilename = originalFilename;
+  entry.savedFilename = savedFilename;
+  entry.fileSize = fileSize || 0;
+  entry.fileExtension = path.extname(originalFilename || savedFilename).toLowerCase().replace('.', '') || 'zip';
+  delete entry.pending;
+  writeDatabase(db);
+  return entry;
+}
+
+// يحذف سجلاً مبدئياً لو فشلت المعالجة، حتى لا يبقى كود "معلَّق" بلا ملف حقيقي.
+function deleteScript(code) {
+  const db = readDatabase();
+  const idx = db.findIndex(s => s.code === String(code).toUpperCase());
+  if (idx === -1) return false;
+  db.splice(idx, 1);
+  writeDatabase(db);
+  return true;
+}
+
+// 🌐 تغيير الآي بي المرخَّص لسكربت موجود بالفعل — هذا هو أساس ميزة "الآي بي
+// الحيّ": الملف المشفَّر عند العميل يسأل خادمنا عن الآي بي المسموح بكوده
+// وقت التشغيل بدل ما يكون الآي بي مدموجاً ثابتاً بداخل الملف، فتغييره هنا
+// يطبَّق تلقائياً عند العميل بدون ما تحتاج ترسل له ملفاً جديداً.
+function updateTargetIp(code, newIp) {
+  const db = readDatabase();
+  const entry = db.find(s => s.code === String(code).toUpperCase());
+  if (!entry) return null;
+  entry.targetIp = newIp;
+  entry.ipUpdatedAt = new Date().toISOString();
+  writeDatabase(db);
+  return entry;
+}
+
 // البحث عن سكربت بواسطة الكود
 function findByCode(code) {
   if (!code) return null;
@@ -169,6 +237,10 @@ initDemoData();
 
 module.exports = {
   saveScript,
+  createPendingScript,
+  finalizeScript,
+  deleteScript,
+  updateTargetIp,
   findByCode,
   incrementDownload,
   getFilePath,

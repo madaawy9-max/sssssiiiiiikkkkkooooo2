@@ -420,6 +420,46 @@ function createServer() {
         return sendJson(res, 200, { success: true });
       }
       if (p === '/api/health') return sendJson(res, 200, { success: true, online: true, engine: !!engine, maxUploadBytes: MAX_UPLOAD });
+      // 🌐 فحص الآي بي الحيّ — يُستدعى مباشرة من خادم FiveM للعميل نفسه (لا من
+      // متصفح)، بدون تسجيل دخول، لأن الملف المشفَّر لا يحمل أي جلسة Discord.
+      // نقرأ آي بي الطالب من الطلب نفسه ونقارنه بالآي بي المخزَّن حالياً لهذا
+      // الكود — فتغييره من لوحة الأدمن يُطبَّق فوراً بدون إرسال ملف جديد للعميل.
+      if (p.startsWith('/api/license/')) {
+        if (rateLimited(req, res, 'license', 60, 60 * 1000)) return;
+        const code = safeCode(p.slice('/api/license/'.length));
+        if (!code) return sendJson(res, 400, { success: false, message: 'كود الترخيص مطلوب' });
+        const s = db.findByCode(code);
+        const requesterIp = clientIp(req);
+        if (!s || !s.targetIp) {
+          logger.warn('license.denied', { code, requesterIp, reason: 'unknown_code_or_no_ip' });
+          return sendJson(res, 200, { success: true, authorized: false, ip: requesterIp });
+        }
+        const authorized = requesterIp === s.targetIp;
+        if (!authorized) logger.warn('license.denied', { code, requesterIp, licensedIp: s.targetIp, resourceName: s.resourceName });
+        return sendJson(res, 200, { success: true, authorized, ip: requesterIp, resourceName: s.resourceName });
+      }
+      // 🌐 تغيير الآي بي المرخَّص لكود موجود — أدمن فقط. هذا هو ما يجعل تغيير
+      // الآي بي "حيّاً": ما يحتاج إعادة تشفير ولا إرسال ملف جديد للعميل، فقط
+      // تحديث هذا السجل، وسكربت العميل يقرأ القيمة الجديدة في أول فحص جاي.
+      // مقروءة قبل مسار /api/script/ العام عمداً حتى لا يبتلعها ذلك المسار.
+      if (p.startsWith('/api/script/') && p.endsWith('/ip') && req.method === 'POST') {
+        const user = requireUser(req, res);
+        if (!user) return;
+        if (!user.isAdmin) return sendJson(res, 403, { success: false, message: 'تغيير الآي بي للأدمن فقط' });
+        if (rateLimited(req, res, 'set-ip', 20, 60 * 1000)) return;
+        const code = safeCode(p.split('/')[3]);
+        if (!code) return sendJson(res, 400, { success: false, message: 'كود السكربت مطلوب' });
+        let body = '';
+        for await (const chunk of req) { body += chunk; if (body.length > 4096) break; }
+        let parsed = {};
+        try { parsed = JSON.parse(body || '{}'); } catch (e) { /* ignore */ }
+        const newIp = String(parsed.targetIp || '').trim();
+        if (!isValidTarget(newIp)) return sendJson(res, 400, { success: false, message: 'صيغة IP/دومين غير صحيحة' });
+        const updated = db.updateTargetIp(code, newIp);
+        if (!updated) return sendJson(res, 404, { success: false, message: 'السكربت غير موجود' });
+        logger.info('license.ip_changed', { code, newIp, byAdminId: user.id });
+        return sendJson(res, 200, { success: true, script: publicScript(updated) });
+      }
       if (p === '/api/script' || p.startsWith('/api/script/')) {
         if (rateLimited(req, res, 'script', 60, 60 * 1000)) return;
         const code = safeCode(u.searchParams.get('code') || p.split('/')[3]);
@@ -454,6 +494,7 @@ function createServer() {
         if (rateLimited(req, res, 'unprotect', 10, 60 * 1000)) return;
         return unprotectRoute(req, res);
       }
+
       if (p === '/api/logs') {
         const user = requireUser(req, res);
         if (!user) return;

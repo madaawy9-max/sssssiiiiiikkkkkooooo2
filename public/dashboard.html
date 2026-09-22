@@ -78,6 +78,18 @@
     </form>
   </div>
 
+  <div id="ip-box" class="encrypt dash-card reveal" hidden>
+    <div class="dash-title"><span>🌐</span><div><h3>تغيير الآي بي المرخَّص (حيّ)</h3><p>غيّر آي بي أي كود مباع — يتحدّث عند العميل تلقائياً بدون إرسال ملف جديد</p></div></div>
+    <form id="ip-form">
+      <div class="form-row">
+        <label>كود السكربت<input id="ip-code" required placeholder="RAVX-XXXXXXXXXX" style="text-transform:uppercase"></label>
+        <label>الآي بي/الدومين الجديد<input id="ip-new" required placeholder="127.0.0.1"></label>
+      </div>
+      <button class="btn primary full" id="ip-btn">تحديث الآي بي الآن <b>←</b></button>
+      <div id="ip-status" class="status"></div>
+    </form>
+  </div>
+
   <div id="unprotect-box" class="encrypt dash-card reveal" hidden>
     <div class="dash-title"><span>🔓</span><div><h3>فك الحماية للتعديل (أدمن)</h3><p>يرجّع أي مورد سبق تشفيره — حتى القديم — إلى Lua مقروء قابل للتعديل، ثم تقدر تعيد تشفيره من جديد</p></div></div>
     <form id="unprotect-form">

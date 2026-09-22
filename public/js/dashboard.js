@@ -57,13 +57,16 @@ function renderDashboardUser(user){
 
   const unprotectBox = document.getElementById('unprotect-box');
   const logsBox = document.getElementById('logs-box');
+  const ipBox = document.getElementById('ip-box');
   if (user.isAdmin){
     unprotectBox.hidden = false;
     logsBox.hidden = false;
+    if (ipBox) ipBox.hidden = false;
     loadLogs();
   } else {
     unprotectBox.hidden = true;
     logsBox.hidden = true;
+    if (ipBox) ipBox.hidden = true;
   }
 }
 
@@ -222,4 +225,39 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const logsRefresh = document.getElementById('logs-refresh');
   if (logsRefresh) logsRefresh.addEventListener('click', loadLogs);
+
+  /* ===== تغيير الآي بي الحيّ (أدمن) ===== */
+  const ipStatus = document.getElementById('ip-status');
+  function ipToast(text, ok = false){
+    if (!ipStatus) return;
+    ipStatus.textContent = text;
+    ipStatus.className = 'status ' + (ok ? 'ok' : 'error');
+  }
+  const ipForm = document.getElementById('ip-form');
+  if (ipForm){
+    ipForm.addEventListener('submit', async e => {
+      e.preventDefault();
+      const code = document.getElementById('ip-code').value.trim().toUpperCase();
+      const newIp = document.getElementById('ip-new').value.trim();
+      const btn = document.getElementById('ip-btn');
+      if (!code || !newIp) return ipToast('عبّي الكود والآي بي الجديد');
+      btn.disabled = true;
+      btn.innerHTML = 'جاري التحديث...';
+      try{
+        await api('/api/script/' + encodeURIComponent(code) + '/ip', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({targetIp: newIp})
+        });
+        ipToast('تم تحديث الآي بي — يتطبّق عند العميل تلقائياً في أول فحص جاي', true);
+        btn.innerHTML = 'تحديث الآي بي الآن ←';
+        loadLogs();
+      }catch(err){
+        ipToast(err.message);
+        btn.innerHTML = 'تحديث الآي بي الآن ←';
+      }finally{
+        btn.disabled = false;
+      }
+    });
+  }
 });

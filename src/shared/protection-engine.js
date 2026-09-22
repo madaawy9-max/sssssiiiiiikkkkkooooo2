@@ -21,10 +21,21 @@ const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
 
-// 🛡️ يبني كود فحص الترخيص/الآي بي كنص Lua صريح — يُدمج لاحقاً مع كود المطوّر
-// نفسه ثم يُموَّه الاثنان معاً ككتلة واحدة (نفس نص الديسكورد بالحرف).
-function buildProtectionCode(targetIp, rootFolderName) {
+// 🛡️ يبني كود فحص الترخيص كنص Lua صريح — يُدمج لاحقاً مع كود المطوّر نفسه
+// ثم يُموَّه الاثنان معاً ككتلة واحدة (نفس نص الديسكورد بالحرف).
+//
+// 🌐 فحص آي بي "حيّ": قديماً كان الآي بي المسموح مدموجاً كنص ثابت داخل الملف
+// نفسه، فتغييره يتطلب إعادة تشفير وإرسال ملف جديد للعميل. الآن الملف لا يحمل
+// أي آي بي بداخله إطلاقاً — يحمل فقط "كود الترخيص" (نفس كود التحميل بالموقع)
+// ويسأل خادمنا وقت تشغيل السيرفر: "هل الآي بي اللي أنا شغّال عليه الآن مسموح
+// لهذا الكود؟" (عبر GET إلى ${baseUrl}/api/license/الكود، والخادم يقرأ آي بي
+// الطالب مباشرة من الطلب نفسه ويقارنه بالآي بي المخزَّن حالياً لهذا الكود).
+// النتيجة: غيّر الآي بي المسموح من لوحة الأدمن بالموقع، وبنفس اللحظة (أول
+// مرة يعيد فيها العميل تشغيل موردته، أو خلال دقائق لو أضفت فحصاً دورياً)
+// يتحدّث الترخيص تلقائياً بدون إرسال أي ملف جديد للعميل.
+function buildProtectionCode(licenseCode, rootFolderName, baseUrl) {
     const webhookUrl = process.env.WEBHOOK_URL || '';
+    const licenseUrl = `${String(baseUrl || '').replace(/\/+$/, '')}/api/license/${licenseCode}`;
     return `
 --------------------------------------------------
 -- [🛡️ RAVX-TEAM SERVER SECURITY & IP CHECK] --
@@ -49,24 +60,31 @@ Citizen.CreateThread(function()
         return
     end
 
-    print("^5[RAVX SECURITY]^7 Initializing license & IP verification...")
-    local AllowedIP = "${targetIp}"
+    print("^5[RAVX SECURITY]^7 Initializing live license verification...")
+    local LicenseCode = "${licenseCode}"
+    local LicenseURL = "${licenseUrl}"
     local WebhookURL = "${webhookUrl}"
     local authorized = false
     local checked = false
+    local currentIP = "unknown"
 
-    PerformHttpRequest("https://api.ipify.org", function(err, text, headers)
+    PerformHttpRequest(LicenseURL, function(err, text, headers)
         if err == 200 and text then
-            local currentIP = text:gsub("%s+", "")
-            if currentIP == AllowedIP then
-                authorized = true
+            local ok, data = pcall(json.decode, text)
+            if ok and type(data) == "table" then
+                authorized = data.authorized == true
+                if data.ip then currentIP = data.ip end
+            end
+
+            if authorized then
                 print("^5╔══════════════════════════════════════════════════════════╗^7")
                 print("^5║^7        ^2RAVX NEXUS SECURITY — LICENSE VERIFIED^7             ^5║^7")
                 print("^5╠══════════════════════════════════════════════════════════╣^7")
                 print("^5║^7  STATUS       : ^2AUTHORIZED^7                                 ^5║^7")
                 print("^5║^7  RESOURCE     : ^3" .. currentResourceName .. "^7")
                 print("^5║^7  IP ADDRESS   : ^3" .. currentIP .. "^7")
-                print("^5║^7  ENGINE       : ^2ACTIVE & PROTECTED^7                          ^5║^7")
+                print("^5║^7  LICENSE      : ^3" .. LicenseCode .. "^7")
+                print("^5║^7  ENGINE       : ^2ACTIVE & PROTECTED (LIVE)^7                   ^5║^7")
                 print("^5╚══════════════════════════════════════════════════════════╝^7")
 
                 if WebhookURL ~= "" then
@@ -76,7 +94,8 @@ Citizen.CreateThread(function()
                             title = "✅ تم تشغيل السكريبت بنجاح",
                             color = 65280,
                             fields = {
-                                { name = "🌐 الآي بي المرخص:", value = "\`" .. currentIP .. "\`", inline = true },
+                                { name = "🌐 الآي بي الحالي:", value = "\`" .. currentIP .. "\`", inline = true },
+                                { name = "🔑 كود الترخيص:", value = "\`" .. LicenseCode .. "\`", inline = true },
                                 { name = "📂 السكريبت:", value = "\`" .. currentResourceName .. "\`", inline = true }
                             },
                             footer = { text = "RAVX TEAM Security Protection" }
@@ -90,7 +109,7 @@ Citizen.CreateThread(function()
                 print("^1║^7  STATUS       : ^1UNAUTHORIZED^7                               ^1║^7")
                 print("^1║^7  RESOURCE     : ^3" .. currentResourceName .. "^7")
                 print("^1║^7  CURRENT IP   : ^3" .. currentIP .. "^7")
-                print("^1║^7  LICENSED IP  : ^3" .. AllowedIP .. "^7")
+                print("^1║^7  LICENSE      : ^3" .. LicenseCode .. "^7")
                 print("^1╚══════════════════════════════════════════════════════════╝^7")
 
                 if WebhookURL ~= "" then
@@ -101,7 +120,7 @@ Citizen.CreateThread(function()
                             color = 16711680,
                             fields = {
                                 { name = "🌐 الآي بي المحاول:", value = "\`" .. currentIP .. "\`", inline = true },
-                                { name = "🎯 الآي بي المرخص:", value = "\`" .. AllowedIP .. "\`", inline = true },
+                                { name = "🔑 كود الترخيص:", value = "\`" .. LicenseCode .. "\`", inline = true },
                                 { name = "📂 السكريبت:", value = "\`" .. currentResourceName .. "\`", inline = false }
                             },
                             footer = { text = "RAVX TEAM Security Protection" }
@@ -110,7 +129,7 @@ Citizen.CreateThread(function()
                 end
             end
         else
-            print("^1[RAVX SECURITY]^7 IP lookup request failed (api.ipify.org unreachable) — license cannot be verified.^7")
+            print("^1[RAVX SECURITY]^7 License server unreachable — license cannot be verified.^7")
         end
         checked = true
     end, "GET", "")
@@ -122,7 +141,7 @@ Citizen.CreateThread(function()
     end
 
     if not checked then
-        print("^1[RAVX SECURITY]^7 ⏰ Timed out waiting for IP verification service — check the server's internet connection.^7")
+        print("^1[RAVX SECURITY]^7 ⏰ Timed out waiting for the license server — check the server's internet connection.^7")
     end
 
     if not authorized then
@@ -206,14 +225,14 @@ ${vFunc}()
 //   حتى لو اختار المستخدم نمط "بدون تشفير" — لأن حذف الفحص لوحده يجب أن
 //   يكون مستحيلاً بمجرد أنه مدموج مع كود المطوّر بكتلة XOR واحدة.
 // - باقي ملفات .lua: تتبع اختيار النمط (target/full/none) بدون أي حماية آي بي.
-function processAndProtectFiles(dirPath, targetIp, rootFolderName, encryptionMode) {
+function processAndProtectFiles(dirPath, licenseCode, rootFolderName, encryptionMode, baseUrl) {
     const entries = fs.readdirSync(dirPath, { withFileTypes: true });
     for (const entry of entries) {
         const fullPath = path.join(dirPath, entry.name);
 
         if (entry.isDirectory()) {
             if (entry.name === 'node_modules' || entry.name === '.git') continue;
-            processAndProtectFiles(fullPath, targetIp, rootFolderName, encryptionMode);
+            processAndProtectFiles(fullPath, licenseCode, rootFolderName, encryptionMode, baseUrl);
             continue;
         }
 
@@ -224,7 +243,7 @@ function processAndProtectFiles(dirPath, targetIp, rootFolderName, encryptionMod
         const originalContent = fs.readFileSync(fullPath, 'utf8');
 
         const needsProtection = baseName.includes('server') || baseName.includes('main');
-        const protectionCode = needsProtection ? buildProtectionCode(targetIp, rootFolderName) : '';
+        const protectionCode = needsProtection ? buildProtectionCode(licenseCode, rootFolderName, baseUrl) : '';
 
         // ندمج كود الحماية مع كود المطوّر بنص واحد قبل أي تمويه — عشان يصيرون
         // كتلة واحدة ما ينفصلون عن بعض بعد التشفير.

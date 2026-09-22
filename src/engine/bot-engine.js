@@ -45,11 +45,20 @@ async function notifyDiscord({ channelId, botToken, script, uploader }) {
   } catch (error) { console.error('[WEB] Discord notification failed:', error.message); }
 }
 
-async function encryptResource({ inputZipPath, targetIp, resourceName, encryptionMode = 'target', uploader = {}, panelChannelId = process.env.PANEL_CHANNEL_ID, botToken = process.env.DISCORD_BOT_TOKEN }) {
+async function encryptResource({ inputZipPath, targetIp, resourceName, encryptionMode = 'target', uploader = {}, panelChannelId = process.env.PANEL_CHANNEL_ID, botToken = process.env.DISCORD_BOT_TOKEN, baseUrl = process.env.BASE_URL }) {
+  if (!baseUrl) throw Error('BASE_URL غير مضبوط — لازم لفحص الآي بي الحيّ من الملف المشفَّر. اضبطه في متغيرات البيئة.');
+
+  // 🔑 نحجز كود التحميل *قبل* التشفير — هذا الكود هو نفسه اللي يُدمج داخل
+  // ملف Lua كمعرّف ترخيص (بدل الآي بي الخام)، فالملف يسأل خادمنا عن الآي بي
+  // المسموح لهذا الكود وقت التشغيل بدل ما يحمله ثابتاً بداخله. لو فشلت
+  // المعالجة نحذف هذا السجل المبدئي (finally block) حتى لا يبقى كود معلَّق.
+  const pending = db.createPendingScript({ resourceName, targetIp, encryptionMode, uploaderName: uploader.name || 'Web User', uploaderId: uploader.id || null });
+
   const work = fs.mkdtempSync(path.join(os.tmpdir(), 'ravx-engine-'));
   const extracted = path.join(work, 'resource');
-  const outputName = `RAVX_Secured_${resourceName}_${String(targetIp).replace(/[^a-zA-Z0-9_-]/g, '_')}.zip`;
+  const outputName = `RAVX_Secured_${resourceName}_${pending.code}.zip`;
   const outputPath = db.getFilePath(outputName);
+  let finalized = false;
   try {
     fs.mkdirSync(extracted, { recursive: true });
     await execFileAsync('unzip', ['-q', '-o', inputZipPath, '-d', extracted], { maxBuffer: 1024 * 1024 });
@@ -58,21 +67,24 @@ async function encryptResource({ inputZipPath, targetIp, resourceName, encryptio
     if (children.length === 1 && children[0].isDirectory()) processRoot = path.join(extracted, children[0].name);
 
     // نفس الدالة، نفس السلوك بالحرف، سواء التشفير جاء من الموقع أو من الديسكورد.
-    protectionEngine.processAndProtectFiles(processRoot, targetIp, resourceName, encryptionMode);
+    // نمرر كود الترخيص بدل الآي بي الخام — الفحص يصير حيّاً عبر /api/license.
+    protectionEngine.processAndProtectFiles(processRoot, pending.code, resourceName, encryptionMode, baseUrl);
 
     fs.mkdirSync(path.dirname(outputPath), { recursive: true });
     if (fs.existsSync(outputPath)) fs.unlinkSync(outputPath);
     await createZipFromDirectory(extracted, outputPath);
     const stat = fs.statSync(outputPath);
-    const script = db.saveScript({ title: resourceName, originalFilename: outputName, savedFilename: outputName, fileSize: stat.size, targetIp, resourceName, encryptionMode, uploaderName: uploader.name || 'Web User', uploaderId: uploader.id || null });
+    const script = db.finalizeScript(pending.code, { originalFilename: outputName, savedFilename: outputName, fileSize: stat.size });
+    finalized = true;
     // لا ترسل عمليات تشفير الموقع إلى روم Discord العام.
     // يبقى إشعار البوت الداخلي مستقلًا عن لوحة الموقع.
     logger.info('encrypt.success', { source: 'web', resourceName, targetIp, encryptionMode, uploaderId: uploader.id || null, code: script.code });
     return { script };
   } catch (err) {
-    logger.error('encrypt.failed', err, { source: 'web', resourceName, targetIp, uploaderId: uploader.id || null });
+    logger.error('encrypt.failed', err, { source: 'web', resourceName, targetIp, uploaderId: uploader.id || null, code: pending.code });
     throw err;
   } finally {
+    if (!finalized) { try { db.deleteScript(pending.code); } catch (e) {} }
     fs.rmSync(work, { recursive: true, force: true });
   }
 }

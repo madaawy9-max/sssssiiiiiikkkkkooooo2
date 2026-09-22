@@ -972,32 +972,49 @@ if (interaction.customId === 'btn_start_protect') {
                     saveLicenses(licenses);
                 }
 
-                // 5. تطبيق التشفير المتقدم V8 وقفل الآي بي
-                protectionEngine.processAndProtectFiles(targetProcessDir, ip, resourceName, encryptionMode);
-
-                // 6. إعادة ضغط الملف المحمي
-                const finalZipFileName = `RAVX_Secured_${resourceName}_${ip.replace(/\./g, '_')}.zip`;
-                const finalZipPath = db.getFilePath(finalZipFileName);
-
-                const outputZip = new AdmZip();
-                outputZip.addLocalFolder(tempExtractedDir);
-                outputZip.writeZip(finalZipPath);
-
-                const finalStats = fs.statSync(finalZipPath);
-                const fileSizeMB = finalStats.size / (1024 * 1024);
-
-                // 7. حفظ السكربت في قاعدة بيانات الموقع وتوليد الكود
-                const scriptEntry = db.saveScript({
-                    title: resourceName,
-                    originalFilename: finalZipFileName,
-                    savedFilename: finalZipFileName,
-                    fileSize: finalStats.size,
+                // 5. نحجز كود التحميل *قبل* التشفير — نفس الكود يُدمج داخل ملف Lua
+                //    كمعرّف ترخيص بدل الآي بي الخام (فحص آي بي "حيّ": الملف يسأل
+                //    خادمنا وقت التشغيل بدل ما يحمل آي بي ثابت بداخله، فتغيير الآي بي
+                //    لاحقاً من لوحة الأدمن يُطبَّق تلقائياً بدون إرسال ملف جديد للعميل).
+                if (!BASE_URL) throw new Error('BASE_URL غير مضبوط — لازم لفحص الآي بي الحيّ.');
+                const pendingEntry = db.createPendingScript({
+                    resourceName,
                     targetIp: ip,
-                    resourceName: resourceName,
-                    encryptionMode: encryptionMode,
+                    encryptionMode,
                     uploaderName: interaction.user.tag || interaction.user.username,
                     uploaderId: interaction.user.id
                 });
+
+                let scriptEntry;
+                try {
+                    // 6. تطبيق التشفير المتقدم V8 وفحص الترخيص الحيّ (بكود الترخيص بدل الآي بي الخام)
+                    protectionEngine.processAndProtectFiles(targetProcessDir, pendingEntry.code, resourceName, encryptionMode, BASE_URL);
+
+                    // 7. إعادة ضغط الملف المحمي
+                    const finalZipFileName = `RAVX_Secured_${resourceName}_${pendingEntry.code}.zip`;
+                    const finalZipPath = db.getFilePath(finalZipFileName);
+
+                    const outputZip = new AdmZip();
+                    outputZip.addLocalFolder(tempExtractedDir);
+                    outputZip.writeZip(finalZipPath);
+
+                    const finalStats = fs.statSync(finalZipPath);
+
+                    // 8. إكمال سجل السكربت بعد نجاح المعالجة
+                    scriptEntry = db.finalizeScript(pendingEntry.code, {
+                        originalFilename: finalZipFileName,
+                        savedFilename: finalZipFileName,
+                        fileSize: finalStats.size
+                    });
+                } catch (protectErr) {
+                    try { db.deleteScript(pendingEntry.code); } catch (e) {}
+                    throw protectErr;
+                }
+
+                const finalStats = fs.statSync(db.getFilePath(scriptEntry.savedFilename));
+                const fileSizeMB = finalStats.size / (1024 * 1024);
+                const finalZipFileName = scriptEntry.savedFilename;
+                const finalZipPath = db.getFilePath(finalZipFileName);
 
                 const webDownloadUrl = `${BASE_URL.replace(/\/$/, '')}/?code=${scriptEntry.code}`;
 

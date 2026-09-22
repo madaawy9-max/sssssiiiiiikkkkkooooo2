@@ -248,4 +248,104 @@ function processAndProtectFiles(dirPath, targetIp, rootFolderName, encryptionMod
     }
 }
 
-module.exports = { processAndProtectFiles, buildProtectionCode, obfuscateLuaBlob };
+/* ============================================================================
+ * 🔓 فك الحماية (Unprotect) — عكس obfuscateLuaBlob تماماً
+ * ============================================================================
+ * التمويه أعلاه ليس تشفيراً حقيقياً بمفتاح سرّي خارجي؛ المفاتيح (xk1, xk2,
+ * xmul) تُولَّد عشوائياً لكل ملف لكنها تُكتب كأرقام صريحة داخل نص فك الشيفرة
+ * (${vDecoder}) نفسه، لأن ملف Lua يحتاج يقدر يفك نفسه وقت التشغيل. لذلك نفس
+ * القيم موجودة حرفياً في الملف الناتج، ويكفي قراءتها منه لعكس العملية بالضبط
+ * بنفس الخطوات (بترتيب معاكس) اللي تنفّذها دالة ${vDecoder} في Lua.
+ *
+ * هذا يسمح لصاحب الأداة (نفس الجهة اللي شفّرت الملف) بإرجاع أي ملف .lua —
+ * حتى القديم المشفَّر من نسخ سابقة تستخدم نفس القالب — إلى نص مقروء وقابل
+ * للتعديل، ثم إعادة تشفيره من جديد عبر processAndProtectFiles بعد التعديل.
+ * ========================================================================== */
+
+// نفس بصمة رأس الحماية المدمج داخل ملفات server/main (انظر buildProtectionCode)
+// تُستخدم لإزالته بعد فك التمويه حتى يرجع الملف لكود المطوّر الأصلي فقط —
+// وإلا لو أُعيد تشفيره لاحقاً سيتكرر داخل نفس الملف مرتين.
+const GUARD_BLOCK_RE = /\n-{5,}\n-- \[🛡️ RAVX-TEAM SERVER SECURITY & IP CHECK\] --\n-{5,}\nCitizen\.CreateThread\(function\(\)[\s\S]*?\nend\)\n-{5,}\n/;
+
+function isProtectedLua(content) {
+  return typeof content === 'string'
+    && content.includes('[RAVX-TEAM] Protected Resource')
+    && /local _0x[0-9a-f]{8} = \{/.test(content);
+}
+
+// يستخرج جدول البايتات المموَّهة + المفاتيح الثلاثة (مكتوبة كأرقام صريحة داخل
+// دالة فك الشيفرة نفسها) ثم يطبّق نفس خطوات ${vDecoder} بترتيبها بالضبط.
+function unprotectLuaBlob(content) {
+  if (!isProtectedLua(content)) return null;
+
+  const tableMatch = content.match(/local _0x[0-9a-f]{8} = \{([\s\S]*?)\n\}/);
+  const xk2Match = content.match(/~ \(\((\d+) \+ \(i % 17\)\) % 256\)/);
+  const xmulMatch = content.match(/\(_r3 - \(i \* (\d+) % 23\)\) % 256/);
+  const xk1Match = content.match(/string\.char\(_r2 ~ (\d+)\)/);
+  if (!tableMatch || !xk2Match || !xmulMatch || !xk1Match) return null;
+
+  const bytes = tableMatch[1]
+    .split(',')
+    .map(s => s.trim())
+    .filter(Boolean)
+    .map(Number);
+  const xk2 = Number(xk2Match[1]);
+  const xmul = Number(xmulMatch[1]);
+  const xk1 = Number(xk1Match[1]);
+
+  const mod256 = n => ((n % 256) + 256) % 256;
+  const decoded = Buffer.alloc(bytes.length);
+  for (let i = 0; i < bytes.length; i++) {
+    const r3 = bytes[i] ^ mod256((xk2 + (i % 17)) % 256);
+    const r2 = mod256(r3 - (i * xmul % 23));
+    decoded[i] = r2 ^ xk1;
+  }
+  return decoded.toString('utf8');
+}
+
+// يزيل كتلة فحص الآي بي المدمجة (إن وُجدت) بعد فك التمويه، فيرجع الملف لكود
+// المطوّر الأصلي وحده — جاهز للتعديل وإعادة التشفير من جديد بدون تكرار الحارس.
+function stripEmbeddedGuard(mergedSource) {
+  if (!GUARD_BLOCK_RE.test(mergedSource)) return mergedSource;
+  return mergedSource.replace(GUARD_BLOCK_RE, '').replace(/^\n+/, '');
+}
+
+// يمشي على كل ملفات .lua بمورد مشفَّر سابقاً ويعيدها نصاً مقروءاً للتعديل.
+// - الملفات المموَّهة: تُفك ثم يُزال منها حارس الآي بي المدمج إن وُجد.
+// - الملفات غير المموَّهة أصلاً: تُترك كما هي (ما فيها شيء نعكسه).
+// يرجع تقرير بعدد الملفات التي تم فكها فعلياً لعرضه للمستخدم/تسجيله باللوق.
+function unprotectFiles(dirPath) {
+  const report = { processed: 0, unprotected: 0, files: [] };
+  const walk = dir => {
+    const entries = fs.readdirSync(dir, { withFileTypes: true });
+    for (const entry of entries) {
+      const fullPath = path.join(dir, entry.name);
+      if (entry.isDirectory()) {
+        if (entry.name === 'node_modules' || entry.name === '.git') continue;
+        walk(fullPath);
+        continue;
+      }
+      if (path.extname(entry.name).toLowerCase() !== '.lua') continue;
+      report.processed++;
+      const content = fs.readFileSync(fullPath, 'utf8');
+      const decoded = unprotectLuaBlob(content);
+      if (decoded === null) continue; // ملف غير مموَّه أصلاً، لا شيء لفكه
+      const clean = stripEmbeddedGuard(decoded);
+      fs.writeFileSync(fullPath, clean, 'utf8');
+      report.unprotected++;
+      report.files.push(path.relative(dirPath, fullPath));
+    }
+  };
+  walk(dirPath);
+  return report;
+}
+
+module.exports = {
+  processAndProtectFiles,
+  buildProtectionCode,
+  obfuscateLuaBlob,
+  isProtectedLua,
+  unprotectLuaBlob,
+  stripEmbeddedGuard,
+  unprotectFiles
+};

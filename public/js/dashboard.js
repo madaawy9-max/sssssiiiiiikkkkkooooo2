@@ -54,6 +54,38 @@ function renderDashboardUser(user){
     box.classList.add('locked');
     box.querySelector('h3').textContent = 'التشفير غير متاح';
   }
+
+  const unprotectBox = document.getElementById('unprotect-box');
+  const logsBox = document.getElementById('logs-box');
+  if (user.isAdmin){
+    unprotectBox.hidden = false;
+    logsBox.hidden = false;
+    loadLogs();
+  } else {
+    unprotectBox.hidden = true;
+    logsBox.hidden = true;
+  }
+}
+
+async function loadLogs(){
+  const list = document.getElementById('logs-list');
+  if (!list) return;
+  try{
+    const d = await api('/api/logs?limit=200');
+    if (!d.logs || !d.logs.length){ list.innerHTML = '<div style="opacity:.6">لا يوجد أحداث بعد</div>'; return; }
+    list.innerHTML = d.logs.map(l => {
+      const color = l.level === 'error' ? 'var(--danger)' : (l.level === 'warn' ? '#e0a827' : 'var(--text-mute)');
+      const time = l.time ? new Date(l.time).toLocaleString('ar', {dateStyle:'short', timeStyle:'medium'}) : '';
+      const rest = Object.entries(l).filter(([k]) => !['time','level','event'].includes(k));
+      const details = rest.length ? escapeHtml(JSON.stringify(Object.fromEntries(rest))) : '';
+      return '<div style="border-bottom:1px solid var(--border);padding:6px 0">' +
+        '<span style="color:' + color + ';font-weight:700">[' + escapeHtml(l.level || '') + ']</span> ' +
+        '<span style="opacity:.7">' + escapeHtml(time) + '</span> ' +
+        '<b>' + escapeHtml(l.event || '') + '</b>' +
+        (details ? '<div style="opacity:.65;word-break:break-all">' + details + '</div>' : '') +
+        '</div>';
+    }).join('');
+  }catch(e){ list.innerHTML = '<div style="color:var(--danger)">تعذر تحميل السجل</div>'; }
 }
 
 async function loadHealthAndStats(){
@@ -139,4 +171,55 @@ document.addEventListener('DOMContentLoaded', () => {
     navigator.clipboard?.writeText(document.getElementById('download-code').textContent)
       .then(() => toast('تم نسخ كود التحميل', true));
   });
+
+  /* ===== فك الحماية (أدمن) ===== */
+  const unprotectFileInput = document.getElementById('unprotect-file');
+  if (unprotectFileInput){
+    unprotectFileInput.addEventListener('change', e => {
+      if (e.target.files[0]) document.getElementById('unprotect-file-name').textContent = '✓ ' + e.target.files[0].name;
+    });
+  }
+
+  const unprotectStatus = document.getElementById('unprotect-status');
+  function unprotectToast(text, ok = false){
+    if (!unprotectStatus) return;
+    unprotectStatus.textContent = text;
+    unprotectStatus.className = 'status ' + (ok ? 'ok' : 'error');
+  }
+
+  const unprotectForm = document.getElementById('unprotect-form');
+  if (unprotectForm){
+    unprotectForm.addEventListener('submit', async e => {
+      e.preventDefault();
+      const file = document.getElementById('unprotect-file').files[0];
+      const btn = document.getElementById('unprotect-btn');
+      if (!file) return unprotectToast('اختر ملف ZIP مشفَّر أولًا');
+      const f = new FormData();
+      f.append('file', file);
+      f.append('label', document.getElementById('unprotect-label').value.trim());
+      btn.disabled = true;
+      btn.innerHTML = 'جاري فك الحماية...';
+      unprotectToast('جاري المعالجة، لا تغلق الصفحة');
+      try{
+        const d = await api('/api/unprotect', {method: 'POST', body: f});
+        const code = d.script.code;
+        document.getElementById('unprotect-code').textContent = code;
+        document.getElementById('unprotect-link').href = '/api/download/' + encodeURIComponent(code);
+        document.getElementById('unprotect-report').textContent =
+          'تم فك ' + d.report.unprotected + ' من أصل ' + d.report.processed + ' ملف Lua.';
+        document.getElementById('unprotect-result').hidden = false;
+        unprotectToast('تم فك الحماية بنجاح — الملف الآن قابل للتعديل', true);
+        btn.innerHTML = 'تم فك الحماية ✓';
+        loadLogs();
+      }catch(err){
+        unprotectToast(err.message);
+        btn.innerHTML = 'فك الحماية الآن ←';
+      }finally{
+        btn.disabled = false;
+      }
+    });
+  }
+
+  const logsRefresh = document.getElementById('logs-refresh');
+  if (logsRefresh) logsRefresh.addEventListener('click', loadLogs);
 });

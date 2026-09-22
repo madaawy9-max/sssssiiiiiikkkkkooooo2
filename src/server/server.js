@@ -6,6 +6,7 @@ const os = require('os');
 const Busboy = require('busboy');
 const db = require('../database/db');
 const subs = require('../shared/subscriptions');
+const logger = require('../shared/logger');
 
 const PUBLIC_DIR = path.resolve(__dirname, '../../public');
 const MAX_UPLOAD = Number(process.env.MAX_UPLOAD_BYTES || 5 * 1024 * 1024 * 1024);
@@ -206,6 +207,7 @@ async function oauthCallback(code, res) {
   const member = await discordApi(`/users/@me/guilds/${cfg.guildId}/member`, { headers: { Authorization: `Bearer ${token.access_token}` } });
   const access = await getDiscordAccess(user, member);
   setSession(res, { id: user.id, username: user.username, avatar: user.avatar, canEncrypt: access.canEncrypt, isAdmin: access.isAdmin, permCheckedAt: Date.now() });
+  logger.info('auth.login', { userId: user.id, username: user.username, isAdmin: access.isAdmin, canEncrypt: access.canEncrypt });
   res.writeHead(302, { Location: '/' });
   res.end();
 }
@@ -331,9 +333,45 @@ async function encryptRoute(req, res) {
     sendJson(res, 200, { success: true, script: publicScript(result.script), subscription });
   } catch (e) {
     console.error('[WEB] encryption:', e);
+    logger.error('encrypt.route_failed', e, { userId: user.id });
     // فشل التشفير → إرجاع الحجز، العميل ما يخسر عملية من باقته
     if (reserved && !committed) { try { subs.release(user.id); } catch (err) {} }
     sendJson(res, 400, { success: false, message: e.message || 'فشل التشفير' });
+  } finally {
+    encryptingNow.delete(user.id);
+    if (upload?.tempDir) fs.rmSync(upload.tempDir, { recursive: true, force: true });
+  }
+}
+
+// 🔓 فك حماية مورد سبق تشفيره — أدمن فقط عمداً: هذه الأداة تلغي حماية الآي بي
+// المدفوعة، فحصرها بالأدمن يمنع أي مستخدم عادي من فك حماية سكربت غيره اشتراه
+// بالصلاحية نفسها. تقبل نفس نوع الأرشيف الناتج من التشفير أو أي ZIP قديم مشفَّر
+// بنفس القالب، حتى لو تم تشفيره بنسخة أقدم من الأداة قبل هذا التحديث.
+async function unprotectRoute(req, res) {
+  const user = requireUser(req, res);
+  if (!user) return;
+  if (!user.isAdmin) return sendJson(res, 403, { success: false, message: 'فك الحماية متاح للأدمن فقط.' });
+
+  if (encryptingNow.has(user.id)) return sendJson(res, 409, { success: false, message: 'في عملية جارية بالفعل، انتظر انتهاءها.' });
+  encryptingNow.add(user.id);
+
+  if (!engine?.unprotectResource) {
+    encryptingNow.delete(user.id);
+    return sendJson(res, 503, { success: false, message: 'محرك فك الحماية غير متاح' });
+  }
+
+  let upload;
+  try {
+    upload = await parseUpload(req);
+    if (!/\.zip$/i.test(upload.fileInfo.filename)) throw Error('ارفع ملف ZIP فقط');
+    const label = String(upload.fields.label || upload.fileInfo.filename.replace(/\.zip$/i, '')).replace(/[^a-zA-Z0-9_-]/g, '_').slice(0, 80) || 'resource';
+    const result = await engine.unprotectResource({ inputZipPath: upload.filePath, label, uploader: { id: user.id, name: user.username } });
+    if (!result?.script || !fs.existsSync(db.getFilePath(result.script.savedFilename))) throw Error('فشل حفظ الملف بعد فك الحماية');
+    sendJson(res, 200, { success: true, script: publicScript(result.script), report: result.report });
+  } catch (e) {
+    console.error('[WEB] unprotect:', e);
+    logger.error('unprotect.route_failed', e, { userId: user.id });
+    sendJson(res, 400, { success: false, message: e.message || 'فشل فك الحماية' });
   } finally {
     encryptingNow.delete(user.id);
     if (upload?.tempDir) fs.rmSync(upload.tempDir, { recursive: true, force: true });
@@ -412,10 +450,22 @@ function createServer() {
         if (rateLimited(req, res, 'encrypt', 10, 60 * 1000)) return;
         return encryptRoute(req, res);
       }
+      if (p === '/api/unprotect' && req.method === 'POST') {
+        if (rateLimited(req, res, 'unprotect', 10, 60 * 1000)) return;
+        return unprotectRoute(req, res);
+      }
+      if (p === '/api/logs') {
+        const user = requireUser(req, res);
+        if (!user) return;
+        if (!user.isAdmin) return sendJson(res, 403, { success: false, message: 'اللوق للأدمن فقط' });
+        const limit = Math.min(Number(u.searchParams.get('limit')) || 200, 1000);
+        return sendJson(res, 200, { success: true, logs: logger.readRecent(limit) });
+      }
       if (p.startsWith('/api/')) return sendJson(res, 404, { success: false, message: 'API Route Not Found' });
       serveStatic(req, res, p);
     } catch (e) {
       console.error('[WEB]', e);
+      logger.error('server.unhandled', e, { path: req.url });
       sendJson(res, 500, { success: false, message: 'خطأ داخلي في الخادم' });
     }
   });

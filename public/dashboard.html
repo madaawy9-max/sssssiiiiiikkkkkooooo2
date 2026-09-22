@@ -77,6 +77,33 @@
       </div>
     </form>
   </div>
+
+  <div id="unprotect-box" class="encrypt dash-card reveal" hidden>
+    <div class="dash-title"><span>🔓</span><div><h3>فك الحماية للتعديل (أدمن)</h3><p>يرجّع أي مورد سبق تشفيره — حتى القديم — إلى Lua مقروء قابل للتعديل، ثم تقدر تعيد تشفيره من جديد</p></div></div>
+    <form id="unprotect-form">
+      <label class="drop" for="unprotect-file">
+        <input id="unprotect-file" type="file" accept=".zip" hidden>
+        <strong id="unprotect-file-name">اسحب ملف ZIP المشفَّر أو اضغط للاختيار</strong>
+        <small>يدعم ملفات مشفَّرة قديمة بنفس القالب حتى لو أُنتجت بنسخة سابقة من الأداة</small>
+      </label>
+      <div class="form-row">
+        <label>اسم/تسمية (اختياري)<input id="unprotect-label" placeholder="my-resource"></label>
+      </div>
+      <button class="btn primary full" id="unprotect-btn">فك الحماية الآن <b>←</b></button>
+      <div id="unprotect-status" class="status"></div>
+      <div id="unprotect-result" class="encrypt-result" hidden>
+        <div><small>كود التحميل</small><b id="unprotect-code">—</b></div>
+        <a id="unprotect-link" class="btn primary sm" href="#" target="_blank">تنزيل الملف المفكوك</a>
+        <div id="unprotect-report" style="width:100%;margin-top:8px;font-size:13px;color:var(--text-mute)"></div>
+      </div>
+    </form>
+  </div>
+
+  <div id="logs-box" class="dash-card reveal" hidden style="margin-top:24px">
+    <div class="dash-title"><span>▤</span><div><h3>سجل الأحداث (Log)</h3><p>آخر الأحداث المسجَّلة على الخادم — تسجيل دخول، تشفير، فك حماية، أخطاء</p></div></div>
+    <button id="logs-refresh" class="btn ghost sm" type="button">تحديث السجل</button>
+    <div id="logs-list" style="margin-top:14px;max-height:360px;overflow:auto;font-family:var(--font-num,monospace);font-size:12.5px;line-height:1.7"></div>
+  </div>
 </section>
 </main>
 <footer>

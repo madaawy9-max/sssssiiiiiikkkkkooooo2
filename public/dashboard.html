@@ -61,7 +61,7 @@
       </label>
       <div class="form-row">
         <label>اسم المورد<input id="resource" required placeholder="my-resource"></label>
-        <label>IP السيرفر<input id="ip" required placeholder="127.0.0.1"></label>
+        <label>IP السيرفر (تقدر تحط أكثر من عنوان مفصول بفاصلة)<input id="ip" required placeholder="127.0.0.1"></label>
       </div>
       <div class="mode-row">
         <button type="button" class="mode active" data-mode="target"><b>مستهدف</b><small>client / server + IP</small></button>
@@ -85,6 +85,7 @@
         <label>كود السكربت<input id="ip-code" required placeholder="RAVX-XXXXXXXXXX" style="text-transform:uppercase"></label>
         <label>الآي بي/الدومين الجديد<input id="ip-new" required placeholder="127.0.0.1"></label>
       </div>
+      <small style="display:block;margin:-6px 0 12px;color:var(--text-mute)">تقدر تحط أكثر من عنوان مفصول بفاصلة (,) — مفيد لو نفس السيرفر يتصل أحياناً بعنوان IPv4 وأحياناً IPv6</small>
       <button class="btn primary full" id="ip-btn">تحديث الآي بي الآن <b>←</b></button>
       <div id="ip-status" class="status"></div>
     </form>

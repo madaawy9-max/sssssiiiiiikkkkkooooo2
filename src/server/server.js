@@ -144,10 +144,35 @@ const encryptingNow = new Set();
 
 // التحقق من صيغة IP/دومين السيرفر قبل استخدامه داخل محرك التشفير — يمنع حقن
 // قيم غريبة (اقتباسات، فواصل منقوطة، أسطر جديدة) داخل ملفات Lua الناتجة.
+// يقبل أكثر من عنوان مفصول بفاصلة (IPv4 و/أو IPv6 و/أو دومين) — بعض السيرفرات
+// تتصل بخادم الترخيص أحياناً عبر IPv4 وأحياناً عبر IPv6 (حسب شبكة مزوّد
+// الاستضافة)، فالسماح بأكثر من عنوان لنفس الترخيص يمنع رفض عميل حقيقي فقط
+// لأن اتصاله الصادر استخدم بروتوكولاً مختلفاً عن العنوان المسجَّل يدوياً.
+function isValidTargetToken(value) {
+  const t = String(value || '').trim();
+  if (!t || t.length > 100) return false;
+  const colonCount = (t.match(/:/g) || []).length;
+  if (colonCount >= 2) return /^[0-9A-Fa-f:]+$/.test(t); // عنوان IPv6
+  return /^[A-Za-z0-9](?:[A-Za-z0-9.-]*[A-Za-z0-9])?(?::\d{1,5})?$/.test(t); // IPv4/دومين (+منفذ اختياري)
+}
 function isValidTarget(value) {
   const v = String(value || '').trim();
-  if (!v || v.length > 253) return false;
-  return /^[A-Za-z0-9](?:[A-Za-z0-9.-]*[A-Za-z0-9])?(?::\d{1,5})?$/.test(v);
+  if (!v || v.length > 500) return false;
+  const parts = v.split(',').map(s => s.trim()).filter(Boolean);
+  return parts.length > 0 && parts.every(isValidTargetToken);
+}
+// يطبّع عنوان IPv4 المكتوب بصيغة IPv6-mapped (::ffff:1.2.3.4) إلى شكله
+// IPv4 العادي، ويوحّد حالة الأحرف — حتى لا يفشل التطابق بسبب اختلاف الصياغة
+// فقط بين ما خزّنه الأدمن وما وصل فعلياً من طلب العميل.
+function normalizeIp(ip) {
+  let v = String(ip || '').trim().toLowerCase();
+  if (v.startsWith('::ffff:')) v = v.slice(7);
+  return v;
+}
+function matchesTargetIp(requesterIp, targetIpField) {
+  if (!targetIpField) return false;
+  const req = normalizeIp(requesterIp);
+  return String(targetIpField).split(',').some(t => normalizeIp(t) === req);
 }
 
 const MIME_TYPES = { '.html': 'text/html; charset=utf-8', '.css': 'text/css; charset=utf-8', '.js': 'application/javascript; charset=utf-8', '.json': 'application/json; charset=utf-8', '.png': 'image/png', '.jpg': 'image/jpeg', '.jpeg': 'image/jpeg', '.svg': 'image/svg+xml', '.ico': 'image/x-icon' };
@@ -429,14 +454,21 @@ function createServer() {
         const code = safeCode(p.slice('/api/license/'.length));
         if (!code) return sendJson(res, 400, { success: false, message: 'كود الترخيص مطلوب' });
         const s = db.findByCode(code);
-        const requesterIp = clientIp(req);
+        const socketIp = clientIp(req);
+        // الملف المشفَّر يحدّد عنوانه العام على IPv4 تحديداً (عبر api4.ipify.org
+        // اللي ما عنده سجل IPv6 إطلاقاً) ويرسله كباراميتر ?ip=، لأن بعض السيرفرات
+        // تتصل بخادمنا صادراً عبر IPv6 رغم إن عنوانها المعروف/المباع للعميل
+        // IPv4 — لو الباراميتر موجود وصالح نعتمده هو، وإلا نرجع لعنوان الاتصال
+        // نفسه (نفس السلوك القديم). النتيجة تطابق دائماً الآي بي IPv4 الحقيقي.
+        const reportedIp = String(u.searchParams.get('ip') || '').trim();
+        const effectiveIp = isValidTargetToken(reportedIp) ? reportedIp : socketIp;
         if (!s || !s.targetIp) {
-          logger.warn('license.denied', { code, requesterIp, reason: 'unknown_code_or_no_ip' });
-          return sendJson(res, 200, { success: true, authorized: false, ip: requesterIp });
+          logger.warn('license.denied', { code, socketIp, reportedIp, reason: 'unknown_code_or_no_ip' });
+          return sendJson(res, 200, { success: true, authorized: false, ip: effectiveIp });
         }
-        const authorized = requesterIp === s.targetIp;
-        if (!authorized) logger.warn('license.denied', { code, requesterIp, licensedIp: s.targetIp, resourceName: s.resourceName });
-        return sendJson(res, 200, { success: true, authorized, ip: requesterIp, resourceName: s.resourceName });
+        const authorized = matchesTargetIp(effectiveIp, s.targetIp);
+        if (!authorized) logger.warn('license.denied', { code, socketIp, reportedIp, checkedIp: effectiveIp, licensedIp: s.targetIp, resourceName: s.resourceName });
+        return sendJson(res, 200, { success: true, authorized, ip: effectiveIp, resourceName: s.resourceName });
       }
       // 🌐 تغيير الآي بي المرخَّص لكود موجود — أدمن فقط. هذا هو ما يجعل تغيير
       // الآي بي "حيّاً": ما يحتاج إعادة تشفير ولا إرسال ملف جديد للعميل، فقط

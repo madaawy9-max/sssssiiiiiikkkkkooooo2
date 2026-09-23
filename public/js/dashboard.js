@@ -81,13 +81,37 @@ async function loadLogs(){
       const time = l.time ? new Date(l.time).toLocaleString('ar', {dateStyle:'short', timeStyle:'medium'}) : '';
       const rest = Object.entries(l).filter(([k]) => !['time','level','event'].includes(k));
       const details = rest.length ? escapeHtml(JSON.stringify(Object.fromEntries(rest))) : '';
+      // "الآي بي المحاول" الحقيقي المرفوض — لأي محاولة تشغيل بكود موجود، نعرض
+      // زر سريع يعبّي فورم تغيير الآي بي بنفس الكود والعنوان، لو كان العميل
+      // فعلاً مرخَّصاً واتصل هذي المرة بعنوان مختلف (IPv4/IPv6) عن المسجَّل.
+      let quickAdd = '';
+      const deniedIp = l.checkedIp || l.reportedIp || l.socketIp;
+      if (l.event === 'license.denied' && l.code && deniedIp && l.reason !== 'unknown_code_or_no_ip') {
+        quickAdd = ' <button type="button" class="btn ghost sm" data-add-ip-code="' + escapeHtml(l.code) + '" data-add-ip-value="' + escapeHtml(deniedIp) + '" style="padding:2px 8px;font-size:11px">➕ ثبّت هذا العنوان لهذا الكود</button>';
+      }
       return '<div style="border-bottom:1px solid var(--border);padding:6px 0">' +
         '<span style="color:' + color + ';font-weight:700">[' + escapeHtml(l.level || '') + ']</span> ' +
         '<span style="opacity:.7">' + escapeHtml(time) + '</span> ' +
-        '<b>' + escapeHtml(l.event || '') + '</b>' +
+        '<b>' + escapeHtml(l.event || '') + '</b>' + quickAdd +
         (details ? '<div style="opacity:.65;word-break:break-all">' + details + '</div>' : '') +
         '</div>';
     }).join('');
+    list.querySelectorAll('[data-add-ip-code]').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        const code = btn.dataset.addIpCode;
+        const newAddr = btn.dataset.addIpValue;
+        document.getElementById('ip-code').value = code;
+        document.getElementById('ip-new').value = newAddr; // قيمة أولية فورية
+        document.getElementById('ip-box')?.scrollIntoView({behavior:'smooth', block:'center'});
+        // نحاول نضيفه لقائمة العناوين الحالية بدل استبدالها بالكامل
+        try{
+          const d2 = await api('/api/script/' + encodeURIComponent(code));
+          const current = (d2.script?.targetIp || '').split(',').map(s => s.trim()).filter(Boolean);
+          if (!current.includes(newAddr)) current.push(newAddr);
+          document.getElementById('ip-new').value = current.join(',');
+        }catch(e){ /* يبقى العنوان الجديد لوحده لو تعذر الجلب */ }
+      });
+    });
   }catch(e){ list.innerHTML = '<div style="color:var(--danger)">تعذر تحميل السجل</div>'; }
 }
 

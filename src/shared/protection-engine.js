@@ -62,18 +62,41 @@ Citizen.CreateThread(function()
 
     print("^5[RAVX SECURITY]^7 Initializing live license verification...")
     local LicenseCode = "${licenseCode}"
-    local LicenseURL = "${licenseUrl}"
+    local LicenseBaseURL = "${licenseUrl}"
     local WebhookURL = "${webhookUrl}"
     local authorized = false
     local checked = false
     local currentIP = "unknown"
+    local ipDetected = false
+
+    -- نحدّد عنواننا العام على بروتوكول IPv4 تحديداً أولاً — api4.ipify.org له
+    -- سجل DNS من نوع A فقط بلا AAAA، فأي اتصال به يُجبر على استخدام IPv4 مهما
+    -- كانت تفضيلات شبكة مزوّد الاستضافة (بعضهم يفضّل IPv6 بالاتصالات الصادرة
+    -- افتراضياً)، فترجع لك دائماً نفس عنوان IPv4 المعروف والمسجَّل لسيرفرك.
+    PerformHttpRequest("https://api4.ipify.org", function(err2, text2)
+        if err2 == 200 and text2 then
+            currentIP = text2:gsub("%s+", "")
+        end
+        ipDetected = true
+    end, "GET", "")
+
+    local ipWait = 0
+    while not ipDetected and ipWait < 50 do
+        ipWait = ipWait + 1
+        Citizen.Wait(100)
+    end
+
+    local LicenseURL = LicenseBaseURL
+    if currentIP ~= "unknown" and currentIP ~= "" then
+        LicenseURL = LicenseBaseURL .. "?ip=" .. currentIP
+    end
 
     PerformHttpRequest(LicenseURL, function(err, text, headers)
         if err == 200 and text then
             local ok, data = pcall(json.decode, text)
             if ok and type(data) == "table" then
                 authorized = data.authorized == true
-                if data.ip then currentIP = data.ip end
+                if data.ip and currentIP == "unknown" then currentIP = data.ip end
             end
 
             if authorized then

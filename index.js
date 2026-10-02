@@ -22,7 +22,7 @@ const AdmZip = require('adm-zip');
 const db = require('./src/database/db');
 const { createServer } = require('./src/server/server');
 const subs = require('./src/shared/subscriptions');
-const protectionEngine = require('./src/shared/protection-engine');
+const protectionEngine = require('./src/shared/luraph-engine');
 
 // ==================== إعدادات النظام ====================
 const TOKEN = process.env.DISCORD_BOT_TOKEN;
@@ -339,7 +339,7 @@ client.once(Events.ClientReady, async () => {
                 new TextDisplayBuilder().setContent(
                     '# 🛡️ RAVX PROTECTOR\n' +
                     '-# Enterprise-Grade FiveM Script Security\n\n' +
-                    '**`🟢 ONLINE`**　**`⚡ V8 ENGINE`**　**`🔒 AES-256`**\n\n' +
+                    '**`🟢 ONLINE`**　**`🛡️ LURAPH API`**　**`🎮 FiveM TARGET`**\n\n' +
                     'حماية وتشفير احترافي لموارد **FiveM** — كل العملية تتم عبر الأزرار بالأسفل.\n' +
                     'اختر نوع التشفير ثم أدخل IP السيرفر، وبعدها ارفع ملف ZIP وسيتم تجهيز السكربت المحمي.'
                 )
@@ -365,7 +365,7 @@ client.once(Events.ClientReady, async () => {
                 .addTextDisplayComponents(
                     new TextDisplayBuilder().setContent(
                         '### ✨ لماذا RAVX؟\n' +
-                        '🛡️ ‎ **محرك تشفير V8** — طبقات حماية متعددة ضد الـ Hooks والتفكيك\n' +
+                        '🛡️ ‎ **محرك Luraph الرسمي** — معالجة ملفات Lua بإعداد هدف FiveM\n' +
                         '⚡ ‎ **رفع ومعالجة فورية** — بدون تجهيز ملفات مسبقة على السيرفر\n' +
                         '🔒 ‎ **خصوصية تامة** — تُحذف رسالتك تلقائياً فور استلام الملف\n' +
                         '🌐 ‎ **بوابة تحميل مستقلة** — روابط وأكواد تتجاوز حدود ديسكورد (24MB+)'
@@ -474,7 +474,7 @@ new ButtonBuilder().setCustomId('btn_web_upload').setLabel('🌐 رفع من ا�
                         new TextDisplayBuilder().setContent(
                             '# 💎 RAVX PROTECTOR — الاشتراكات\n' +
                             '-# حماية وتشفير سكربتات FiveM بأعلى مستوى احترافي\n\n' +
-                            '`✅ تشفير V8 كامل`　`✅ قفل IP`　`✅ رفع مباشر`　`✅ دعم فني`'
+                            '`✅ Luraph لهدف FiveM`　`✅ قفل IP`　`✅ رفع مباشر`　`✅ دعم فني`'
                         )
                     )
                     .addSeparatorComponents(new SeparatorBuilder().setSpacing(SeparatorSpacingSize.Large))
@@ -615,13 +615,13 @@ if (interaction.customId === 'btn_start_protect') {
                 .setPlaceholder('اختر نمط التشفير المناسب لسكريبتك')
                 .addOptions(
                     new StringSelectMenuOptionBuilder()
-                        .setLabel('الملفات المستهدفة')
-                        .setDescription('يشفّر فقط ملفات client/server/main — الأنسب والأسرع')
+                        .setLabel('Luraph للملفات المستهدفة')
+                        .setDescription('يحمي ملفات client/server/main بمحرك Luraph المخصص لـ FiveM')
                         .setValue('target')
                         .setEmoji('🛡️'),
                     new StringSelectMenuOptionBuilder()
-                        .setLabel('تشفير شامل')
-                        .setDescription('يموّه ملفات Lua كلها — ملفات fxmanifest تبقى كما هي')
+                        .setLabel('Luraph شامل')
+                        .setDescription('يحمي كل ملفات Lua بمحرك Luraph المخصص لـ FiveM')
                         .setValue('full')
                         .setEmoji('📦'),
                     new StringSelectMenuOptionBuilder()
@@ -838,8 +838,8 @@ if (interaction.customId === 'btn_start_protect') {
             const encryptionMode = session.mode || 'target';
 
             const modeLabels = {
-                target: '🛡️ الملفات المستهدفة',
-                full: '📦 تمويه شامل',
+                target: '🛡️ Luraph للملفات المستهدفة',
+                full: '📦 Luraph لكل ملفات Lua',
                 none: '🔓 قفل IP فقط'
             };
             const modeLabel = modeLabels[encryptionMode] || encryptionMode;
@@ -912,7 +912,7 @@ if (interaction.customId === 'btn_start_protect') {
 
             // إشعار المستخدم بالبدء وتحديث الرد
             await interaction.editReply({
-                content: '⏳ **تم استلام الملف بنجاح!** جاري التحميل وفك الضغط وتشفير الأكواد بمحرك V8... برجاء الانتظار ثوانٍ...',
+                content: '⏳ **تم استلام الملف بنجاح!** جاري إرسال ملفات Lua المحددة إلى محرك Luraph لهدف FiveM. قد تستغرق العملية وقتاً حسب عدد الملفات...',
                 components: []
             }).catch(() => {});
 
@@ -986,9 +986,14 @@ if (interaction.customId === 'btn_start_protect') {
                 });
 
                 let scriptEntry;
+                const sourceBackupName = `RAVX_Source_${pendingEntry.code}.zip`;
+                const sourceBackupPath = db.getFilePath(sourceBackupName);
                 try {
-                    // 6. تطبيق التشفير المتقدم V8 وفحص الترخيص الحيّ (بكود الترخيص بدل الآي بي الخام)
-                    protectionEngine.processAndProtectFiles(targetProcessDir, pendingEntry.code, resourceName, encryptionMode, BASE_URL);
+                    // 6. تطبيق Luraph لهدف FiveM وفحص الترخيص الحي داخل ملفات الخادم
+                    await protectionEngine.processAndProtectFiles(targetProcessDir, pendingEntry.code, resourceName, encryptionMode, BASE_URL);
+
+                    // احتفظ بالأصل ليتمكن الأدمن من استعادته بالكود؛ Luraph لا يعيد المصدر.
+                    fs.copyFileSync(inputZipPath, sourceBackupPath);
 
                     // 7. إعادة ضغط الملف المحمي
                     const finalZipFileName = `RAVX_Secured_${resourceName}_${pendingEntry.code}.zip`;
@@ -1004,9 +1009,11 @@ if (interaction.customId === 'btn_start_protect') {
                     scriptEntry = db.finalizeScript(pendingEntry.code, {
                         originalFilename: finalZipFileName,
                         savedFilename: finalZipFileName,
-                        fileSize: finalStats.size
+                        fileSize: finalStats.size,
+                        sourceBackupFilename: sourceBackupName
                     });
                 } catch (protectErr) {
+                    try { fs.rmSync(sourceBackupPath, { force: true }); } catch (e) {}
                     try { db.deleteScript(pendingEntry.code); } catch (e) {}
                     throw protectErr;
                 }

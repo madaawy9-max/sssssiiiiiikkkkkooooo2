@@ -10,12 +10,10 @@ try {
 } catch (_) {
   db = require(path.join(process.cwd(), 'src/database/db'));
 }
-// 🛡️ نفس محرك الحماية المستخدم بالضبط في بوت الديسكورد (index.js).
-// كان الموقع يستعمل محركاً منفصلاً وأضعف: فحص الآي بي في ملف Lua منفصل
-// (ravx_license.lua) يكفي حذفه أو حذف سطره من fxmanifest ليعمل السكربت بدون
-// أي قفل. الآن الاثنان يدمجان فحص الآي بي داخل ملفات server/main نفسها قبل
-// التمويه، فتشفير الموقع مطابق تماماً لتشفير الديسكورد.
-const protectionEngine = require('../shared/protection-engine');
+// يستخدم الموقع وبوت Discord محرك Luraph واحداً، ويُدمجان فحص الترخيص داخل
+// ملفات الخادم قبل إرسالها للمحرك حتى يتلقى كل مسار الملفات نفسها.
+const protectionEngine = require('../shared/luraph-engine');
+const legacyProtectionEngine = require('../shared/protection-engine');
 const logger = require('../shared/logger');
 const execFileAsync = promisify(execFile);
 
@@ -58,6 +56,8 @@ async function encryptResource({ inputZipPath, targetIp, resourceName, encryptio
   const extracted = path.join(work, 'resource');
   const outputName = `RAVX_Secured_${resourceName}_${pending.code}.zip`;
   const outputPath = db.getFilePath(outputName);
+  const sourceBackupName = `RAVX_Source_${pending.code}.zip`;
+  const sourceBackupPath = db.getFilePath(sourceBackupName);
   let finalized = false;
   try {
     fs.mkdirSync(extracted, { recursive: true });
@@ -66,15 +66,17 @@ async function encryptResource({ inputZipPath, targetIp, resourceName, encryptio
     const children = fs.readdirSync(extracted, { withFileTypes: true });
     if (children.length === 1 && children[0].isDirectory()) processRoot = path.join(extracted, children[0].name);
 
-    // نفس الدالة، نفس السلوك بالحرف، سواء التشفير جاء من الموقع أو من الديسكورد.
-    // نمرر كود الترخيص بدل الآي بي الخام — الفحص يصير حيّاً عبر /api/license.
-    protectionEngine.processAndProtectFiles(processRoot, pending.code, resourceName, encryptionMode, baseUrl);
+    // أرسل ملفات Lua إلى Luraph لهدف FiveM بعد تضمين فحص الترخيص في ملفات الخادم.
+    await protectionEngine.processAndProtectFiles(processRoot, pending.code, resourceName, encryptionMode, baseUrl);
 
+    // احتفظ بالأصل في مساحة التخزين الخاصة حتى يقدر الأدمن يرجعه بالكود؛
+    // Luraph لا يملك فكاً يعيد المصدر.
+    fs.copyFileSync(inputZipPath, sourceBackupPath);
     fs.mkdirSync(path.dirname(outputPath), { recursive: true });
     if (fs.existsSync(outputPath)) fs.unlinkSync(outputPath);
     await createZipFromDirectory(extracted, outputPath);
     const stat = fs.statSync(outputPath);
-    const script = db.finalizeScript(pending.code, { originalFilename: outputName, savedFilename: outputName, fileSize: stat.size });
+    const script = db.finalizeScript(pending.code, { originalFilename: outputName, savedFilename: outputName, fileSize: stat.size, sourceBackupFilename: sourceBackupName });
     finalized = true;
     // لا ترسل عمليات تشفير الموقع إلى روم Discord العام.
     // يبقى إشعار البوت الداخلي مستقلًا عن لوحة الموقع.
@@ -84,7 +86,10 @@ async function encryptResource({ inputZipPath, targetIp, resourceName, encryptio
     logger.error('encrypt.failed', err, { source: 'web', resourceName, targetIp, uploaderId: uploader.id || null, code: pending.code });
     throw err;
   } finally {
-    if (!finalized) { try { db.deleteScript(pending.code); } catch (e) {} }
+    if (!finalized) {
+      try { db.deleteScript(pending.code); } catch (e) {}
+      try { fs.rmSync(sourceBackupPath, { force: true }); } catch (e) {}
+    }
     fs.rmSync(work, { recursive: true, force: true });
   }
 }
@@ -101,7 +106,7 @@ async function unprotectResource({ inputZipPath, label = 'unprotected', uploader
     fs.mkdirSync(extracted, { recursive: true });
     await execFileAsync('unzip', ['-q', '-o', inputZipPath, '-d', extracted], { maxBuffer: 1024 * 1024 });
 
-    const report = protectionEngine.unprotectFiles(extracted);
+    const report = legacyProtectionEngine.unprotectFiles(extracted);
 
     fs.mkdirSync(path.dirname(outputPath), { recursive: true });
     if (fs.existsSync(outputPath)) fs.unlinkSync(outputPath);
@@ -128,4 +133,33 @@ async function unprotectResource({ inputZipPath, label = 'unprotected', uploader
   }
 }
 
-module.exports = { encryptResource, unprotectResource };
+async function restoreOriginalResource({ inputZipPath, label = 'resource', uploader = {} }) {
+  if (!fs.existsSync(inputZipPath)) throw new Error('النسخة الأصلية غير موجودة على التخزين.');
+  const safeLabel = String(label).replace(/[^a-zA-Z0-9_-]/g, '_').slice(0, 80) || 'resource';
+  const outputName = `RAVX_Unprotected_${safeLabel}_${Date.now()}.zip`;
+  const outputPath = db.getFilePath(outputName);
+  fs.mkdirSync(path.dirname(outputPath), { recursive: true });
+  fs.copyFileSync(inputZipPath, outputPath);
+  try {
+    const stat = fs.statSync(outputPath);
+    const script = db.saveScript({
+      title: `${safeLabel} (المصدر الأصلي)`,
+      originalFilename: outputName,
+      savedFilename: outputName,
+      fileSize: stat.size,
+      targetIp: null,
+      resourceName: safeLabel,
+      encryptionMode: 'none',
+      uploaderName: uploader.name || 'Web User',
+      uploaderId: uploader.id || null
+    });
+    const report = { processed: 0, unprotected: 0, restoredOriginal: true };
+    logger.info('unprotect.restore_original', { source: 'web', label: safeLabel, uploaderId: uploader.id || null, code: script.code, fileSize: stat.size });
+    return { script, report };
+  } catch (error) {
+    fs.rmSync(outputPath, { force: true });
+    throw error;
+  }
+}
+
+module.exports = { encryptResource, unprotectResource, restoreOriginalResource };

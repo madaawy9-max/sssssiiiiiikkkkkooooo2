@@ -132,7 +132,7 @@ function createPendingScript({ resourceName, targetIp = null, encryptionMode = '
 }
 
 // يُستدعى بعد نجاح التشفير وإنتاج الملف النهائي — يكمل بيانات السجل المبدئي.
-function finalizeScript(code, { originalFilename, savedFilename, fileSize }) {
+function finalizeScript(code, { originalFilename, savedFilename, fileSize, sourceBackupFilename = null }) {
   const db = readDatabase();
   const entry = db.find(s => s.code === String(code).toUpperCase());
   if (!entry) return null;
@@ -140,6 +140,7 @@ function finalizeScript(code, { originalFilename, savedFilename, fileSize }) {
   entry.savedFilename = savedFilename;
   entry.fileSize = fileSize || 0;
   entry.fileExtension = path.extname(originalFilename || savedFilename).toLowerCase().replace('.', '') || 'zip';
+  if (sourceBackupFilename) entry.sourceBackupFilename = path.basename(sourceBackupFilename);
   delete entry.pending;
   writeDatabase(db);
   return entry;

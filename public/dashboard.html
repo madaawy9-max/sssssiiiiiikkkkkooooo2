@@ -64,10 +64,11 @@
         <label>IP السيرفر (تقدر تحط أكثر من عنوان مفصول بفاصلة)<input id="ip" required placeholder="127.0.0.1"></label>
       </div>
       <div class="mode-row">
-        <button type="button" class="mode active" data-mode="target"><b>مستهدف</b><small>client / server + IP</small></button>
-        <button type="button" class="mode" data-mode="full"><b>شامل</b><small>كل ملفات Lua + IP</small></button>
+        <button type="button" class="mode active" data-mode="target"><b>Luraph مستهدف</b><small>client / server / main + IP</small></button>
+        <button type="button" class="mode" data-mode="full"><b>Luraph شامل</b><small>كل ملفات Lua + IP</small></button>
         <button type="button" class="mode" data-mode="none"><b>قفل IP فقط</b><small>بدون تمويه للكود</small></button>
       </div>
+      <small style="display:block;margin:-4px 0 14px;color:var(--text-mute)">خيارا Luraph يحتاجان مفتاح API على الاستضافة، ويرسلان ملفات Lua إلى Luraph لمعالجتها.</small>
       <button class="btn primary full" id="encrypt-btn">تشفير المورد الآن <b>←</b></button>
       <div id="encrypt-status" class="status"></div>
       <div id="encrypt-result" class="encrypt-result" hidden>
@@ -92,7 +93,7 @@
   </div>
 
   <div id="unprotect-box" class="encrypt dash-card reveal" hidden>
-    <div class="dash-title"><span>🔓</span><div><h3>فك الحماية للتعديل (أدمن)</h3><p>يفك الملفات بصيغة الحماية الحالية ويخرج ZIP قابل للتعديل، ثم تقدر تعيد حمايته من جديد</p></div></div>
+    <div class="dash-title"><span>🔓</span><div><h3>فك حماية RAVX القديمة (أدمن)</h3><p>يدعم ملفات RAVX القديمة فقط. ملفات Luraph لا يمكن إرجاعها للمصدر الأصلي</p></div></div>
     <form id="unprotect-code-form" style="margin-bottom:18px">
       <div class="form-row">
         <label>فك مورد محفوظ باستخدام كود الترخيص<input id="unprotect-existing-code" autocomplete="off" placeholder="RAVX-XXXXXXXXXX" required></label>

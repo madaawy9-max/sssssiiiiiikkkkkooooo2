@@ -1,20 +1,25 @@
-# RAVX engine update
+# تحديث محرك الحماية: Luraph لهدف FiveM
 
-## What changed
+هذا التحديث يستبدل ادعاء الحماية السابق بمحرك Luraph الرسمي عبر API. المحرك المحلي القديم `RAVX_OBF_V1` كان XOR قابلاً للعكس، وليس تشفيراً قوياً.
 
-- Replaced the incomplete protection module with a module that exports the functions used by the bot and website.
-- Server Lua checks its license before running. A temporary license-site outage triggers retries every 15 seconds. Once running, the resource checks again every 60 seconds.
-- Admins can change the allowed IP from the dashboard. They can also enter a saved license code in the admin unprotect panel to create an editable ZIP.
-- The license endpoint ignores caller-supplied `?ip=` values. It compares the connection address seen by the service.
-- The manifest files `fxmanifest.lua` and `__resource.lua` are excluded from obfuscation.
+## الاستخدام
 
-## Deployment notes
+- `target`: يرسل ملفات `client/server/main` وملفات الخادم المختارة إلى Luraph واحداً تلو الآخر.
+- `full`: يرسل جميع ملفات Lua إلى Luraph.
+- `none`: يضيف فحص الترخيص لملفات الخادم فقط دون Luraph.
+- يحدد التكامل خيار `FiveM` من إعدادات `TARGET_VERSION` ولا يعود تلقائياً إلى تمويه محلي ضعيف عند فشل الخدمة.
+- يُضمّن فحص الترخيص داخل مصدر ملفات الخادم قبل إرسالها للمحرك. يجرب المورد مجدداً عند انقطاع موقع الترخيص، ثم يعيد الفحص دورياً.
+- يضيف `lua54 'yes'` إلى manifest عند غيابه، حسب إعداد FiveM في Luraph.
 
-- Set `BASE_URL` to the public HTTPS address of this bot/site.
-- If the app is behind a trusted reverse proxy that overwrites `X-Forwarded-For`, set `TRUST_PROXY=true`. Do not enable it when clients can connect directly to the app.
-- Keep a persistent disk mounted at the project's `storage/` directory. License records and generated ZIPs are stored there.
-- IP changes are picked up by the next license check, usually within one minute.
+## متطلبات مهمة
 
-## Protection limits
+1. استخدم خطة Luraph تدعم API وولّد API key من صفحة الحساب.
+2. خزّن السر في الاستضافة باسم `LPH_API_KEY`. لا تضعه في الواجهة أو Discord أو ملفات المورد.
+3. كل ملف Lua مختار يرسل كطلب مستقل إلى Luraph، لذلك مدة العمل واستهلاك الخطة يرتبطان بعدد الملفات.
+4. المصدر يرسل إلى خدمة Luraph لمعالجته. لا ترفع ملفات لا تملك حق إرسالها.
+5. احتفظ بنسخة أصلية غير محمية. Luraph لا يعيد الناتج إلى المصدر، وفك الحماية من لوحة RAVX لا يعمل على ملفات Luraph.
+6. لا توجد حماية تمنع مالك خادم يتحكم ببيئة تشغيل FiveM من مراقبة ما ينفذ عنده. Luraph يصعّب قراءة الملف الثابت، وليس ضماناً ضد التحليل الديناميكي.
 
-The Lua layer uses obfuscation and an online server-side license check. The decoder is part of any self-running Lua file, so this does not provide unbreakable encryption or prevent a server owner from inspecting code running on their own machine. No hardware identifiers are collected or sent to Discord.
+## التحقق
+
+تم فحص بناء JavaScript واختبار مسار التكامل بمزود API وهمي محلياً. لم يُختبر الاتصال الفعلي أو ناتج مورد FiveM لأن ذلك يتطلب API key صالحاً وخطة API وسيرفر FiveM للتجربة.

@@ -218,8 +218,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const code = d.script.code;
     document.getElementById('unprotect-code').textContent = code;
     document.getElementById('unprotect-link').href = '/api/download/' + encodeURIComponent(code);
-    document.getElementById('unprotect-report').textContent =
-      'تم فك ' + d.report.unprotected + ' من أصل ' + d.report.processed + ' ملف Lua.';
+    document.getElementById('unprotect-report').textContent = d.report.restoredOriginal
+      ? 'تمت استعادة نسخة المصدر الأصلية المحفوظة عند التشفير.'
+      : 'تم فك ' + d.report.unprotected + ' من أصل ' + d.report.processed + ' ملف Lua.';
     document.getElementById('unprotect-result').hidden = false;
     loadLogs();
   }

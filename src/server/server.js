@@ -436,16 +436,29 @@ async function unprotectByCodeRoute(req, res, code) {
   const script = db.findByCode(code);
   if (!script || !script.savedFilename || script.pending) return sendJson(res, 404, { success: false, message: 'كود المورد أو ملفه غير موجود.' });
   const inputZipPath = db.getFilePath(script.savedFilename);
-  if (!fs.existsSync(inputZipPath)) return sendJson(res, 404, { success: false, message: 'ملف المورد غير موجود على الخادم.' });
+  const sourceBackupPath = script.sourceBackupFilename
+    ? db.getFilePath(script.sourceBackupFilename)
+    : null;
+  const hasSourceBackup = Boolean(sourceBackupPath && fs.existsSync(sourceBackupPath));
+  if (!hasSourceBackup && !fs.existsSync(inputZipPath)) return sendJson(res, 404, { success: false, message: 'ملف المورد أو نسخة المصدر الأصلية غير موجودة على الخادم.' });
 
   encryptingNow.add(user.id);
   try {
-    const result = await engine.unprotectResource({
-      inputZipPath,
-      label: script.resourceName || script.title || code,
-      uploader: { id: user.id, name: user.username }
-    });
-    if (!result?.report?.unprotected) {
+    let result;
+    if (hasSourceBackup && engine.restoreOriginalResource) {
+      result = await engine.restoreOriginalResource({
+        inputZipPath: sourceBackupPath,
+        label: script.resourceName || script.title || code,
+        uploader: { id: user.id, name: user.username }
+      });
+    } else {
+      result = await engine.unprotectResource({
+        inputZipPath,
+        label: script.resourceName || script.title || code,
+        uploader: { id: user.id, name: user.username }
+      });
+    }
+    if (!result?.report?.unprotected && !result?.report?.restoredOriginal) {
       if (result?.script?.savedFilename) {
         try { fs.rmSync(db.getFilePath(result.script.savedFilename), { force: true }); } catch (_) {}
         try { db.deleteScript(result.script.code); } catch (_) {}

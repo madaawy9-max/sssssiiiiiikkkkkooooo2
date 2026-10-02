@@ -10,7 +10,6 @@ const logger = require('../shared/logger');
 
 const PUBLIC_DIR = path.resolve(__dirname, '../../public');
 const MAX_UPLOAD = Number(process.env.MAX_UPLOAD_BYTES || 5 * 1024 * 1024 * 1024);
-
 const cfg = {
   clientId: process.env.DISCORD_CLIENT_ID || process.env.CLIENT_ID,
   clientSecret: process.env.DISCORD_CLIENT_SECRET,
@@ -33,7 +32,6 @@ const sessions = new Map();
 function ensureStorageDir() {
   if (!fs.existsSync(STORAGE_DIR)) fs.mkdirSync(STORAGE_DIR, { recursive: true });
 }
-
 function loadSessionsFromDisk() {
   ensureStorageDir();
   try {
@@ -44,7 +42,6 @@ function loadSessionsFromDisk() {
     }
   } catch (e) {}
 }
-
 function saveSessionsToDisk() {
   ensureStorageDir();
   try {
@@ -53,9 +50,7 @@ function saveSessionsToDisk() {
     fs.writeFileSync(SESSIONS_FILE, JSON.stringify(obj), 'utf8');
   } catch (e) { console.error('[WEB] session persist failed:', e.message); }
 }
-
 loadSessionsFromDisk();
-
 setInterval(() => {
   const now = Date.now();
   let changed = false;
@@ -82,7 +77,7 @@ function rateLimited(req, res, key, limit, windowMs) {
   }
   bucket.count += 1;
   if (bucket.count > limit) {
-    sendJson(res, 429, { success: false, message: 'طلبات كثيرة جداً، حاول بعد قليل.' });
+    sendJson(res, 429, { success: false, message: 'طلبات كثيرة جداً' });
     return true;
   }
   return false;
@@ -100,14 +95,10 @@ async function removeRoleNow(userId, entry) {
   if (!cfg.botToken || !guildId || !roleId) return false;
   try {
     await discordApi('/guilds/' + guildId + '/members/' + userId + '/roles/' + roleId, {
-      method: 'DELETE',
-      headers: { Authorization: 'Bot ' + cfg.botToken }
+      method: 'DELETE', headers: { Authorization: 'Bot ' + cfg.botToken }
     });
     return true;
-  } catch (e) {
-    console.error('[WEB] role removal failed:', e.message);
-    return false;
-  }
+  } catch (e) { console.error('[WEB] role removal failed:', e.message); return false; }
 }
 
 function invalidateUserSessions(userId, canEncrypt) {
@@ -210,8 +201,8 @@ function currentUser(req) {
 }
 function requireUser(req, res, permission) {
   const user = currentUser(req);
-  if (!user) { sendJson(res, 401, { success: false, message: 'تسجيل الدخول عبر Discord مطلوب' }); return null; }
-  if (permission && !user.canEncrypt) { sendJson(res, 403, { success: false, message: 'لا تملك صلاحية التشفير' }); return null; }
+  if (!user) { sendJson(res, 401, { success: false, message: 'تسجيل الدخول مطلوب' }); return null; }
+  if (permission && !user.canEncrypt) { sendJson(res, 403, { success: false, message: 'لا تملك الصلاحية' }); return null; }
   return user;
 }
 async function discordApi(endpoint, options) {
@@ -245,10 +236,8 @@ async function getDiscordAccess(user, member) {
 }
 function loginUrl() {
   const q = new URLSearchParams({
-    client_id: cfg.clientId || '',
-    redirect_uri: cfg.redirectUri || '',
-    response_type: 'code',
-    scope: 'identify guilds.members.read'
+    client_id: cfg.clientId || '', redirect_uri: cfg.redirectUri || '',
+    response_type: 'code', scope: 'identify guilds.members.read'
   });
   return 'https://discord.com/oauth2/authorize?' + q;
 }
@@ -282,10 +271,7 @@ async function refreshSessionPermissions(req, force) {
     user.permCheckedAt = Date.now();
     saveSessionsToDisk();
     return user;
-  } catch (e) {
-    console.error('[WEB] permission refresh:', e.message);
-    return user;
-  }
+  } catch (e) { console.error('[WEB] permission refresh:', e.message); return user; }
 }
 
 function serveStatic(req, res, pathname) {
@@ -298,7 +284,7 @@ function serveStatic(req, res, pathname) {
     if (e || !s.isFile()) {
       const fallback = path.join(PUBLIC_DIR, 'index.html');
       return fs.readFile(fallback, (er, c) => {
-        if (er) return sendJson(res, 404, { success: false, message: 'Page not found' });
+        if (er) return sendJson(res, 404, { success: false, message: 'Not found' });
         securityHeaders(res);
         res.writeHead(200, { 'Content-Type': MIME_TYPES['.html'] });
         res.end(c);
@@ -309,7 +295,6 @@ function serveStatic(req, res, pathname) {
     fs.createReadStream(file).pipe(res);
   });
 }
-
 function parseUpload(req) {
   return new Promise((resolve, reject) => {
     let tempDir, filePath, fields = {}, fileInfo = null, size = 0, settled = false, fileDone = null;
@@ -321,9 +306,8 @@ function parseUpload(req) {
       reject(e);
     };
     let bb;
-    try {
-      bb = Busboy({ headers: req.headers, limits: { fileSize: MAX_UPLOAD, files: 1, fields: 10 } });
-    } catch (e) { return fail(e); }
+    try { bb = Busboy({ headers: req.headers, limits: { fileSize: MAX_UPLOAD, files: 1, fields: 10 } }); }
+    catch (e) { return fail(e); }
     tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'ravx-upload-'));
     bb.on('field', (name, val) => fields[name] = String(val).trim());
     bb.on('file', (name, stream, info) => {
@@ -333,7 +317,7 @@ function parseUpload(req) {
       const out = fs.createWriteStream(filePath);
       fileDone = new Promise((ok, no) => { out.on('finish', ok); out.on('error', no); });
       stream.on('data', c => size += c.length);
-      stream.on('limit', () => fail(Error('حجم الملف أكبر من الحد المسموح')));
+      stream.on('limit', () => fail(Error('حجم الملف أكبر من الحد')));
       stream.on('error', fail);
       out.on('error', fail);
       stream.pipe(out);
@@ -363,11 +347,11 @@ async function encryptRoute(req, res) {
       return sendJson(res, 403, { success: false, message: subs.inactiveReason(sub.entry) });
     }
     if (!sub.entry && !user.canEncrypt) {
-      return sendJson(res, 403, { success: false, message: 'لا تملك صلاحية التشفير. فعّل كود اشتراك أولاً.' });
+      return sendJson(res, 403, { success: false, message: 'لا تملك صلاحية التشفير' });
     }
   }
   if (encryptingNow.has(user.id)) {
-    return sendJson(res, 409, { success: false, message: 'في عملية تشفير جارية بالفعل' });
+    return sendJson(res, 409, { success: false, message: 'عملية تشفير جارية بالفعل' });
   }
   encryptingNow.add(user.id);
 
@@ -395,8 +379,8 @@ async function encryptRoute(req, res) {
     const resourceName = String(upload.fields.resourceName || '').replace(/[^a-zA-Z0-9_-]/g, '_').slice(0, 80);
     const targetIp = String(upload.fields.targetIp || '').trim();
     const encryptionMode = ['target', 'full', 'none'].includes(upload.fields.encryptionMode) ? upload.fields.encryptionMode : 'target';
-    if (!resourceName || !targetIp) throw Error('اسم المورد وIP السيرفر مطلوبان');
-    if (!isValidTarget(targetIp)) throw Error('صيغة IP/دومين السيرفر غير صحيحة');
+    if (!resourceName || !targetIp) throw Error('اسم المورد وIP مطلوبان');
+    if (!isValidTarget(targetIp)) throw Error('صيغة IP غير صحيحة');
     const result = await engine.encryptResource({
       inputZipPath: upload.filePath, targetIp, resourceName, encryptionMode,
       uploader: { id: user.id, name: user.username }
@@ -426,8 +410,8 @@ async function encryptRoute(req, res) {
 async function unprotectRoute(req, res) {
   const user = requireUser(req, res);
   if (!user) return;
-  if (!user.isAdmin) return sendJson(res, 403, { success: false, message: 'فك الحماية متاح للأدمن فقط' });
-  if (encryptingNow.has(user.id)) return sendJson(res, 409, { success: false, message: 'في عملية جارية بالفعل' });
+  if (!user.isAdmin) return sendJson(res, 403, { success: false, message: 'فك الحماية للأدمن فقط' });
+  if (encryptingNow.has(user.id)) return sendJson(res, 409, { success: false, message: 'عملية جارية بالفعل' });
   encryptingNow.add(user.id);
 
   if (!engine || !engine.unprotectResource) {
@@ -445,7 +429,7 @@ async function unprotectRoute(req, res) {
       uploader: { id: user.id, name: user.username }
     });
     if (!result || !result.script || !fs.existsSync(db.getFilePath(result.script.savedFilename))) {
-      throw Error('فشل حفظ الملف بعد فك الحماية');
+      throw Error('فشل حفظ الملف');
     }
     sendJson(res, 200, { success: true, script: publicScript(result.script), report: result.report });
   } catch (e) {
@@ -457,7 +441,6 @@ async function unprotectRoute(req, res) {
     if (upload && upload.tempDir) fs.rmSync(upload.tempDir, { recursive: true, force: true });
   }
 }
-
 function createServer() {
   return http.createServer(async (req, res) => {
     try {
@@ -469,16 +452,16 @@ function createServer() {
       }
 
       if (p === '/api/auth/login') {
-        if (rateLimited(req, res, 'login', 20, 60 * 1000)) return;
+        if (rateLimited(req, res, 'login', 20, 60000)) return;
         if (!cfg.clientId || !cfg.redirectUri || !cfg.guildId) {
-          return sendJson(res, 500, { success: false, message: 'إعدادات Discord OAuth ناقصة' });
+          return sendJson(res, 500, { success: false, message: 'إعدادات OAuth ناقصة' });
         }
         res.writeHead(302, { Location: loginUrl() });
         return res.end();
       }
 
       if (p === '/api/auth/callback') {
-        if (rateLimited(req, res, 'callback', 20, 60 * 1000)) return;
+        if (rateLimited(req, res, 'callback', 20, 60000)) return;
         return await oauthCallback(u.searchParams.get('code'), res);
       }
 
@@ -522,8 +505,7 @@ function createServer() {
         const user = requireUser(req, res);
         if (!user) return;
         if (!user.isAdmin) return sendJson(res, 403, { success: false, message: 'للأدمن فقط' });
-        const raw = db.readDatabase();
-        return sendJson(res, 200, { success: true, scripts: raw });
+        return sendJson(res, 200, { success: true, scripts: db.readDatabase() });
       }
 
       if (p.startsWith('/api/admin/revoke/') && req.method === 'POST') {
@@ -533,7 +515,7 @@ function createServer() {
         const code = safeCode(p.slice('/api/admin/revoke/'.length));
         if (!code) return sendJson(res, 400, { success: false, message: 'كود غير صحيح' });
         const entry = db.findByCode(code);
-        if (!entry) return sendJson(res, 404, { success: false, message: 'السكربت غير موجود' });
+        if (!entry) return sendJson(res, 404, { success: false, message: 'غير موجود' });
         db.updateTargetIp(code, '__REVOKED__');
         try {
           const all = db.readDatabase();
@@ -559,9 +541,9 @@ function createServer() {
         let parsed = {};
         try { parsed = JSON.parse(body || '{}'); } catch (e) {}
         const newIp = String(parsed.targetIp || '').trim();
-        if (!isValidTarget(newIp)) return sendJson(res, 400, { success: false, message: 'صيغة IP غير صحيحة' });
+        if (!isValidTarget(newIp)) return sendJson(res, 400, { success: false, message: 'IP غير صحيح' });
         const entry = db.updateTargetIp(code, newIp);
-        if (!entry) return sendJson(res, 404, { success: false, message: 'السكربت غير موجود' });
+        if (!entry) return sendJson(res, 404, { success: false, message: 'غير موجود' });
         try {
           const all = db.readDatabase();
           const idx = all.findIndex(s => s.code === code.toUpperCase());
@@ -582,29 +564,28 @@ function createServer() {
         const code = safeCode(p.slice('/api/admin/delete/'.length));
         if (!code) return sendJson(res, 400, { success: false, message: 'كود غير صحيح' });
         const entry = db.findByCode(code);
-        if (!entry) return sendJson(res, 404, { success: false, message: 'السكربت غير موجود' });
+        if (!entry) return sendJson(res, 404, { success: false, message: 'غير موجود' });
         const fp = db.getFilePath(entry.savedFilename);
         if (fp && fs.existsSync(fp)) { try { fs.unlinkSync(fp); } catch (e) {} }
         db.deleteScript(code);
         logger.warn('script.deleted', { code, byAdminId: user.id });
-        return sendJson(res, 200, { success: true, message: 'تم حذف السكربت بالكامل' });
+        return sendJson(res, 200, { success: true, message: 'تم الحذف' });
       }
 
       if (p.startsWith('/api/license/')) {
-        if (rateLimited(req, res, 'license', 60, 60 * 1000)) return;
+        if (rateLimited(req, res, 'license', 60, 60000)) return;
         const code = safeCode(p.slice('/api/license/'.length));
-        if (!code) return sendJson(res, 400, { success: false, message: 'كود الترخيص مطلوب' });
+        if (!code) return sendJson(res, 400, { success: false, message: 'كود مطلوب' });
         const s = db.findByCode(code);
         const socketIp = clientIp(req);
         const reportedIp = String(u.searchParams.get('ip') || '').trim();
         const effectiveIp = isValidTargetToken(reportedIp) ? reportedIp : socketIp;
-
         if (s && s.revokedAt) {
           logger.warn('license.denied', { code, socketIp, reportedIp, reason: 'revoked' });
           return sendJson(res, 200, { success: true, authorized: false, ip: effectiveIp });
         }
         if (!s || !s.targetIp || s.targetIp === '__REVOKED__') {
-          logger.warn('license.denied', { code, socketIp, reportedIp, reason: 'unknown_code_or_no_ip' });
+          logger.warn('license.denied', { code, socketIp, reportedIp, reason: 'unknown_code' });
           return sendJson(res, 200, { success: true, authorized: false, ip: effectiveIp });
         }
         const authorized = matchesTargetIp(effectiveIp, s.targetIp);
@@ -620,33 +601,35 @@ function createServer() {
       if (p.startsWith('/api/script/') && p.endsWith('/ip') && req.method === 'POST') {
         const user = requireUser(req, res);
         if (!user) return;
-        if (!user.isAdmin) return sendJson(res, 403, { success: false, message: 'تغيير الآي بي للأدمن فقط' });
-        if (rateLimited(req, res, 'set-ip', 20, 60 * 1000)) return;
+        if (!user.isAdmin) return sendJson(res, 403, { success: false, message: 'للأدمن فقط' });
+        if (rateLimited(req, res, 'set-ip', 20, 60000)) return;
         const segments = p.split('/');
         const code = safeCode(segments[3]);
-        if (!code) return sendJson(res, 400, { success: false, message: 'كود السكربت مطلوب' });
+        if (!code) return sendJson(res, 400, { success: false, message: 'كود مطلوب' });
         let body = '';
         for await (const chunk of req) { body += chunk; if (body.length > 4096) break; }
         let parsed = {};
         try { parsed = JSON.parse(body || '{}'); } catch (e) {}
         const newIp = String(parsed.targetIp || '').trim();
-        if (!isValidTarget(newIp)) return sendJson(res, 400, { success: false, message: 'صيغة IP/دومين غير صحيحة' });
+        if (!isValidTarget(newIp)) return sendJson(res, 400, { success: false, message: 'IP غير صحيح' });
         const updated = db.updateTargetIp(code, newIp);
-        if (!updated) return sendJson(res, 404, { success: false, message: 'السكربت غير موجود' });
+        if (!updated) return sendJson(res, 404, { success: false, message: 'غير موجود' });
         logger.info('license.ip_changed', { code, newIp, byAdminId: user.id });
         return sendJson(res, 200, { success: true, script: publicScript(updated) });
       }
 
       if (p === '/api/script' || p.startsWith('/api/script/')) {
-        if (rateLimited(req, res, 'script', 60, 60 * 1000)) return;
+        if (rateLimited(req, res, 'script', 60, 60000)) return;
         const code = safeCode(u.searchParams.get('code') || p.split('/')[3]);
-        if (!code) return sendJson(res, 400, { success: false, message: 'كود السكربت مطلوب' });
+        if (!code) return sendJson(res, 400, { success: false, message: 'كود مطلوب' });
         const s = db.findByCode(code);
-        if (!s) return sendJson(res, 404, { success: false, message: 'لم يتم العثور على السكربت' });
+        if (!s) return sendJson(res, 404, { success: false, message: 'غير موجود' });
         return sendJson(res, 200, { success: true, script: publicScript(s) });
       }
 
       if (p.startsWith('/api/download/')) {
-        if (rateLimited(req, res, 'download', 30, 60 * 1000)) return;
+        if (rateLimited(req, res, 'download', 30, 60000)) return;
         const code = safeCode(p.slice('/api/download/'.length));
-        const s =
+        const s = code && db.findByCode(code);
+        if (!s) return sendJson(res, 404, { success: false, message: 'غير موجود' });
+        const fp = db.getFilePath

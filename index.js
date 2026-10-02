@@ -26,11 +26,11 @@ const protectionEngine = require('./src/shared/protection-engine');
 
 // ==================== إعدادات النظام ====================
 const TOKEN = process.env.DISCORD_BOT_TOKEN;
-const CLIENT_ID = process.env.CLIENT_ID || '1543275242762407958';
-const PANEL_CHANNEL_ID = process.env.PANEL_CHANNEL_ID || '1545704301605945354';
-const ADMIN_PANEL_CHANNEL_ID = process.env.ADMIN_PANEL_CHANNEL_ID || '1545524543903367318';
-const PRICING_CHANNEL_ID = process.env.PRICING_CHANNEL_ID || '1545526903052435476';
-const GRANT_PERMISSION_ROLE_ID = process.env.GRANT_PERMISSION_ROLE_ID || process.env.ENCRYPT_ROLE_ID || '1509455687934283776';
+const CLIENT_ID = process.env.CLIENT_ID || '';
+const PANEL_CHANNEL_ID = process.env.PANEL_CHANNEL_ID || '';
+const ADMIN_PANEL_CHANNEL_ID = process.env.ADMIN_PANEL_CHANNEL_ID || '';
+const PRICING_CHANNEL_ID = process.env.PRICING_CHANNEL_ID || '';
+const GRANT_PERMISSION_ROLE_ID = process.env.GRANT_PERMISSION_ROLE_ID || process.env.ENCRYPT_ROLE_ID || '';
 const WEBHOOK_URL = process.env.WEBHOOK_URL || "";
 
 const PORT = process.env.PORT || 3000;

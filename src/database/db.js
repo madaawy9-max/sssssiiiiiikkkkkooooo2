@@ -5,21 +5,31 @@ const crypto = require('crypto');
 const DB_FILE = path.join(__dirname, '../../storage/scripts.json');
 const UPLOADS_DIR = path.join(__dirname, '../../storage/uploads');
 
+// التأكد من وجود المجلدات وقاعدة البيانات
 function ensureDirectories() {
   const storageDir = path.join(__dirname, '../../storage');
-  if (!fs.existsSync(storageDir)) fs.mkdirSync(storageDir, { recursive: true });
-  if (!fs.existsSync(UPLOADS_DIR)) fs.mkdirSync(UPLOADS_DIR, { recursive: true });
-  if (!fs.existsSync(DB_FILE)) fs.writeFileSync(DB_FILE, JSON.stringify([], null, 2), 'utf-8');
+  if (!fs.existsSync(storageDir)) {
+    fs.mkdirSync(storageDir, { recursive: true });
+  }
+  if (!fs.existsSync(UPLOADS_DIR)) {
+    fs.mkdirSync(UPLOADS_DIR, { recursive: true });
+  }
+  if (!fs.existsSync(DB_FILE)) {
+    fs.writeFileSync(DB_FILE, JSON.stringify([], null, 2), 'utf-8');
+  }
 }
 
+// توليد كود مميز وسهل القراءة (مثل RAVX-8K3M9ABCD)
 function generateCode(prefix = 'RAVX', length = 10) {
   const chars = '23456789ABCDEFGHJKLMNPQRSTUVWXYZ';
   let code = '';
-  const bytes = crypto.randomBytes(length);
-  for (let i = 0; i < length; i++) code += chars.charAt(bytes[i] % chars.length);
+  for (let i = 0; i < length; i++) {
+    code += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
   return `${prefix}-${code}`;
 }
 
+// قراءة كل السجلات
 function readDatabase() {
   ensureDirectories();
   try {
@@ -31,12 +41,11 @@ function readDatabase() {
   }
 }
 
+// حفظ السجلات
 function writeDatabase(data) {
   ensureDirectories();
   try {
-    const tmp = `${DB_FILE}.${process.pid}.${Date.now()}.tmp`;
-    fs.writeFileSync(tmp, JSON.stringify(data, null, 2), 'utf-8');
-    fs.renameSync(tmp, DB_FILE);
+    fs.writeFileSync(DB_FILE, JSON.stringify(data, null, 2), 'utf-8');
     return true;
   } catch (err) {
     console.error('Error writing database:', err);
@@ -44,6 +53,7 @@ function writeDatabase(data) {
   }
 }
 
+// حفظ سكربت جديد في قاعدة البيانات
 function saveScript({
   title,
   originalFilename,
@@ -60,8 +70,9 @@ function saveScript({
   let code = customCode;
 
   if (!code) {
-    do { code = generateCode('RAVX'); }
-    while (db.some(item => item.code.toUpperCase() === code.toUpperCase()));
+    do {
+      code = generateCode('RAVX');
+    } while (db.some(item => item.code.toUpperCase() === code.toUpperCase()));
   }
 
   const ext = path.extname(originalFilename || savedFilename).toLowerCase().replace('.', '');
@@ -77,7 +88,10 @@ function saveScript({
     targetIp: targetIp,
     resourceName: resourceName,
     encryptionMode: encryptionMode,
-    uploader: { name: uploaderName, id: uploaderId },
+    uploader: {
+      name: uploaderName,
+      id: uploaderId
+    },
     downloads: 0,
     createdAt: new Date().toISOString()
   };
@@ -87,11 +101,14 @@ function saveScript({
   return newEntry;
 }
 
+// 🔑 يحجز كوداً فريداً ويحفظ سجلاً مبدئياً (pending) قبل حتى ما نبدأ نشفّر —
+// عشان نقدر ندمج الكود نفسه داخل ملف Lua (كمعرّف ترخيص) بدل الآي بي الخام.
+// كتابة السجل فوراً (بدون await بينها وبين توليد الكود) تمنع تكرار نفس الكود
+// لأن Node أحادي الخيط ولا يوجد نداء غير متزامن بينهما.
 function createPendingScript({ resourceName, targetIp = null, encryptionMode = 'target', uploaderName = 'RAVX User', uploaderId = null }) {
   const db = readDatabase();
   let code;
-  do { code = generateCode('RAVX'); }
-  while (db.some(item => item.code.toUpperCase() === code.toUpperCase()));
+  do { code = generateCode('RAVX'); } while (db.some(item => item.code.toUpperCase() === code.toUpperCase()));
 
   const newEntry = {
     id: crypto.randomUUID ? crypto.randomUUID() : Date.now().toString(),
@@ -114,6 +131,7 @@ function createPendingScript({ resourceName, targetIp = null, encryptionMode = '
   return newEntry;
 }
 
+// يُستدعى بعد نجاح التشفير وإنتاج الملف النهائي — يكمل بيانات السجل المبدئي.
 function finalizeScript(code, { originalFilename, savedFilename, fileSize }) {
   const db = readDatabase();
   const entry = db.find(s => s.code === String(code).toUpperCase());
@@ -127,6 +145,7 @@ function finalizeScript(code, { originalFilename, savedFilename, fileSize }) {
   return entry;
 }
 
+// يحذف سجلاً مبدئياً لو فشلت المعالجة، حتى لا يبقى كود "معلَّق" بلا ملف حقيقي.
 function deleteScript(code) {
   const db = readDatabase();
   const idx = db.findIndex(s => s.code === String(code).toUpperCase());
@@ -136,6 +155,10 @@ function deleteScript(code) {
   return true;
 }
 
+// 🌐 تغيير الآي بي المرخَّص لسكربت موجود بالفعل — هذا هو أساس ميزة "الآي بي
+// الحيّ": الملف المشفَّر عند العميل يسأل خادمنا عن الآي بي المسموح بكوده
+// وقت التشغيل بدل ما يكون الآي بي مدموجاً ثابتاً بداخل الملف، فتغييره هنا
+// يطبَّق تلقائياً عند العميل بدون ما تحتاج ترسل له ملفاً جديداً.
 function updateTargetIp(code, newIp) {
   const db = readDatabase();
   const entry = db.find(s => s.code === String(code).toUpperCase());
@@ -146,6 +169,7 @@ function updateTargetIp(code, newIp) {
   return entry;
 }
 
+// البحث عن سكربت بواسطة الكود
 function findByCode(code) {
   if (!code) return null;
   const db = readDatabase();
@@ -153,6 +177,7 @@ function findByCode(code) {
   return db.find(s => s.code === searchCode) || null;
 }
 
+// زيادة عداد التحميل
 function incrementDownload(code) {
   const db = readDatabase();
   const searchCode = code.trim().toUpperCase();
@@ -165,35 +190,46 @@ function incrementDownload(code) {
   return 0;
 }
 
+// مسار الملف على القرص
 function getFilePath(savedFilename) {
   return path.join(UPLOADS_DIR, savedFilename);
 }
 
+// إحصائيات عامة
 function getStats() {
   const all = readDatabase();
   const totalDownloads = all.reduce((sum, item) => sum + (item.downloads || 0), 0);
-  return { totalScripts: all.length, totalDownloads };
+  return {
+    totalScripts: all.length,
+    totalDownloads: totalDownloads
+  };
 }
 
+// إضافة بيانات تجريبية في البداية لتجربة الموقع فوراً
 function initDemoData() {
   ensureDirectories();
   const db = readDatabase();
   if (db.length === 0) {
     const demoZipName = 'demo_ravx_script.zip';
     const demoPath = path.join(UPLOADS_DIR, demoZipName);
-    if (!fs.existsSync(demoPath)) fs.writeFileSync(demoPath, 'RAVX-TEAM Demo Payload');
+    
+    // إنشاء ملف تجريبي صغير
+    if (!fs.existsSync(demoPath)) {
+      fs.writeFileSync(demoPath, 'RAVX-TEAM Demo Protected Script Payload');
+    }
+
     saveScript({
       title: 'qb-vehicleshop (تجريبي)',
       originalFilename: 'RAVX_Secured_qb-vehicleshop_127_0_0_1.zip',
       savedFilename: demoZipName,
-      fileSize: 1048576,
+      fileSize: 1048576, // 1 MB
       targetIp: '127.0.0.1',
       resourceName: 'qb-vehicleshop',
       encryptionMode: 'target',
       uploaderName: 'RAVX Admin',
       customCode: 'RAVX-DEMO000001'
     });
-    console.log('✅ كود تجريبي: RAVX-DEMO000001');
+    console.log('✅ تم إنشاء كود تجريبي لاختبار الموقع: RAVX-DEMO000001');
   }
 }
 
@@ -210,7 +246,5 @@ module.exports = {
   getFilePath,
   getStats,
   generateCode,
-  readDatabase,
-  writeDatabase,
   UPLOADS_DIR
 };

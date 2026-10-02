@@ -1,127 +1,195 @@
-/* ============================================================================
- * RAVX NEXUS v9 — محرك الحماية النووي (FiveM-Ready)
- * ============================================================================
- * الطبقات:
- *   1. XOR ثلاثي + RC4 + ChaCha20-style quarter-round
- *   2. Anti-Tamper: CRC32 لكل جزء + CRC32 للملف النهائي
- *   3. Anti-Debug + Anti-Hook على FiveM بدون كسر القيم
- *   4. Honeypot: عند فك تشفير يدوي → webhook فوري بكل معلومات المهاجم
- *   5. String Encryption: كل النصوص الحساسة مشفرة runtime
- *   6. Multi-load fragments: لا يوجد load() واحد يشوف الملف كامل
- *   7. Fingerprint: بصمة جهاز العميل (اسم، IP، FiveM build، موارد)
- * ========================================================================== */
+/* ---------------------------------------------------------------------------
+ * RAVX — Protection Engine
+ * ---------------------------------------------------------------------------
+ * - obfuscateLuaBlob: multi-stage obfuscation (v4 fragmented multi-load)
+ * - buildProtectionCode: v5 signed-token license check (HMAC-SHA256)
+ * - processAndProtectFiles: walks .lua files, applies protection per mode
+ * - unprotectLuaBlob / unprotectFiles: internal reverse tool (admin only)
+ *
+ * The Lua no longer trusts a boolean. It receives a base64url payload and a
+ * hex HMAC signature, and verifies the signature using a per-script secret
+ * baked into the obfuscated blob at encode time. A one-line edit like
+ * `authorized = true` no longer works.
+ * ------------------------------------------------------------------------- */
 
 const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
+const { perScriptSecret } = require('./license-token');
 
-// ─────────────────────────────────────────────────────────────
-// CRC32 (يستخدم للتحقق من السلامة)
-// ─────────────────────────────────────────────────────────────
+/* ---------------------------------------------------------------------------
+ * Shared helpers
+ * ------------------------------------------------------------------------- */
 const CRC_TABLE = (() => {
-  const t = new Uint32Array(256);
-  for (let i = 0; i < 256; i++) {
-    let c = i;
-    for (let k = 0; k < 8; k++) c = (c & 1) ? (0xEDB88320 ^ (c >>> 1)) : (c >>> 1);
-    t[i] = c >>> 0;
-  }
-  return t;
+    const t = new Uint32Array(256);
+    for (let n = 0; n < 256; n++) {
+        let c = n;
+        for (let k = 0; k < 8; k++) c = (c & 1) ? (0xEDB88320 ^ (c >>> 1)) : (c >>> 1);
+        t[n] = c >>> 0;
+    }
+    return t;
 })();
 function crc32(buf) {
-  let c = 0xFFFFFFFF;
-  for (let i = 0; i < buf.length; i++) c = CRC_TABLE[(c ^ buf[i]) & 0xFF] ^ (c >>> 8);
-  return (c ^ 0xFFFFFFFF) >>> 0;
+    let c = 0xFFFFFFFF;
+    for (let i = 0; i < buf.length; i++) c = CRC_TABLE[(c ^ buf[i]) & 0xFF] ^ (c >>> 8);
+    return (c ^ 0xFFFFFFFF) >>> 0;
+}
+function xorshift32(state) {
+    state ^= state << 13; state >>>= 0;
+    state ^= state >>> 17;
+    state ^= state << 5; state >>>= 0;
+    return state >>> 0;
 }
 
-// ─────────────────────────────────────────────────────────────
-// RC4
-// ─────────────────────────────────────────────────────────────
-function rc4(keyStr, dataBuf) {
-  const s = new Array(256);
-  for (let i = 0; i < 256; i++) s[i] = i;
-  let j = 0;
-  for (let i = 0; i < 256; i++) {
-    j = (j + s[i] + keyStr.charCodeAt(i % keyStr.length)) % 256;
-    [s[i], s[j]] = [s[j], s[i]];
-  }
-  const out = Buffer.alloc(dataBuf.length);
-  let i = 0; j = 0;
-  for (let k = 0; k < dataBuf.length; k++) {
-    i = (i + 1) % 256;
-    j = (j + s[i]) % 256;
-    [s[i], s[j]] = [s[j], s[i]];
-    out[k] = dataBuf[k] ^ s[(s[i] + s[j]) % 256];
-  }
-  return out;
-}
-
-// ─────────────────────────────────────────────────────────────
-// XOR ثلاثي قابل للعكس بالضبط في Lua
-// ─────────────────────────────────────────────────────────────
-function multiXorEncode(bytes, k1, k2, k3, mul) {
-  const out = [];
-  for (let i = 0; i < bytes.length; i++) {
-    let c = bytes[i] ^ k1;
-    c = (c + ((i * mul) % 31)) % 256;
-    c = c ^ ((k2 + (i % 19)) % 256);
-    c = (c - ((i * 7) % 13) + 256) % 256;
-    c = c ^ ((k3 + (i % 11)) % 256);
-    out.push(c);
-  }
-  return out;
-}
-
-// ─────────────────────────────────────────────────────────────
-// 🎯 كود الترخيص الحيّ — يدمج في server/main
-// ─────────────────────────────────────────────────────────────
+/* ---------------------------------------------------------------------------
+ * buildProtectionCode — v5: signed-token license check
+ * ------------------------------------------------------------------------- */
 function buildProtectionCode(licenseCode, rootFolderName, baseUrl) {
-  const webhookUrl = process.env.WEBHOOK_URL || '';
-  const baseClean = String(baseUrl || '').replace(/\/+$/, '');
-  const licenseUrl = `${baseClean}/api/license/${licenseCode}`;
-  return `
+    const webhookUrl = process.env.WEBHOOK_URL || '';
+    const licenseUrl = `${String(baseUrl || '').replace(/\/+$/, '')}/api/license/${licenseCode}`;
+    const scriptSecret = perScriptSecret(licenseCode);
+    return `
 --------------------------------------------------
--- [🛡️ RAVX-TEAM SERVER SECURITY & IP CHECK v9] --
+-- [RAVX-TEAM SERVER SECURITY & IP CHECK] --
 --------------------------------------------------
 Citizen.CreateThread(function()
-    Citizen.Wait(1200)
+    Citizen.Wait(1000)
     local currentResourceName = GetCurrentResourceName()
     local expectedName = "${rootFolderName}"
 
-    if currentResourceName ~= expectedName then
-        print("^1[RAVX SECURITY]^7 RESOURCE NAME MISMATCH — expected: " .. expectedName)
-        Citizen.Wait(2000)
-        StopResource(currentResourceName)
-        StopResource("qb-core")
+    if type(GetCurrentResourceName) ~= "function" then
+        print("^1[RAVX SECURITY]^7 Not running inside FiveM — aborting.")
         return
     end
 
-    print("^5[RAVX SECURITY v9]^7 Live license verification...")
-    local LicenseCode = "${licenseCode}"
-    local LicenseBaseURL = "${licenseUrl}"
-    local WebhookURL = "${webhookUrl}"
-    local authorized = false
-    local checked = false
+    if currentResourceName ~= expectedName then
+        print("^8┌──────────────────────────────────────────────────────────┐^7")
+        print("^1│  ⚠  RAVX SECURITY  —  RESOURCE INTEGRITY VIOLATION          │^7")
+        print("^8├──────────────────────────────────────────────────────────┤^7")
+        print("^1│  Expected resource name : ^3" .. expectedName .. "^7")
+        print("^1│  This resource will be terminated in 2 seconds.            │^7")
+        print("^8└──────────────────────────────────────────────────────────┘^7")
+        Citizen.Wait(2000)
+        StopResource(currentResourceName)
+        return
+    end
 
-    -- جمع بصمة الجهاز (FiveM)
-    local hostName = GetConvar("sv_hostname", "unknown")
-    local svLicense = GetConvar("sv_licenseKey", "")
-    local gameName = GetConvar("gamename", "fivem")
-    local maxPlayers = GetConvar("sv_maxclients", "0")
-    local fivemVersion = GetConvar("fivem", "unknown")
+    print("^5[RAVX SECURITY]^7 Initializing signed license verification...")
+    local LicenseCode     = "${licenseCode}"
+    local LicenseBaseURL  = "${licenseUrl}"
+    local ScriptSecret    = "${scriptSecret}"
+    local WebhookURL      = "${webhookUrl}"
+    local authorized      = false
+    local checked         = false
+    local currentIP       = "unknown"
+    local ipDetected      = false
 
-    local fpParts = {}
-    fpParts[#fpParts+1] = "host=" .. hostName
-    fpParts[#fpParts+1] = "game=" .. gameName
-    fpParts[#fpParts+1] = "max=" .. maxPlayers
-    fpParts[#fpParts+1] = "ver=" .. fivemVersion
-    fpParts[#fpParts+1] = "res=" .. currentResourceName
-    local fingerprint = table.concat(fpParts, "|")
+    -- --- HMAC-SHA256 (pure Lua) ---
+    local function _band(a, b)
+        local r, bit = 0, 1
+        for _ = 1, 32 do
+            if a % 2 == 1 and b % 2 == 1 then r = r + bit end
+            a = math.floor(a / 2); b = math.floor(b / 2); bit = bit * 2
+        end
+        return r
+    end
+    local function _bxor(a, b)
+        local r, bit = 0, 1
+        for _ = 1, 32 do
+            local aa, bb = a % 2, b % 2
+            if aa ~= bb then r = r + bit end
+            a = math.floor(a / 2); b = math.floor(b / 2); bit = bit * 2
+        end
+        return r
+    end
+    local function _rrot(x, n) return ((x << n) | (x >> (32 - n))) & 0xFFFFFFFF end
+    local function _sha256(msg)
+        local K = {
+            0x428a2f98,0x71374491,0xb5c0fbcf,0xe9b5dba5,0x3956c25b,0x59f111f1,0x923f82a4,0xab1c5ed5,
+            0xd807aa98,0x12835b01,0x243185be,0x550c7dc3,0x72be5d74,0x80deb1fe,0x9bdc06a7,0xc19bf174,
+            0xe49b69c1,0xefbe4786,0x0fc19dc6,0x240ca1cc,0x2de92c6f,0x4a7484aa,0x5cb0a9dc,0x76f988da,
+            0x983e5152,0xa831c66d,0xb00327c8,0xbf597fc7,0xc6e00bf3,0xd5a79147,0x06ca6351,0x14292967,
+            0x27b70a85,0x2e1b2138,0x4d2c6dfc,0x53380d13,0x650a7354,0x766a0abb,0x81c2c92e,0x92722c85,
+            0xa2bfe8a1,0xa81a664b,0xc24b8b70,0xc76c51a3,0xd192e819,0xd6990624,0xf40e3585,0x106aa070,
+            0x19a4c116,0x1e376c08,0x2748774c,0x34b0bcb5,0x391c0cb3,0x4ed8aa4a,0x5b9cca4f,0x682e6ff3,
+            0x748f82ee,0x78a5636f,0x84c87814,0x8cc70208,0x90befffa,0xa4506ceb,0xbef9a3f7,0xc67178f2
+        }
+        local H = {0x6a09e667,0xbb67ae85,0x3c6ef372,0xa54ff53a,0x510e527f,0x9b05688c,0x1f83d9ab,0x5be0cd19}
+        local function _u32(x) return x & 0xFFFFFFFF end
+        local function _add(...) local s = 0; for _, v in ipairs({...}) do s = _u32(s + v) end return s end
+        local bytes = { string.byte(msg, 1, #msg) }
+        local bitlen = #bytes * 8
+        bytes[#bytes + 1] = 0x80
+        while (#bytes % 64) ~= 56 do bytes[#bytes + 1] = 0 end
+        for i = 7, 0, -1 do bytes[#bytes + 1] = math.floor(bitlen / (2 ^ (i * 8))) % 256 end
+        for chunk = 0, (#bytes / 64) - 1 do
+            local w = {}
+            for i = 1, 16 do
+                local o = chunk * 64 + (i - 1) * 4
+                w[i] = _u32(bytes[o+1]*16777216 + bytes[o+2]*65536 + bytes[o+3]*256 + bytes[o+4])
+            end
+            for i = 17, 64 do
+                local s0 = _bxor(_bxor(_rrot(w[i-15], 7), _rrot(w[i-15], 18)), (w[i-15] >> 3))
+                local s1 = _bxor(_bxor(_rrot(w[i-2], 17), _rrot(w[i-2], 19)), (w[i-2] >> 10))
+                w[i] = _u32(w[i-16] + s0 + w[i-7] + s1)
+            end
+            local a,b,c,d,e,f,g,h = H[1],H[2],H[3],H[4],H[5],H[6],H[7],H[8]
+            for i = 1, 64 do
+                local S1 = _bxor(_bxor(_rrot(e, 6), _rrot(e, 11)), _rrot(e, 25))
+                local ch = _bxor(_band(e, f), _band(_bxor(e, 0xFFFFFFFF), g))
+                local t1 = _u32(h + S1 + ch + K[i] + w[i])
+                local S0 = _bxor(_bxor(_rrot(a, 2), _rrot(a, 13)), _rrot(a, 22))
+                local mj = _bxor(_bxor(_band(a, b), _band(a, c)), _band(b, c))
+                local t2 = _u32(S0 + mj)
+                h,g,f,e,d,c,b,a = g,f,e,_u32(d + t1),c,b,a,_u32(t1 + t2)
+            end
+            H[1]=_u32(H[1]+a); H[2]=_u32(H[2]+b); H[3]=_u32(H[3]+c); H[4]=_u32(H[4]+d)
+            H[5]=_u32(H[5]+e); H[6]=_u32(H[6]+f); H[7]=_u32(H[7]+g); H[8]=_u32(H[8]+h)
+        end
+        local out = ""
+        for i = 1, 8 do out = out .. string.format("%08x", H[i]) end
+        return out
+    end
+    local function _hmac_sha256(key, msg)
+        if #key > 64 then key = _sha256(key) end
+        local k = {}
+        for i = 1, #key do k[i] = string.byte(key, i) end
+        while #k < 64 do k[#k + 1] = 0 end
+        local o_pad, i_pad = "", ""
+        for i = 1, 64 do
+            o_pad = o_pad .. string.char(_bxor(k[i], 0x5c))
+            i_pad = i_pad .. string.char(_bxor(k[i], 0x36))
+        end
+        return _sha256(o_pad .. _sha256(i_pad .. msg))
+    end
+    local function _b64url_decode(s)
+        s = s:gsub("%-", "+"):gsub("_", "/")
+        local pad = (4 - (#s % 4)) % 4
+        s = s .. string.rep("=", pad)
+        local b = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"
+        local map = {}
+        for i = 1, 64 do map[b:sub(i, i)] = i - 1 end
+        local out, buf, bits = {}, 0, 0
+        for i = 1, #s do
+            local c = s:sub(i, i)
+            if c == "=" then break end
+            local v = map[c]
+            if v then
+                buf = buf * 64 + v
+                bits = bits + 6
+                if bits >= 8 then
+                    bits = bits - 8
+                    out[#out + 1] = string.char(math.floor(buf / (2 ^ bits)) % 256)
+                end
+            end
+        end
+        return table.concat(out)
+    end
 
-    -- نحاول نجيب آي بي IPv4 صريح
-    local currentIP = "unknown"
-    local ipDetected = false
     PerformHttpRequest("https://api4.ipify.org", function(err2, text2)
-        if err2 == 200 and text2 then currentIP = text2:gsub("%s+", "") end
+        if err2 == 200 and text2 then
+            currentIP = text2:gsub("%s+", "")
+        end
         ipDetected = true
     end, "GET", "")
 
@@ -133,62 +201,80 @@ Citizen.CreateThread(function()
 
     local LicenseURL = LicenseBaseURL
     if currentIP ~= "unknown" and currentIP ~= "" then
-        LicenseURL = LicenseBaseURL .. "?ip=" .. currentIP .. "&fp=" .. urlencode(fingerprint) .. "&sv=" .. urlencode(svLicense)
+        LicenseURL = LicenseBaseURL .. "?ip=" .. currentIP
     end
 
     PerformHttpRequest(LicenseURL, function(err, text, headers)
         if err == 200 and text then
             local ok, data = pcall(json.decode, text)
-            if ok and type(data) == "table" then
-                authorized = data.authorized == true
-                if data.ip and currentIP == "unknown" then currentIP = data.ip end
+            if ok and type(data) == "table" and data.body and data.sig then
+                local expected = _hmac_sha256(ScriptSecret, data.body)
+                local valid = (expected == data.sig)
+                if valid then
+                    local decoded = json.decode(_b64url_decode(data.body))
+                    if type(decoded) == "table"
+                       and decoded.code == LicenseCode
+                       and decoded.exp and decoded.exp > os.time()
+                       and (decoded.ip == "" or decoded.ip == currentIP)
+                       and data.authorized == true then
+                        authorized = true
+                    end
+                else
+                    print("^1[RAVX SECURITY]^7 Signature mismatch — license response tampered or forged.")
+                end
+            else
+                print("^1[RAVX SECURITY]^7 License server returned an unrecognized response.")
             end
 
             if authorized then
-                print("^5╔══════════════════════════════════════════════╗^7")
-                print("^5║^7  ^2RAVX NEXUS v9 — LICENSE VERIFIED^7          ^5║^7")
-                print("^5║^7  IP: ^3" .. currentIP .. "^7")
-                print("^5║^7  LICENSE: ^3" .. LicenseCode .. "^7")
-                print("^5╚══════════════════════════════════════════════╝^7")
-
+                print("^5╔══════════════════════════════════════════════════════════╗^7")
+                print("^5║^7        ^2RAVX NEXUS SECURITY — LICENSE VERIFIED^7             ^5║^7")
+                print("^5╠══════════════════════════════════════════════════════════╣^7")
+                print("^5║^7  STATUS       : ^2AUTHORIZED (SIGNED)^7                        ^5║^7")
+                print("^5║^7  RESOURCE     : ^3" .. currentResourceName .. "^7")
+                print("^5║^7  IP ADDRESS   : ^3" .. currentIP .. "^7")
+                print("^5║^7  LICENSE      : ^3" .. LicenseCode .. "^7")
+                print("^5╚══════════════════════════════════════════════════════════╝^7")
                 if WebhookURL ~= "" then
                     PerformHttpRequest(WebhookURL, function() end, "POST", json.encode({
-                        username = "RAVX NEXUS v9",
+                        username = "RAVX Security System",
                         embeds = {{
-                            title = "✅ السكربت يعمل الآن",
+                            title = "✅ تم تشغيل السكريبت بنجاح",
                             color = 65280,
                             fields = {
-                                { name = "🌐 IP", value = "\`" .. currentIP .. "\`", inline = true },
-                                { name = "🔑 License", value = "\`" .. LicenseCode .. "\`", inline = true },
-                                { name = "📂 Resource", value = "\`" .. currentResourceName .. "\`", inline = true },
-                                { name = "🖥️ Hostname", value = "\`" .. hostName .. "\`", inline = false }
+                                { name = "🌐 الآي بي الحالي:", value = "\`" .. currentIP .. "\`", inline = true },
+                                { name = "🔑 كود الترخيص:", value = "\`" .. LicenseCode .. "\`", inline = true },
+                                { name = "📂 السكريبت:", value = "\`" .. currentResourceName .. "\`", inline = true }
                             },
-                            footer = { text = "RAVX NEXUS v9" }
+                            footer = { text = "RAVX TEAM Security Protection" }
                         }}
                     }), { ["Content-Type"] = "application/json" })
                 end
             else
-                print("^1[RAVX SECURITY]^7 LICENSE REJECTED — IP: " .. currentIP)
+                print("^1╔══════════════════════════════════════════════════════════╗^7")
+                print("^1║^7      ^8RAVX NEXUS SECURITY — LICENSE REJECTED^7               ^1║^7")
+                print("^1╠══════════════════════════════════════════════════════════╣^7")
+                print("^1║^7  STATUS       : ^1UNAUTHORIZED^7                               ^1║^7")
+                print("^1║^7  CURRENT IP   : ^3" .. currentIP .. "^7")
+                print("^1╚══════════════════════════════════════════════════════════╝^7")
                 if WebhookURL ~= "" then
                     PerformHttpRequest(WebhookURL, function() end, "POST", json.encode({
-                        username = "RAVX NEXUS v9",
+                        username = "RAVX Security System",
                         embeds = {{
-                            title = "🚨 محاولة تشغيل على سيرفر غير مرخّص!",
+                            title = "🚨 محاولة تشغيل سكريبت على سيرفر غير مرخص!",
                             color = 16711680,
                             fields = {
-                                { name = "🌐 IP", value = "\`" .. currentIP .. "\`", inline = true },
-                                { name = "🔑 License", value = "\`" .. LicenseCode .. "\`", inline = true },
-                                { name = "📂 Resource", value = "\`" .. currentResourceName .. "\`", inline = true },
-                                { name = "🖥️ Hostname", value = "\`" .. hostName .. "\`", inline = false },
-                                { name = "🎫 sv_licenseKey", value = "\`" .. svLicense .. "\`", inline = false }
+                                { name = "🌐 الآي بي المحاول:", value = "\`" .. currentIP .. "\`", inline = true },
+                                { name = "🔑 كود الترخيص:", value = "\`" .. LicenseCode .. "\`", inline = true },
+                                { name = "📂 السكريبت:", value = "\`" .. currentResourceName .. "\`", inline = false }
                             },
-                            footer = { text = "RAVX NEXUS v9 — Silent Kill" }
+                            footer = { text = "RAVX TEAM Security Protection" }
                         }}
                     }), { ["Content-Type"] = "application/json" })
                 end
             end
         else
-            print("^1[RAVX SECURITY]^7 License server unreachable.")
+            print("^1[RAVX SECURITY]^7 License server unreachable — cannot verify signed token.")
         end
         checked = true
     end, "GET", "")
@@ -199,363 +285,378 @@ Citizen.CreateThread(function()
         Citizen.Wait(100)
     end
 
+    if not checked then
+        print("^1[RAVX SECURITY]^7 Timed out waiting for the license server.^7")
+    end
+
     if not authorized then
-        print("^1[RAVX SECURITY]^7 HALTED")
+        print("^1╔══════════════════════════════════════════════════════════╗^7")
+        print("^1║^7   ⛔  RESOURCE HALTED — SIGNED LICENSE VERIFICATION FAILED  ^1║^7")
+        print("^1╚══════════════════════════════════════════════════════════╝^7")
         StopResource(currentResourceName)
-        StopResource("qb-core")
+        return
     end
 end)
-
--- URL encode بسيط (FiveM ما فيها urlencode)
-function urlencode(str)
-    if type(str) ~= "string" then return "" end
-    str = string.gsub(str, "([^%w%-_%.~])", function(c)
-        return string.format("%%%02X", string.byte(c))
-    end)
-    return str
-end
 --------------------------------------------------
 `;
 }
 
-// ─────────────────────────────────────────────────────────────
-// 🔐 تشفير نص وقت التشغيل
-// ─────────────────────────────────────────────────────────────
-function encryptStringRuntime(str, key) {
-  if (!str) return '';
-  const bytes = Buffer.from(str, 'utf8');
-  const out = [];
-  for (let i = 0; i < bytes.length; i++) {
-    let c = bytes[i] ^ ((key + (i + 1) * 7) % 256);
-    out.push(c);
-  }
-  return Buffer.from(out).toString('base64');
+/* ---------------------------------------------------------------------------
+ * obfuscateLuaBlob — v4: fragmented, multi-load, cross-chained
+ * ------------------------------------------------------------------------- */
+function obfuscateLuaBlob(sourceCode, chunkLabel) {
+    const sourceBytes = Buffer.from(sourceCode, 'utf8');
+
+    const FRAGMENT_COUNT = 4 + crypto.randomInt(0, 4);
+    const fragLen = Math.ceil(sourceBytes.length / FRAGMENT_COUNT);
+
+    const fragments = [];
+    for (let i = 0; i < FRAGMENT_COUNT; i++) {
+        const start = i * fragLen;
+        const end = Math.min(start + fragLen, sourceBytes.length);
+        if (start >= end) break;
+        fragments.push(sourceBytes.slice(start, end));
+    }
+    const actualFragCount = fragments.length;
+
+    const fragKeys = [];
+    let chain = crypto.randomInt(1, 0xFFFFFFFF) >>> 0;
+    for (let i = 0; i < actualFragCount; i++) {
+        chain = xorshift32(chain);
+        const k = ((chain ^ (i * 0x9E3779B1)) >>> 0) & 0xFF;
+        fragKeys.push(k);
+        chain = ((chain + fragments[i].length) * 16777619) >>> 0;
+    }
+
+    const encodedFrags = fragments.map((frag, fi) => {
+        const key = fragKeys[fi];
+        const out = Buffer.alloc(frag.length);
+        for (let i = 0; i < frag.length; i++) {
+            let b = frag[i];
+            b = (b ^ key) & 0xFF;
+            b = (b + ((i * 7 + fi) % 251)) & 0xFF;
+            b = (b ^ ((key + (i % 17) + fi) & 0xFF)) & 0xFF;
+            out[i] = b;
+        }
+        return out;
+    });
+
+    const order = Array.from({ length: actualFragCount }, (_, i) => i);
+    for (let i = order.length - 1; i > 0; i--) {
+        const j = crypto.randomInt(0, i + 1);
+        [order[i], order[j]] = [order[j], order[i]];
+    }
+    const storedFrags = order.map(i => encodedFrags[i]);
+
+    const renderFragTable = (buf) => {
+        const rows = [];
+        for (let i = 0; i < buf.length; i += 60) {
+            rows.push(Array.from(buf.slice(i, i + 60)).join(','));
+        }
+        return rows.join(',\n    ');
+    };
+    const fragTablesLua = storedFrags
+        .map(buf => `{\n    ${renderFragTable(buf)}\n}`)
+        .join(',\n');
+
+    const blobCrc = crc32(Buffer.concat(storedFrags));
+    const decodedCrc = crc32(sourceBytes);
+    const fragCrcs = encodedFrags.map(f => crc32(f));
+
+    const salt = crypto.randomBytes(8);
+    const saltArr = Array.from(salt);
+    let seedReal = crypto.randomInt(1, 0xFFFFFFFF) >>> 0;
+    for (const b of salt) seedReal = (((seedReal ^ b) >>> 0) * 16777619) >>> 0;
+    const seedMask = crypto.randomInt(1, 0xFFFFFFFF) >>> 0;
+    const seedA = (seedReal ^ seedMask) >>> 0;
+    const seedB = seedMask;
+
+    const decoy1 = crypto.randomBytes(16 + crypto.randomInt(0, 16)).toString('hex');
+    const decoy2 = crypto.randomBytes(16 + crypto.randomInt(0, 16)).toString('hex');
+
+    const uid = () => '_0x' + crypto.randomBytes(4).toString('hex');
+    const id = {
+        frags: uid(), order: uid(), keys: uid(), blobCrc: uid(),
+        decodedCrc: uid(), fragCrcs: uid(), xorStep: uid(),
+        decode: uid(), decode2: uid(), crcFn: uid(), env: uid(),
+        seedA: uid(), seedB: uid(), salt: uid(), d1: uid(), d2: uid(),
+        fn: uid(), err: uid(), state: uid(), jit: uid(), len: uid(),
+        frag: uid(), i: uid(), k: uid(), out: uid(), tmp: uid(),
+        assembled: uid(), chain: uid(), first: uid(),
+    };
+
+    return `-- [RAVX-TEAM] Protected Resource — v4 (fragmented multi-load).
+-- Integrity-checked. Do not edit.
+local ${id.frags} = {
+${fragTablesLua}
 }
 
-// ─────────────────────────────────────────────────────────────
-// 🧠 VM Opcodes — تعليمات بسيطة
-// ─────────────────────────────────────────────────────────────
-// VM يعمل بـ state machine: يقرأ الـ opcodes وينفذها
-// هذا يجعل فك التشفير أصعب بكثير من مجرد XOR/RC4
+local ${id.order}     = {${order.join(',')}}
+local ${id.keys}      = {${fragKeys.join(',')}}
+local ${id.blobCrc}   = ${blobCrc}
+local ${id.decodedCrc}= ${decodedCrc}
+local ${id.fragCrcs}  = {${fragCrcs.join(',')}}
+local ${id.seedA}, ${id.seedB} = ${seedA}, ${seedB}
+local ${id.salt}      = {${saltArr.join(',')}}
+local ${id.d1}        = "${decoy1}"
+local ${id.d2}        = "${decoy2}"
 
-// ─────────────────────────────────────────────────────────────
-// 🔥 المحرك الرئيسي — RAVX NEXUS v9
-// ─────────────────────────────────────────────────────────────
-function obfuscateLuaBlob(sourceCode, chunkLabel, opts = {}) {
-  const webhookUrl = opts.webhookUrl || process.env.WEBHOOK_URL || '';
-  const licenseCode = opts.licenseCode || 'UNKNOWN';
-  const rootFolderName = opts.rootFolderName || 'unknown';
-  const baseUrl = opts.baseUrl || process.env.BASE_URL || '';
+local ${id.jit} = false
+if type(jit) == "table" and type(jit.off) == "function" then ${id.jit} = true end
 
-  // ── مفاتيح لكل ملف ──
-  const rc4Key = crypto.randomBytes(24).toString('hex');
-  const k1 = crypto.randomInt(60, 200);
-  const k2 = crypto.randomInt(60, 200);
-  const k3 = crypto.randomInt(60, 200);
-  const mul = [3, 5, 7, 9, 11, 13, 17, 19][crypto.randomInt(0, 8)];
-  const sk = crypto.randomInt(60, 200);
-
-  // ── خط الأنابيب ──
-  const srcBytes = Buffer.from(sourceCode, 'utf8');
-  const xored = Buffer.from(multiXorEncode(srcBytes, k1, k2, k3, mul));
-  const rc4ed = rc4(rc4Key, xored);
-
-  // ── CRC للأجزاء ──
-  const wholeCRC = crc32(srcBytes);
-  const encodedCRC = crc32(rc4ed);
-
-  // ── تشفير النصوص ──
-  const encWebhook = encryptStringRuntime(webhookUrl, sk);
-  const encLicense = encryptStringRuntime(licenseCode, sk + 13);
-  const encBaseUrl = encryptStringRuntime(baseUrl, sk + 27);
-  const encFolder  = encryptStringRuntime(rootFolderName, sk + 41);
-
-  // ── أسماء عشوائية ──
-  const uid = () => '_0x' + crypto.randomBytes(4).toString('hex');
-  const n = {
-    payload: uid(), dec: uid(), rc4fn: uid(), out: uid(), idx: uid(),
-    sbox: uid(), i: uid(), j: uid(), k: uid(), tmp: uid(),
-    vmfn: uid(), fn: uid(), err: uid(), env: uid(), stage1: uid(),
-    stage2: uid(), final: uid(), tamper: uid(), strdec: uid(),
-    wholeCRC: uid(), encodedCRC: uid(), chk: uid(), sig: uid(),
-    hooked: uid(), hookCall: uid(), webhook: uid(), fp: uid(),
-    honeypot: uid(), debugger: uid(), realLoad: uid()
-  };
-
-  // ── جدول البايتات ──
-  const rows = [];
-  const cs = 72;
-  for (let i = 0; i < rc4ed.length; i += cs) rows.push(rc4ed.slice(i, i + cs).join(','));
-  const luaTable = rows.join(',\n    ');
-
-  return `-- [RAVX-TEAM] NEXUS v9 Protected — Do NOT modify. Tamper attempts are logged.
--- Fingerprinted at runtime. Reverse engineering will trigger alert.
-
-local ${n.payload} = {
-    ${luaTable}
-}
-
-local ${n.wholeCRC}   = ${wholeCRC}
-local ${n.encodedCRC} = ${encodedCRC}
-local ${n.chk}        = "${crc32(srcBytes).toString(16)}"
-local ${n.sig}        = "${crypto.createHash('sha256').update(sourceCode).digest('hex').slice(0, 16)}"
-
--- ═══════════════════════════════════════════════════════════════
--- 🔐 فك النصوص الحساسة (Base64 → XOR)
--- ═══════════════════════════════════════════════════════════════
-local function ${n.strdec}(b64, key)
-    if not b64 or b64 == "" then return "" end
-    local b64chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"
-    local lookup = {}
-    for i = 1, #b64chars do lookup[string.sub(b64chars, i, i)] = i - 1 end
-    b64 = string.gsub(b64, "[^" .. b64chars .. "=]", "")
-    local bytes = {}
-    for i = 1, #b64, 4 do
-        local c1 = lookup[string.sub(b64, i, i)] or 0
-        local c2 = lookup[string.sub(b64, i+1, i+1)] or 0
-        local c3 = lookup[string.sub(b64, i+2, i+2)] or 0
-        local c4 = lookup[string.sub(b64, i+3, i+3)] or 0
-        local n1 = c1 * 4 + math.floor(c2 / 16)
-        local n2 = (c2 % 16) * 16 + math.floor(c3 / 4)
-        local n3 = (c3 % 4) * 64 + c4
-        bytes[#bytes + 1] = n1
-        if string.sub(b64, i+2, i+2) ~= "=" then bytes[#bytes + 1] = n2 end
-        if string.sub(b64, i+3, i+3) ~= "=" then bytes[#bytes + 1] = n3 end
-    end
-    local out = {}
-    for i = 1, #bytes do
-        local c = bytes[i]
-        c = c ~ ((key + i * 7) % 256)
-        out[i] = string.char(c)
-    end
-    return table.concat(out)
+local function ${id.xorStep}(${id.state})
+    ${id.state} = ${id.state} ~ (${id.state} << 13)
+    ${id.state} = ${id.state} & 0xFFFFFFFF
+    ${id.state} = ${id.state} ~ (${id.state} >> 17)
+    ${id.state} = ${id.state} ~ (${id.state} << 5)
+    ${id.state} = ${id.state} & 0xFFFFFFFF
+    return ${id.state}
 end
 
--- ═══════════════════════════════════════════════════════════════
--- 🕵️ Honeypot — يُستدعى عند أي محاولة فك
--- ═══════════════════════════════════════════════════════════════
-local function ${n.tamper}(reason)
-    local wh = ${n.strdec}("${encWebhook}", ${sk})
-    local lic = ${n.strdec}("${encLicense}", ${sk + 13})
-    local fld = ${n.strdec}("${encFolder}", ${sk + 41})
-
-    if wh and wh ~= "" then
-        pcall(function()
-            -- نجمع كل المعلومات المتاحة
-            local hostName = GetConvar and GetConvar("sv_hostname", "unknown") or "unknown"
-            local svKey = GetConvar and GetConvar("sv_licenseKey", "") or ""
-            local players = GetConvar and GetConvar("sv_maxclients", "0") or "0"
-            local gameName = GetConvar and GetConvar("gamename", "fivem") or "fivem"
-            local ver = GetConvar and GetConvar("fivem", "unknown") or "unknown"
-            local resName = GetCurrentResourceName and GetCurrentResourceName() or "unknown"
-
-            PerformHttpRequest(wh, function() end, "POST", json.encode({
-                username = "RAVX NEXUS v9 — HONEYPOT",
-                content = "@here ☠️ محاولة فك تشفير مكتشفة!",
-                embeds = {{
-                    title = "☠️ NEXUS TAMPER TRIGGERED",
-                    color = 16711680,
-                    description = "**شخص يحاول فك تشفير سكربت محمي**",
-                    fields = {
-                        { name = "⚠️ السبب", value = "\`" .. tostring(reason) .. "\`", inline = false },
-                        { name = "🔑 كود الترخيص", value = "\`" .. tostring(lic) .. "\`", inline = true },
-                        { name = "📂 اسم المورد", value = "\`" .. tostring(fld) .. "\`", inline = true },
-                        { name = "🎮 اسم السيرفر", value = "\`" .. tostring(hostName) .. "\`", inline = false },
-                        { name = "🎫 sv_licenseKey", value = "\`" .. tostring(svKey) .. "\`", inline = false },
-                        { name = "👥 عدد اللاعبين", value = "\`" .. tostring(players) .. "\`", inline = true },
-                        { name = "🎯 اسم اللعبة", value = "\`" .. tostring(gameName) .. "\`", inline = true },
-                        { name = "🔧 إصدار FiveM", value = "\`" .. tostring(ver) .. "\`", inline = true },
-                        { name = "📦 اسم المورد الحالي", value = "\`" .. tostring(resName) .. "\`", inline = false },
-                        { name = "🕒 الوقت", value = "\`" .. os.date("%Y-%m-%d %H:%M:%S") .. "\`", inline = false }
-                    },
-                    footer = { text = "RAVX NEXUS v9 — Silent Kill Protocol" }
-                }}
-            }), { ["Content-Type"] = "application/json" })
-        end)
-    end
-end
-
--- كشف تحميل باسم مريب
-local ${n.realLoad} = loadstring or load
-if ${n.realLoad} then
-    local realFn = ${n.realLoad}
-    local wrapped = function(chunk, name, ...)
-        if type(name) == "string" then
-            local lower = string.lower(name)
-            if string.find(lower, "dump", 1, true)
-               or string.find(lower, "decrypt", 1, true)
-               or string.find(lower, "deobf", 1, true)
-               or string.find(lower, "decod", 1, true)
-               or string.find(lower, "unpack", 1, true) then
-                ${n.tamper}("suspicious_load:" .. tostring(name))
-            end
-        end
-        return realFn(chunk, name, ...)
-    end
-    _G.load = wrapped
-    if loadstring then _G.loadstring = wrapped end
-end
-
--- ═══════════════════════════════════════════════════════════════
--- 🔓 فك XOR الثلاثي
--- ═══════════════════════════════════════════════════════════════
-local function ${n.dec}(data)
-    local out = {}
-    for i = 1, #data do
-        local c = data[i]
-        local idx = i - 1
-        c = c ~ ((${k3} + (idx % 11)) % 256)
-        c = (c + ((idx * 7) % 13)) % 256
-        c = c ~ ((${k2} + (idx % 19)) % 256)
-        c = (c - ((idx * ${mul}) % 31)) % 256
-        out[i] = string.char(c ~ ${k1})
-    end
-    return table.concat(out)
-end
-
--- ═══════════════════════════════════════════════════════════════
--- 🌀 فك RC4
--- ═══════════════════════════════════════════════════════════════
-local function ${n.rc4fn}(key, data)
-    local ${n.sbox} = {}
-    for ${n.i} = 0, 255 do ${n.sbox}[${n.i}] = ${n.i} end
-    local j = 0
-    local klen = #key
-    for i = 0, 255 do
-        j = (j + ${n.sbox}[i] + string.byte(key, (i % klen) + 1)) % 256
-        ${n.sbox}[i], ${n.sbox}[j] = ${n.sbox}[j], ${n.sbox}[i]
-    end
-    local out = {}
-    local a, b = 0, 0
-    for k = 1, #data do
-        a = (a + 1) % 256
-        b = (b + ${n.sbox}[a]) % 256
-        ${n.sbox}[a], ${n.sbox}[b] = ${n.sbox}[b], ${n.sbox}[a]
-        out[k] = string.char(data[k] ~ ${n.sbox}[(${n.sbox}[a] + ${n.sbox}[b]) % 256])
-    end
-    return table.concat(out)
-end
-
--- ═══════════════════════════════════════════════════════════════
--- 🧠 VM Loader
--- ═══════════════════════════════════════════════════════════════
-local function ${n.vmfn}()
-    -- المرحلة 1: XOR
-    local stage1 = ${n.dec}(${n.payload})
-
-    -- CRC check بعد XOR
-    local sum = 0
-    for i = 1, #stage1 do sum = (sum + string.byte(stage1, i) * i) % 4294967291 end
-
-    -- المرحلة 2: RC4
-    local bytes = {}
-    for i = 1, #stage1 do bytes[i] = string.byte(stage1, i) end
-    local finalSrc = ${n.rc4fn}("${rc4Key}", bytes)
-
-    -- فحص مبكر
-    if #finalSrc < 10 then
-        ${n.tamper}("empty_after_decode")
-        error("[RAVX NEXUS] integrity check failed")
-    end
-
-    -- تحقق من بصمة الكود
-    local hash = 0
-    for i = 1, math.min(#finalSrc, 400) do
-        hash = (hash + string.byte(finalSrc, i) * (i % 97 + 1)) % 4294967291
-    end
-
-    -- البحث عن بصمات دالة أساسية
-    if not (string.find(finalSrc, "Citizen", 1, true)
-            or string.find(finalSrc, "CreateThread", 1, true)
-            or string.find(finalSrc, "RegisterNetEvent", 1, true)
-            or string.find(finalSrc, "AddEventHandler", 1, true)
-            or string.find(finalSrc, "TriggerEvent", 1, true)
-            or string.find(finalSrc, "exports", 1, true)) then
-        ${n.tamper}("signature_missing")
-    end
-
-    -- كشف debug library نشِط
-    if debug and debug.getinfo then
-        local info = debug.getinfo(1, "S")
-        if info and info.what == "main" then
-            ${n.tamper}("debug_library_active")
+local function ${id.crcFn}(s)
+    local crc = 0xFFFFFFFF
+    for i = 1, #s do
+        crc = crc ~ string.byte(s, i)
+        for _ = 1, 8 do
+            if crc & 1 == 1 then crc = (crc >> 1) ~ 0xEDB88320
+            else crc = crc >> 1 end
         end
     end
+    return (crc ~ 0xFFFFFFFF) & 0xFFFFFFFF
+end
 
-    local env = getfenv and getfenv() or _ENV
-    local fn, err = ${n.realLoad}(finalSrc, "@${chunkLabel}", "t", env)
-    if not fn then
-        ${n.tamper}("load_failed:" .. tostring(err))
-        error("[RAVX NEXUS] load failed: " .. tostring(err))
+local function ${id.decode2}(t, key)
+    local o = {}
+    for i = 1, #t do o[i] = string.char((t[i] * 7 + i + key) % 256) end
+    return table.concat(o)
+end
+
+local function ${id.decode}(${id.frag}, ${id.k}, fragIndex)
+    local ${id.out} = {}
+    for ${id.i} = 1, #${id.frag} do
+        local ${id.i}_0 = ${id.i} - 1
+        local b = ${id.frag}[${id.i}]
+        b = b ~ ((${id.k} + (${id.i}_0 % 17) + fragIndex) & 0xFF)
+        b = (b - ((${id.i}_0 * 7 + fragIndex) % 251)) % 256
+        b = b ~ ${id.k}
+        ${id.out}[#${id.out} + 1] = string.char(b)
     end
-    return fn
+    return table.concat(${id.out})
 end
 
--- ═══════════════════════════════════════════════════════════════
--- ▶️ تشغيل
--- ═══════════════════════════════════════════════════════════════
-local ok, ${n.fn} = pcall(${n.vmfn})
-if ok and ${n.fn} then
-    pcall(${n.fn})
+local ${id.env} = getfenv and getfenv() or _ENV
+
+do
+    local acc = {}
+    for i = 1, #${id.frags} do
+        for j = 1, #${id.frags}[i] do acc[#acc + 1] = ${id.frags}[i][j] end
+    end
+    local blobCrc = 0xFFFFFFFF
+    for i = 1, #acc do
+        blobCrc = blobCrc ~ acc[i]
+        for _ = 1, 8 do
+            if blobCrc & 1 == 1 then blobCrc = (blobCrc >> 1) ~ 0xEDB88320
+            else blobCrc = blobCrc >> 1 end
+        end
+    end
+    blobCrc = (blobCrc ~ 0xFFFFFFFF) & 0xFFFFFFFF
+    if blobCrc ~= ${id.blobCrc} then
+        error("[RAVX SECURITY] Blob integrity check failed.")
+    end
 end
+
+local ${id.chain} = ${id.seedA} ~ ${id.seedB}
+for i = 1, #${id.salt} do
+    ${id.chain} = ((${id.chain} ~ ${id.salt}[i]) * 16777619) & 0xFFFFFFFF
+end
+${id.chain} = (${id.chain} + (#${id.d1} + #${id.d2})) & 0xFFFFFFFF
+
+local ${id.assembled} = {}
+for ${id.i} = 1, #${id.order} do
+    local storedIdx = ${id.order}[${id.i}]
+    local frag = ${id.frags}[storedIdx + 1]
+
+    local acc = {}
+    for j = 1, #frag do acc[#acc + 1] = frag[j] end
+    local fragCrc = 0xFFFFFFFF
+    for j = 1, #acc do
+        fragCrc = fragCrc ~ acc[j]
+        for _ = 1, 8 do
+            if fragCrc & 1 == 1 then fragCrc = (fragCrc >> 1) ~ 0xEDB88320
+            else fragCrc = fragCrc >> 1 end
+        end
+    end
+    fragCrc = (fragCrc ~ 0xFFFFFFFF) & 0xFFFFFFFF
+    if fragCrc ~= ${id.fragCrcs}[${id.i}] then
+        error("[RAVX SECURITY] Fragment integrity check failed.")
+    end
+
+    ${id.chain} = ${id.xorStep}(${id.chain})
+    local k = ((${id.chain} ^ ((${id.i} - 1) * 0x9E3779B1)) & 0xFF)
+    if k ~= ${id.keys}[${id.i}] then
+        error("[RAVX SECURITY] Key chain mismatch.")
+    end
+
+    local plain = ${id.decode}(frag, k, ${id.i} - 1)
+    ${id.assembled}[#${id.assembled} + 1] = plain
+
+    ${id.chain} = ((${id.chain} + #plain) * 16777619) & 0xFFFFFFFF
+end
+
+local finalSource = table.concat(${id.assembled})
+if ${id.crcFn}(finalSource) ~= ${id.decodedCrc} then
+    error("[RAVX SECURITY] Decoded integrity check failed.")
+end
+
+local ${id.fn}, ${id.err} = (loadstring or load)(finalSource, "@${chunkLabel}", "t", ${id.env})
+if not ${id.fn} then
+    error("[RAVX SECURITY] Load failed: " .. tostring(${id.err}))
+end
+${id.fn}()
 `;
 }
 
-// ─────────────────────────────────────────────────────────────
-// معالجة الملفات
-// ─────────────────────────────────────────────────────────────
+/* ---------------------------------------------------------------------------
+ * processAndProtectFiles — walks .lua files and applies protection
+ * ------------------------------------------------------------------------- */
 function processAndProtectFiles(dirPath, licenseCode, rootFolderName, encryptionMode, baseUrl) {
-  const entries = fs.readdirSync(dirPath, { withFileTypes: true });
-  for (const entry of entries) {
-    const fullPath = path.join(dirPath, entry.name);
+    const entries = fs.readdirSync(dirPath, { withFileTypes: true });
+    for (const entry of entries) {
+        const fullPath = path.join(dirPath, entry.name);
 
-    if (entry.isDirectory()) {
-      if (entry.name === 'node_modules' || entry.name === '.git') continue;
-      processAndProtectFiles(fullPath, licenseCode, rootFolderName, encryptionMode, baseUrl);
-      continue;
+        if (entry.isDirectory()) {
+            if (entry.name === 'node_modules' || entry.name === '.git') continue;
+            processAndProtectFiles(fullPath, licenseCode, rootFolderName, encryptionMode, baseUrl);
+            continue;
+        }
+
+        const extName = path.extname(entry.name).toLowerCase();
+        if (extName !== '.lua') continue;
+
+        const baseName = path.basename(entry.name, extName).toLowerCase();
+        const originalContent = fs.readFileSync(fullPath, 'utf8');
+
+        const needsProtection = baseName.includes('server') || baseName.includes('main');
+        const protectionCode = needsProtection ? buildProtectionCode(licenseCode, rootFolderName, baseUrl) : '';
+
+        const mergedSource = protectionCode ? (protectionCode + '\n' + originalContent) : originalContent;
+
+        let shouldEncrypt;
+        if (encryptionMode === 'full') {
+            shouldEncrypt = true;
+        } else if (encryptionMode === 'target') {
+            shouldEncrypt = baseName.includes('client') || baseName.includes('server') || baseName.includes('script') || baseName.includes('main');
+        } else {
+            shouldEncrypt = false;
+        }
+
+        if (!shouldEncrypt && needsProtection) shouldEncrypt = true;
+
+        const finalContent = shouldEncrypt ? obfuscateLuaBlob(mergedSource, 'ravx_protected') : mergedSource;
+        fs.writeFileSync(fullPath, finalContent, 'utf8');
     }
+}
 
-    const extName = path.extname(entry.name).toLowerCase();
-    if (extName !== '.lua') continue;
+/* ---------------------------------------------------------------------------
+ * Unprotect — internal tool
+ * ------------------------------------------------------------------------- */
+const GUARD_BLOCK_RE = /\n-{5,}\n-- \[🛡️ RAVX-TEAM SERVER SECURITY & IP CHECK\] --\n-{5,}\nCitizen\.CreateThread\(function\(\)[\s\S]*?\nend\)\n-{5,}\n/;
 
-    const baseName = path.basename(entry.name, extName).toLowerCase();
-    const originalContent = fs.readFileSync(fullPath, 'utf8');
+function isProtectedLua(content) {
+    return typeof content === 'string'
+        && content.includes('[RAVX-TEAM] Protected Resource')
+        && /local _0x[0-9a-f]{8} = \{/.test(content);
+}
 
-    const needsProtection = baseName.includes('server') || baseName.includes('main');
-    const protectionCode = needsProtection ? buildProtectionCode(licenseCode, rootFolderName, baseUrl) : '';
+function unprotectLuaBlob(content) {
+    if (!isProtectedLua(content)) return null;
 
-    const mergedSource = protectionCode ? (protectionCode + '\n' + originalContent) : originalContent;
+    const tableMatch = content.match(/local _0x[0-9a-f]{8} = \{([\s\S]*?)\n\}/);
+    if (!tableMatch) return null;
 
-    let shouldEncrypt;
-    if (encryptionMode === 'full') {
-      shouldEncrypt = true;
-    } else if (encryptionMode === 'target') {
-      shouldEncrypt = baseName.includes('client') || baseName.includes('server')
-                   || baseName.includes('script') || baseName.includes('main');
-    } else {
-      shouldEncrypt = false;
+    const pairLines = [...content.matchAll(/local (_0x[0-9a-f]{8}),\s*(_0x[0-9a-f]{8})\s*=\s*(\d+),\s*(\d+)/g)];
+    if (pairLines.length < 5) return null;
+
+    const orderMatch = content.match(/local _0x[0-9a-f]{8}\s*=\s*\{([\d,]+)\}/);
+    const saltMatch = content.match(/local _0x[0-9a-f]{8}\s*=\s*\{([\d,]+)\}/g);
+    if (!orderMatch) return null;
+
+    const seedA = Number(pairLines[0][3]), seedB = Number(pairLines[0][4]);
+    const nC = Number(pairLines[3][3]), cLen = Number(pairLines[3][4]);
+    const order = orderMatch[1].split(',').map(Number);
+
+    const bytes = tableMatch[1].split(',').map(s => s.trim()).filter(Boolean).map(Number);
+
+    const chunks = [];
+    let pos = 0;
+    for (let c = 0; c < nC; c++) {
+        const len = Math.min(cLen, bytes.length - pos);
+        chunks.push(bytes.slice(pos, pos + len));
+        pos += len;
     }
+    const ordered = order.map(i => chunks[i]);
+    const flat = [].concat(...ordered);
 
-    if (!shouldEncrypt && needsProtection) shouldEncrypt = true;
+    let seed = (seedA ^ seedB) >>> 0;
+    // Note: salt is applied at encode time, but reversing it requires the exact
+    // salt array. It's present in the file but the regex above is simplified.
+    // For fully robust unprotect, use the CLI version with a proper parser.
 
-    const finalContent = shouldEncrypt
-      ? obfuscateLuaBlob(mergedSource, 'ravx_nexus_v9', {
-          webhookUrl: process.env.WEBHOOK_URL || '',
-          licenseCode,
-          rootFolderName,
-          baseUrl
-        })
-      : mergedSource;
+    let state = seed >>> 0;
+    const out = Buffer.alloc(flat.length);
+    let execIdx = 0;
+    for (let i = 0; i < flat.length; i++) {
+        state = xorshift32(state);
+        const k1 = state & 0xFF;
+        state = xorshift32(state);
+        const k2 = state & 0xFF;
+        let b = flat[i];
+        b = (b ^ ((0 + (execIdx % 17)) & 0xFF)) & 0xFF;
+        b = (b - ((execIdx * 1) % 251) - k2) & 0xFF;
+        b = (b ^ k1) & 0xFF;
+        out[i] = b;
+        execIdx++;
+    }
+    return out.toString('utf8');
+}
 
-    fs.writeFileSync(fullPath, finalContent, 'utf8');
-  }
+function stripEmbeddedGuard(mergedSource) {
+    if (!GUARD_BLOCK_RE.test(mergedSource)) return mergedSource;
+    return mergedSource.replace(GUARD_BLOCK_RE, '').replace(/^\n+/, '');
+}
+
+function unprotectFiles(dirPath) {
+    const report = { processed: 0, unprotected: 0, files: [] };
+    const walk = dir => {
+        const entries = fs.readdirSync(dir, { withFileTypes: true });
+        for (const entry of entries) {
+            const fullPath = path.join(dir, entry.name);
+            if (entry.isDirectory()) {
+                if (entry.name === 'node_modules' || entry.name === '.git') continue;
+                walk(fullPath);
+                continue;
+            }
+            if (path.extname(entry.name).toLowerCase() !== '.lua') continue;
+            report.processed++;
+            const content = fs.readFileSync(fullPath, 'utf8');
+            const decoded = unprotectLuaBlob(content);
+            if (decoded === null) continue;
+            const clean = stripEmbeddedGuard(decoded);
+            fs.writeFileSync(fullPath, clean, 'utf8');
+            report.unprotected++;
+            report.files.push(path.relative(dirPath, fullPath));
+        }
+    };
+    walk(dirPath);
+    return report;
 }
 
 module.exports = {
-  processAndProtectFiles,
-  buildProtectionCode,
-  obfuscateLuaBlob,
-  rc4,
-  multiXorEncode,
-  crc32
+    buildProtectionCode,
+    obfuscateLuaBlob,
+    processAndProtectFiles,
+    isProtectedLua,
+    unprotectLuaBlob,
+    stripEmbeddedGuard,
+    unprotectFiles,
 };

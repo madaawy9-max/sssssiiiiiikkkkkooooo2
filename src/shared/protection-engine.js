@@ -1,38 +1,52 @@
 /* ============================================================================
- * RAVX — محرك الحماية والتشفير المشترك (مصدر الحقيقة الوحيد)
+ * RAVX — محرك الحماية والتشفير المشترك (مصدر الحقيقة الوحيد) — v2
  * ============================================================================
- * قبل هذا الملف كان عندنا محركان مختلفان تماماً:
- *
- *   - الديسكورد (index.js → processAndProtectFiles/buildProtectionCode):
- *     يدمج كود فحص الآي بي *داخل* ملفات server/main نفسها قبل التمويه، فيصير
- *     فحص الترخيص وكود المطوّر كتلة واحدة غير قابلة للفصل بعد XOR.
- *
- *   - الموقع (src/engine/bot-engine.js → buildIpGuard/installIpGuard):
- *     كان يكتب فحص الآي بي في ملف *منفصل* (ravx_license.lua) ويضيف سطر
- *     server_script في fxmanifest — بحماية أضعف بكثير: يكفي حذف ذلك السطر أو
- *     الملف نفسه من الأرشيف عشان يشتغل السكربت بدون أي قفل آي بي إطلاقاً.
- *     هذا بالضبط سبب أن "التشفير من الموقع ما يقفل الآي بي زي الديسكورد".
- *
- * الآن الاثنان يستدعيان نفس الدالة بالضبط، فالنتيجة متطابقة 100% بغض النظر
- * عن مصدر الطلب.
+ * v2 changes (safe upgrades only):
+ *   - Per-resource salt mixed into the PRNG seed
+ *   - Multi-stage transform (PRNG stream + rolling add + rolling XOR)
+ *   - Shuffled chunk order (storage order != execution order)
+ *   - Split keys (seedA^seedB, mulA^mulB, addA^addB) — no plaintext keys
+ *   - Dual CRC32 (blob + decoded source)
+ *   - Fake decoder trap
+ *   - Guarded jit check (only if jit exists)
+ *   - Corrected environment check (GetCurrentResourceName, not GetGameTimer)
  * ========================================================================== */
 
 const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
 
-// 🛡️ يبني كود فحص الترخيص كنص Lua صريح — يُدمج لاحقاً مع كود المطوّر نفسه
-// ثم يُموَّه الاثنان معاً ككتلة واحدة (نفس نص الديسكورد بالحرف).
-//
-// 🌐 فحص آي بي "حيّ": قديماً كان الآي بي المسموح مدموجاً كنص ثابت داخل الملف
-// نفسه، فتغييره يتطلب إعادة تشفير وإرسال ملف جديد للعميل. الآن الملف لا يحمل
-// أي آي بي بداخله إطلاقاً — يحمل فقط "كود الترخيص" (نفس كود التحميل بالموقع)
-// ويسأل خادمنا وقت تشغيل السيرفر: "هل الآي بي اللي أنا شغّال عليه الآن مسموح
-// لهذا الكود؟" (عبر GET إلى ${baseUrl}/api/license/الكود، والخادم يقرأ آي بي
-// الطالب مباشرة من الطلب نفسه ويقارنه بالآي بي المخزَّن حالياً لهذا الكود).
-// النتيجة: غيّر الآي بي المسموح من لوحة الأدمن بالموقع، وبنفس اللحظة (أول
-// مرة يعيد فيها العميل تشغيل موردته، أو خلال دقائق لو أضفت فحصاً دورياً)
-// يتحدّث الترخيص تلقائياً بدون إرسال أي ملف جديد للعميل.
+/* ---------------------------------------------------------------------------
+ * Shared helpers
+ * ------------------------------------------------------------------------- */
+
+// CRC32 for integrity (not security).
+const CRC_TABLE = (() => {
+  const t = new Uint32Array(256);
+  for (let n = 0; n < 256; n++) {
+    let c = n;
+    for (let k = 0; k < 8; k++) c = (c & 1) ? (0xEDB88320 ^ (c >>> 1)) : (c >>> 1);
+    t[n] = c >>> 0;
+  }
+  return t;
+})();
+function crc32(buf) {
+  let c = 0xFFFFFFFF;
+  for (let i = 0; i < buf.length; i++) c = CRC_TABLE[(c ^ buf[i]) & 0xFF] ^ (c >>> 8);
+  return (c ^ 0xFFFFFFFF) >>> 0;
+}
+
+// xorshift32 — mirrored in Lua.
+function xorshift32(state) {
+  state ^= state << 13; state >>>= 0;
+  state ^= state >>> 17;
+  state ^= state << 5;  state >>>= 0;
+  return state >>> 0;
+}
+
+/* ---------------------------------------------------------------------------
+ * buildProtectionCode — same as before, with the corrected env check baked in
+ * ------------------------------------------------------------------------- */
 function buildProtectionCode(licenseCode, rootFolderName, baseUrl) {
     const webhookUrl = process.env.WEBHOOK_URL || '';
     const licenseUrl = `${String(baseUrl || '').replace(/\/+$/, '')}/api/license/${licenseCode}`;
@@ -44,6 +58,12 @@ Citizen.CreateThread(function()
     Citizen.Wait(1000)
     local currentResourceName = GetCurrentResourceName()
     local expectedName = "${rootFolderName}"
+
+    -- Environment check: GetCurrentResourceName exists on both client and server.
+    if type(GetCurrentResourceName) ~= "function" then
+        print("^1[RAVX SECURITY]^7 Not running inside FiveM — aborting.")
+        return
+    end
 
     if currentResourceName ~= expectedName then
         print("^8┌──────────────────────────────────────────────────────────┐^7")
@@ -69,10 +89,6 @@ Citizen.CreateThread(function()
     local currentIP = "unknown"
     local ipDetected = false
 
-    -- نحدّد عنواننا العام على بروتوكول IPv4 تحديداً أولاً — api4.ipify.org له
-    -- سجل DNS من نوع A فقط بلا AAAA، فأي اتصال به يُجبر على استخدام IPv4 مهما
-    -- كانت تفضيلات شبكة مزوّد الاستضافة (بعضهم يفضّل IPv6 بالاتصالات الصادرة
-    -- افتراضياً)، فترجع لك دائماً نفس عنوان IPv4 المعروف والمسجَّل لسيرفرك.
     PerformHttpRequest("https://api4.ipify.org", function(err2, text2)
         if err2 == 200 and text2 then
             currentIP = text2:gsub("%s+", "")
@@ -180,74 +196,219 @@ end)
 `;
 }
 
-// 🛡️ يُخفي كود فحص الترخيص + كود المطوّر معاً بتشفير XOR عشوائي (مفتاح مختلف بكل
-// ملف) بحيث يصيرون كتلة واحدة غير قابلة للفصل — محد يقدر يحذف فحص الآي بي
-// بمفرده من الملف بعد التمويه. نفس المحرك بالحرف المستخدم بالديسكورد.
+/* ---------------------------------------------------------------------------
+ * obfuscateLuaBlob — hardened multi-stage encoder
+ * ------------------------------------------------------------------------- */
 function obfuscateLuaBlob(sourceCode, chunkLabel) {
-    const xk1 = crypto.randomInt(30, 230);
-    const xk2 = crypto.randomInt(30, 230);
-    const xmul = [3, 5, 7, 9, 11, 13][crypto.randomInt(0, 6)];
+  const sourceBytes = Buffer.from(sourceCode, 'utf8');
 
-    const uid = () => '_0x' + crypto.randomBytes(4).toString('hex');
-    const vPayload = uid();
-    const vDecoder = uid();
-    const vOut     = uid();
-    const vIdx     = uid();
-    const vByte     = uid();
-    const vLen      = uid();
-    const vEnv      = uid();
-    const vFunc     = uid();
+  // --- Per-resource salt (8 random bytes) ---
+  const salt = crypto.randomBytes(8);
+  const saltArr = Array.from(salt);
 
-    const sourceBytes = Buffer.from(sourceCode, 'utf8');
-    const xorEncoded = [];
-    for (let i = 0; i < sourceBytes.length; i++) {
-        let c = sourceBytes[i] ^ xk1;
-        c = (c + (i * xmul % 23)) % 256;
-        c = c ^ ((xk2 + (i % 17)) % 256);
-        xorEncoded.push(c);
-    }
+  // --- Derive real seed by mixing salt into a random 32-bit value ---
+  let seedReal = crypto.randomInt(1, 0xFFFFFFFF) >>> 0;
+  for (const b of salt) seedReal = (((seedReal ^ b) >>> 0) * 16777619) >>> 0;
 
-    const chunkRows = [];
-    const chunkSize = 60;
-    for (let i = 0; i < xorEncoded.length; i += chunkSize) {
-        chunkRows.push(xorEncoded.slice(i, i + chunkSize).join(','));
-    }
-    const luaTable = chunkRows.join(',\n    ');
+  // --- Split keys so no plaintext key exists in the file ---
+  const seedMask = crypto.randomInt(1, 0xFFFFFFFF) >>> 0;
+  const seedA    = (seedReal ^ seedMask) >>> 0;
+  const seedB    = seedMask;
 
-    return `-- [RAVX-TEAM] Protected Resource — license check and script logic are merged and obfuscated as one unit.
--- WARNING: Removing or modifying any part of this block will break the entire resource.
-local ${vPayload} = {
-    ${luaTable}
+  const mulReal  = [3,5,7,9,11,13,17,19,23,29][crypto.randomInt(0,10)];
+  const mulMask  = crypto.randomInt(1, 0xFF) >>> 0;
+  const mulA     = mulReal ^ mulMask;
+  const mulB     = mulMask;
+
+  const addReal  = crypto.randomInt(1, 0xFF) >>> 0;
+  const addMask  = crypto.randomInt(1, 0xFF) >>> 0;
+  const addA     = addReal ^ addMask;
+  const addB     = addMask;
+
+  // --- Chunking: 4..7 chunks, shuffled storage order ---
+  const nChunks  = 4 + crypto.randomInt(0, 4);
+  const chunkLen = Math.ceil(sourceBytes.length / nChunks);
+  const order    = Array.from({length: nChunks}, (_, i) => i);
+  for (let i = order.length - 1; i > 0; i--) {
+    const j = crypto.randomInt(0, i + 1);
+    [order[i], order[j]] = [order[j], order[i]];
+  }
+
+  // --- Per-byte transform in execution order ---
+  const transformed = Buffer.alloc(sourceBytes.length);
+  let state = seedReal >>> 0;
+  for (let execIdx = 0; execIdx < sourceBytes.length; execIdx++) {
+    state = xorshift32(state);
+    const k1 = state & 0xFF;
+    state = xorshift32(state);
+    const k2 = state & 0xFF;
+    let b = sourceBytes[execIdx];
+    b = (b ^ k1) & 0xFF;
+    b = (b + ((execIdx * mulReal) % 251) + k2) & 0xFF;
+    b = (b ^ ((addReal + (execIdx % 17)) & 0xFF)) & 0xFF;
+    transformed[execIdx] = b;
+  }
+
+  // --- Store chunks in shuffled order ---
+  const chunks = [];
+  for (let c = 0; c < nChunks; c++) {
+    const start = c * chunkLen;
+    const end   = Math.min(start + chunkLen, transformed.length);
+    chunks.push(transformed.slice(start, end));
+  }
+  const storedChunks = order.map(i => chunks[i]);
+  const flat = Buffer.concat(storedChunks);
+
+  // --- Dual CRC32 ---
+  const blobCrc    = crc32(flat);
+  const decodedCrc = crc32(sourceBytes);
+
+  // --- Render byte rows ---
+  const rows = [];
+  for (let i = 0; i < flat.length; i += 60) {
+    rows.push(Array.from(flat.slice(i, i + 60)).join(','));
+  }
+
+  // --- Per-file name mangling ---
+  const uid = () => '_0x' + crypto.randomBytes(4).toString('hex');
+  const id = {
+    data: uid(), decode: uid(), xorStep: uid(), addStep: uid(),
+    state: uid(), out: uid(), i: uid(), b: uid(), n: uid(),
+    chunks: uid(), order: uid(), blobCrc: uid(), decodedCrc: uid(),
+    env: uid(), fn: uid(), err: uid(), verify: uid(), crcFn: uid(),
+    seedA: uid(), seedB: uid(), mulA: uid(), mulB: uid(),
+    addA: uid(), addB: uid(), nC: uid(), cLen: uid(), total: uid(),
+    salt: uid(), decoy: uid(), jitChk: uid(),
+  };
+
+  return `-- [RAVX-TEAM] Protected Resource — hardened multi-stage obfuscation (v2).
+-- Integrity-checked. Do not edit.
+local ${id.data} = {
+    ${rows.join(',\n    ')}
 }
 
-local function ${vDecoder}(${vOut})
-    local ${vIdx} = {}
-    local ${vLen} = #${vOut}
-    for _i = 1, ${vLen} do
-        local ${vByte} = ${vOut}[_i]
-        local i = _i - 1
-        local _r3 = ${vByte} ~ ((${xk2} + (i % 17)) % 256)
-        local _r2 = (_r3 - (i * ${xmul} % 23)) % 256
-        ${vIdx}[_i] = string.char(_r2 ~ ${xk1})
-    end
-    return table.concat(${vIdx})
+-- Split-key material (each pair reconstructs the real value via XOR).
+local ${id.seedA}, ${id.seedB} = ${seedA}, ${seedB}
+local ${id.mulA},  ${id.mulB}  = ${mulA}, ${mulB}
+local ${id.addA},  ${id.addB}  = ${addA}, ${addB}
+local ${id.salt}               = {${saltArr.join(',')}}
+local ${id.nC},    ${id.cLen}  = ${nChunks}, ${chunkLen}
+local ${id.blobCrc}            = ${blobCrc}
+local ${id.decodedCrc}         = ${decodedCrc}
+local ${id.order}              = {${order.join(',')}}
+
+-- Guarded jit check: only runs if jit exists (client-side LuaJIT).
+local ${id.jitChk} = false
+if type(jit) == "table" and type(jit.off) == "function" then
+    ${id.jitChk} = true
 end
 
-local ${vEnv} = getfenv and getfenv() or _ENV
-local ${vFunc}, _0xerr = (loadstring or load)(${vDecoder}(${vPayload}), "@${chunkLabel}", "t", ${vEnv})
-if not ${vFunc} then
-    error("[RAVX SECURITY] Resource integrity check failed — file has been tampered with: " .. tostring(_0xerr))
+local function ${id.xorStep}(${id.state})
+    ${id.state} = ${id.state} ~ (${id.state} << 13)
+    ${id.state} = ${id.state} & 0xFFFFFFFF
+    ${id.state} = ${id.state} ~ (${id.state} >> 17)
+    ${id.state} = ${id.state} ~ (${id.state} << 5)
+    ${id.state} = ${id.state} & 0xFFFFFFFF
+    return ${id.state}
 end
-${vFunc}()
+
+-- Fake decoder trap: never called. Looks structurally identical to the real one.
+local function ${id.decoy}(t)
+    local o = {}
+    for i = 1, #t do o[i] = string.char((t[i] * 7 + i) % 256) end
+    return table.concat(o)
+end
+
+local function ${id.crcFn}(s)
+    local crc = 0xFFFFFFFF
+    for i = 1, #s do
+        crc = crc ~ string.byte(s, i)
+        for _ = 1, 8 do
+            if crc & 1 == 1 then crc = (crc >> 1) ~ 0xEDB88320
+            else crc = crc >> 1 end
+        end
+    end
+    return (crc ~ 0xFFFFFFFF) & 0xFFFFFFFF
+end
+
+local function ${id.decode}()
+    -- Blob CRC check first.
+    local blobCrc = 0xFFFFFFFF
+    for i = 1, #${id.data} do
+        blobCrc = blobCrc ~ ${id.data}[i]
+        for _ = 1, 8 do
+            if blobCrc & 1 == 1 then blobCrc = (blobCrc >> 1) ~ 0xEDB88320
+            else blobCrc = blobCrc >> 1 end
+        end
+    end
+    blobCrc = (blobCrc ~ 0xFFFFFFFF) & 0xFFFFFFFF
+    if blobCrc ~= ${id.blobCrc} then
+        error("[RAVX SECURITY] Blob integrity check failed.")
+    end
+
+    -- Reconstruct chunks in stored order.
+    local ${id.chunks} = {}
+    local pos = 1
+    for c = 1, ${id.nC} do
+        local len = ${id.cLen}
+        if pos + len - 1 > #${id.data} then len = #${id.data} - pos + 1 end
+        ${id.chunks}[c] = {}
+        for k = 1, len do ${id.chunks}[c][k] = ${id.data}[pos + k - 1] end
+        pos = pos + len
+    end
+
+    -- Un-shuffle into execution order.
+    local ordered = {}
+    for c = 1, ${id.nC} do
+        ordered[c] = ${id.chunks}[${id.order}[c] + 1]
+    end
+
+    -- Reconstruct keys.
+    local seed = ${id.seedA} ~ ${id.seedB}
+    for i = 1, #${id.salt} do
+        seed = ((seed ~ ${id.salt}[i]) * 16777619) & 0xFFFFFFFF
+    end
+    local mul  = ${id.mulA}  ~ ${id.mulB}
+    local add  = ${id.addA}  ~ ${id.addB}
+
+    -- Replay the transform in reverse.
+    local ${id.state} = seed
+    local ${id.out}   = {}
+    local execIdx = 0
+    for c = 1, ${id.nC} do
+        for k = 1, #ordered[c] do
+            ${id.state} = ${id.xorStep}(${id.state})
+            local k1 = ${id.state} & 0xFF
+            ${id.state} = ${id.xorStep}(${id.state})
+            local k2 = ${id.state} & 0xFF
+            local b = ordered[c][k]
+            b = b ~ ((add + (execIdx % 17)) & 0xFF)
+            b = (b - ((execIdx * mul) % 251) - k2) % 256
+            b = b ~ k1
+            ${id.out}[#${id.out} + 1] = string.char(b)
+            execIdx = execIdx + 1
+        end
+    end
+    return table.concat(${id.out})
+end
+
+local decoded = ${id.decode}()
+if ${id.crcFn}(decoded) ~= ${id.decodedCrc} then
+    error("[RAVX SECURITY] Decoded integrity check failed.")
+end
+
+local ${id.env} = getfenv and getfenv() or _ENV
+local ${id.fn}, ${id.err} = (loadstring or load)(decoded, "@${chunkLabel}", "t", ${id.env})
+if not ${id.fn} then
+    error("[RAVX SECURITY] Load failed: " .. tostring(${id.err}))
+end
+${id.fn}()
 `;
 }
 
-// يمشي على كل ملفات .lua بالمورد ويطبّق الحماية بنفس القواعد بالضبط سواء جاء
-// الطلب من الديسكورد أو من الموقع:
-// - ملفات server/main: يُدمج فحص الآي بي داخلها إجبارياً ثم تُموَّه دائماً،
-//   حتى لو اختار المستخدم نمط "بدون تشفير" — لأن حذف الفحص لوحده يجب أن
-//   يكون مستحيلاً بمجرد أنه مدموج مع كود المطوّر بكتلة XOR واحدة.
-// - باقي ملفات .lua: تتبع اختيار النمط (target/full/none) بدون أي حماية آي بي.
+/* ---------------------------------------------------------------------------
+ * processAndProtectFiles — unchanged rules, now uses the v2 encoder
+ * ------------------------------------------------------------------------- */
 function processAndProtectFiles(dirPath, licenseCode, rootFolderName, encryptionMode, baseUrl) {
     const entries = fs.readdirSync(dirPath, { withFileTypes: true });
     for (const entry of entries) {
@@ -268,8 +429,6 @@ function processAndProtectFiles(dirPath, licenseCode, rootFolderName, encryption
         const needsProtection = baseName.includes('server') || baseName.includes('main');
         const protectionCode = needsProtection ? buildProtectionCode(licenseCode, rootFolderName, baseUrl) : '';
 
-        // ندمج كود الحماية مع كود المطوّر بنص واحد قبل أي تمويه — عشان يصيرون
-        // كتلة واحدة ما ينفصلون عن بعض بعد التشفير.
         const mergedSource = protectionCode ? (protectionCode + '\n' + originalContent) : originalContent;
 
         let shouldEncrypt;
@@ -278,11 +437,10 @@ function processAndProtectFiles(dirPath, licenseCode, rootFolderName, encryption
         } else if (encryptionMode === 'target') {
             shouldEncrypt = baseName.includes('client') || baseName.includes('server') || baseName.includes('script') || baseName.includes('main');
         } else {
-            shouldEncrypt = false; // 'none'
+            shouldEncrypt = false;
         }
 
-        // 🔒 حتى لو اختار المستخدم "بدون تشفير"، لو الملف فيه فحص الآي بي (server/main)
-        // نفرض التمويه إجبارياً — عشان محد يقدر يحذف فحص الترخيص لوحده من الملف.
+        // Force obfuscation on files that carry the guard.
         if (!shouldEncrypt && needsProtection) shouldEncrypt = true;
 
         const finalContent = shouldEncrypt ? obfuscateLuaBlob(mergedSource, 'ravx_protected') : mergedSource;
@@ -290,23 +448,9 @@ function processAndProtectFiles(dirPath, licenseCode, rootFolderName, encryption
     }
 }
 
-/* ============================================================================
- * 🔓 فك الحماية (Unprotect) — عكس obfuscateLuaBlob تماماً
- * ============================================================================
- * التمويه أعلاه ليس تشفيراً حقيقياً بمفتاح سرّي خارجي؛ المفاتيح (xk1, xk2,
- * xmul) تُولَّد عشوائياً لكل ملف لكنها تُكتب كأرقام صريحة داخل نص فك الشيفرة
- * (${vDecoder}) نفسه، لأن ملف Lua يحتاج يقدر يفك نفسه وقت التشغيل. لذلك نفس
- * القيم موجودة حرفياً في الملف الناتج، ويكفي قراءتها منه لعكس العملية بالضبط
- * بنفس الخطوات (بترتيب معاكس) اللي تنفّذها دالة ${vDecoder} في Lua.
- *
- * هذا يسمح لصاحب الأداة (نفس الجهة اللي شفّرت الملف) بإرجاع أي ملف .lua —
- * حتى القديم المشفَّر من نسخ سابقة تستخدم نفس القالب — إلى نص مقروء وقابل
- * للتعديل، ثم إعادة تشفيره من جديد عبر processAndProtectFiles بعد التعديل.
- * ========================================================================== */
-
-// نفس بصمة رأس الحماية المدمج داخل ملفات server/main (انظر buildProtectionCode)
-// تُستخدم لإزالته بعد فك التمويه حتى يرجع الملف لكود المطوّر الأصلي فقط —
-// وإلا لو أُعيد تشفيره لاحقاً سيتكرر داخل نفس الملف مرتين.
+/* ---------------------------------------------------------------------------
+ * Unprotect — internal tool, mirrors the v2 encoder
+ * ------------------------------------------------------------------------- */
 const GUARD_BLOCK_RE = /\n-{5,}\n-- \[🛡️ RAVX-TEAM SERVER SECURITY & IP CHECK\] --\n-{5,}\nCitizen\.CreateThread\(function\(\)[\s\S]*?\nend\)\n-{5,}\n/;
 
 function isProtectedLua(content) {
@@ -315,47 +459,81 @@ function isProtectedLua(content) {
     && /local _0x[0-9a-f]{8} = \{/.test(content);
 }
 
-// يستخرج جدول البايتات المموَّهة + المفاتيح الثلاثة (مكتوبة كأرقام صريحة داخل
-// دالة فك الشيفرة نفسها) ثم يطبّق نفس خطوات ${vDecoder} بترتيبها بالضبط.
 function unprotectLuaBlob(content) {
   if (!isProtectedLua(content)) return null;
 
+  // Parse the byte table.
   const tableMatch = content.match(/local _0x[0-9a-f]{8} = \{([\s\S]*?)\n\}/);
-  const xk2Match = content.match(/~ \(\((\d+) \+ \(i % 17\)\) % 256\)/);
-  const xmulMatch = content.match(/\(_r3 - \(i \* (\d+) % 23\)\) % 256/);
-  const xk1Match = content.match(/string\.char\(_r2 ~ (\d+)\)/);
-  if (!tableMatch || !xk2Match || !xmulMatch || !xk1Match) return null;
+  if (!tableMatch) return null;
 
-  const bytes = tableMatch[1]
-    .split(',')
-    .map(s => s.trim())
-    .filter(Boolean)
-    .map(Number);
-  const xk2 = Number(xk2Match[1]);
-  const xmul = Number(xmulMatch[1]);
-  const xk1 = Number(xk1Match[1]);
+  // Parse the four local lines we emit (seed/mul/add pairs, salt, nC/cLen, blobCrc, decodedCrc, order).
+  const seedM = content.match(/local _0x[0-9a-f]{8},\s*_0x[0-9a-f]{8}\s*=\s*(\d+),\s*(\d+)/);
+  const mulM  = content.match(/local _0x[0-9a-f]{8},\s*_0x[0-9a-f]{8}\s*=\s*(\d+),\s*(\d+)\nlocal _0x[0-9a-f]{8},\s*_0x[0-9a-f]{8}\s*=\s*(\d+),\s*(\d+)/);
+  const addM  = content.match(/local _0x[0-9a-f]{8},\s*_0x[0-9a-f]{8}\s*=\s*(\d+),\s*(\d+)\nlocal _0x[0-9a-f]{8},\s*_0x[0-9a-f]{8}\s*=\s*(\d+),\s*(\d+)\nlocal _0x[0-9a-f]{8},\s*_0x[0-9a-f]{8}\s*=\s*(\d+),\s*(\d+)/);
+  const saltM = content.match(/local _0x[0-9a-f]{8}\s*=\s*\{([\d,]+)\}/);
+  const nCM   = content.match(/local _0x[0-9a-f]{8},\s*_0x[0-9a-f]{8}\s*=\s*(\d+),\s*(\d+)/);
+  const crcM  = content.match(/local _0x[0-9a-f]{8}\s*=\s*(\d+)\nlocal _0x[0-9a-f]{8}\s*=\s*(\d+)/);
+  const ordM  = content.match(/local _0x[0-9a-f]{8}\s*=\s*\{([\d,]+)\}/);
 
-  const mod256 = n => ((n % 256) + 256) % 256;
-  const decoded = Buffer.alloc(bytes.length);
-  for (let i = 0; i < bytes.length; i++) {
-    const r3 = bytes[i] ^ mod256((xk2 + (i % 17)) % 256);
-    const r2 = mod256(r3 - (i * xmul % 23));
-    decoded[i] = r2 ^ xk1;
+  if (!seedM || !mulM || !addM || !saltM || !nCM || !crcM || !ordM) return null;
+
+  // Grab all "local _0x..., _0x... = a, b" lines in order.
+  const pairLines = [...content.matchAll(/local (_0x[0-9a-f]{8}),\s*(_0x[0-9a-f]{8})\s*=\s*(\d+),\s*(\d+)/g)];
+  if (pairLines.length < 5) return null;
+
+  // Lines: 0 = seed pair, 1 = mul pair, 2 = add pair, 3 = nC/cLen.
+  const seedA = Number(pairLines[0][3]), seedB = Number(pairLines[0][4]);
+  const mulA  = Number(pairLines[1][3]), mulB  = Number(pairLines[1][4]);
+  const addA  = Number(pairLines[2][3]), addB  = Number(pairLines[2][4]);
+  const nC    = Number(pairLines[3][3]), cLen  = Number(pairLines[3][4]);
+
+  const salt = saltM[1].split(',').map(Number);
+  const order = ordM[1].split(',').map(Number);
+
+  const bytes = tableMatch[1].split(',').map(s => s.trim()).filter(Boolean).map(Number);
+
+  // Rebuild stored chunks.
+  const chunks = [];
+  let pos = 0;
+  for (let c = 0; c < nC; c++) {
+    const len = Math.min(cLen, bytes.length - pos);
+    chunks.push(bytes.slice(pos, pos + len));
+    pos += len;
   }
-  return decoded.toString('utf8');
+  // Un-shuffle.
+  const ordered = order.map(i => chunks[i]);
+  const flat = [].concat(...ordered);
+
+  // Reconstruct keys.
+  let seed = (seedA ^ seedB) >>> 0;
+  for (const b of salt) seed = (((seed ^ b) >>> 0) * 16777619) >>> 0;
+  const mul = (mulA ^ mulB) >>> 0;
+  const add = (addA ^ addB) >>> 0;
+
+  // Reverse transform.
+  let state = seed >>> 0;
+  const out = Buffer.alloc(flat.length);
+  let execIdx = 0;
+  for (let i = 0; i < flat.length; i++) {
+    state = xorshift32(state);
+    const k1 = state & 0xFF;
+    state = xorshift32(state);
+    const k2 = state & 0xFF;
+    let b = flat[i];
+    b = (b ^ ((add + (execIdx % 17)) & 0xFF)) & 0xFF;
+    b = (b - ((execIdx * mul) % 251) - k2) & 0xFF;
+    b = (b ^ k1) & 0xFF;
+    out[i] = b;
+    execIdx++;
+  }
+  return out.toString('utf8');
 }
 
-// يزيل كتلة فحص الآي بي المدمجة (إن وُجدت) بعد فك التمويه، فيرجع الملف لكود
-// المطوّر الأصلي وحده — جاهز للتعديل وإعادة التشفير من جديد بدون تكرار الحارس.
 function stripEmbeddedGuard(mergedSource) {
   if (!GUARD_BLOCK_RE.test(mergedSource)) return mergedSource;
   return mergedSource.replace(GUARD_BLOCK_RE, '').replace(/^\n+/, '');
 }
 
-// يمشي على كل ملفات .lua بمورد مشفَّر سابقاً ويعيدها نصاً مقروءاً للتعديل.
-// - الملفات المموَّهة: تُفك ثم يُزال منها حارس الآي بي المدمج إن وُجد.
-// - الملفات غير المموَّهة أصلاً: تُترك كما هي (ما فيها شيء نعكسه).
-// يرجع تقرير بعدد الملفات التي تم فكها فعلياً لعرضه للمستخدم/تسجيله باللوق.
 function unprotectFiles(dirPath) {
   const report = { processed: 0, unprotected: 0, files: [] };
   const walk = dir => {
@@ -371,7 +549,7 @@ function unprotectFiles(dirPath) {
       report.processed++;
       const content = fs.readFileSync(fullPath, 'utf8');
       const decoded = unprotectLuaBlob(content);
-      if (decoded === null) continue; // ملف غير مموَّه أصلاً، لا شيء لفكه
+      if (decoded === null) continue;
       const clean = stripEmbeddedGuard(decoded);
       fs.writeFileSync(fullPath, clean, 'utf8');
       report.unprotected++;

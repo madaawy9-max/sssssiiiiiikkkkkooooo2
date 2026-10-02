@@ -10,6 +10,7 @@ const logger = require('../shared/logger');
 
 const PUBLIC_DIR = path.resolve(__dirname, '../../public');
 const MAX_UPLOAD = Number(process.env.MAX_UPLOAD_BYTES || 5 * 1024 * 1024 * 1024);
+
 const cfg = {
   clientId: process.env.DISCORD_CLIENT_ID || process.env.CLIENT_ID,
   clientSecret: process.env.DISCORD_CLIENT_SECRET,
@@ -20,15 +21,18 @@ const cfg = {
   adminIds: new Set(String(process.env.ADMIN_USER_IDS || '').split(',').map(x => x.trim()).filter(Boolean)),
   sessionSecret: process.env.SESSION_SECRET || crypto.randomBytes(32).toString('hex')
 };
-let engine = null;
-try { engine = require(path.join(__dirname, '../engine/bot-engine')); } catch (e) { console.error('[WEB] engine load failed:', e.message); }
 
-// ==================== الجلسات ====================
+let engine = null;
+try { engine = require(path.join(__dirname, '../engine/bot-engine')); }
+catch (e) { console.error('[WEB] engine load failed:', e.message); }
+
 const STORAGE_DIR = path.resolve(__dirname, '../../storage');
 const SESSIONS_FILE = path.join(STORAGE_DIR, 'sessions.json');
 const sessions = new Map();
 
-function ensureStorageDir() { if (!fs.existsSync(STORAGE_DIR)) fs.mkdirSync(STORAGE_DIR, { recursive: true }); }
+function ensureStorageDir() {
+  if (!fs.existsSync(STORAGE_DIR)) fs.mkdirSync(STORAGE_DIR, { recursive: true });
+}
 
 function loadSessionsFromDisk() {
   ensureStorageDir();
@@ -61,7 +65,6 @@ setInterval(() => {
   if (changed) saveSessionsToDisk();
 }, 10 * 60 * 1000).unref();
 
-// ==================== Rate Limit ====================
 const rateBuckets = new Map();
 function clientIp(req) {
   const fwd = req.headers['x-forwarded-for'];
@@ -70,7 +73,7 @@ function clientIp(req) {
 }
 function rateLimited(req, res, key, limit, windowMs) {
   const ip = clientIp(req);
-  const bucketKey = `${key}:${ip}`;
+  const bucketKey = key + ':' + ip;
   const now = Date.now();
   let bucket = rateBuckets.get(bucketKey);
   if (!bucket || bucket.resetAt < now) {
@@ -89,7 +92,6 @@ setInterval(() => {
   for (const [k, b] of rateBuckets.entries()) if (b.resetAt < now) rateBuckets.delete(k);
 }, 5 * 60 * 1000).unref();
 
-// ==================== الاشتراك ====================
 function subscriptionInfo(userId) { return subs.getStatus(userId); }
 
 async function removeRoleNow(userId, entry) {
@@ -97,7 +99,10 @@ async function removeRoleNow(userId, entry) {
   const roleId = entry?.roleId || cfg.roleId;
   if (!cfg.botToken || !guildId || !roleId) return false;
   try {
-    await discordApi(`/guilds/${guildId}/members/${userId}/roles/${roleId}`, { method: 'DELETE', headers: { Authorization: `Bot ${cfg.botToken}` } });
+    await discordApi('/guilds/' + guildId + '/members/' + userId + '/roles/' + roleId, {
+      method: 'DELETE',
+      headers: { Authorization: 'Bot ' + cfg.botToken }
+    });
     return true;
   } catch (e) {
     console.error('[WEB] role removal failed:', e.message);
@@ -105,7 +110,7 @@ async function removeRoleNow(userId, entry) {
   }
 }
 
-function invalidateUserSessions(userId, canEncrypt = false) {
+function invalidateUserSessions(userId, canEncrypt) {
   let changed = false;
   for (const session of sessions.values()) {
     if (session?.user?.id === String(userId)) {
@@ -149,29 +154,72 @@ function matchesTargetIp(requesterIp, targetIpField) {
   return String(targetIpField).split(',').some(t => normalizeIp(t) === req);
 }
 
-const MIME_TYPES = { '.html': 'text/html; charset=utf-8', '.css': 'text/css; charset=utf-8', '.js': 'application/javascript; charset=utf-8', '.json': 'application/json; charset=utf-8', '.png': 'image/png', '.jpg': 'image/jpeg', '.jpeg': 'image/jpeg', '.svg': 'image/svg+xml', '.ico': 'image/x-icon' };
-function securityHeaders(res) { res.setHeader('X-Content-Type-Options', 'nosniff'); res.setHeader('X-Frame-Options', 'DENY'); res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin'); }
-function sendJson(res, status, data) { if (res.headersSent) return; securityHeaders(res); res.writeHead(status, { 'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': 'no-store' }); res.end(JSON.stringify(data)); }
-function safeCode(v) { const s = String(v || '').trim(); return s && s.length <= 80 && /^[A-Za-z0-9_-]+$/.test(s) ? s : null; }
-function publicScript(s) { return { code: s.code, title: s.title, originalFilename: s.originalFilename, fileSize: s.fileSize, fileExtension: s.fileExtension, targetIp: s.targetIp, resourceName: s.resourceName, encryptionMode: s.encryptionMode, uploader: s.uploader || s.uploaderName, downloads: s.downloads || 0, createdAt: s.createdAt, revokedAt: s.revokedAt || null }; }
-function cookieValue(req, name) { const hit = (req.headers.cookie || '').split(';').map(x => x.trim()).find(x => x.startsWith(name + '=')); return hit ? decodeURIComponent(hit.slice(name.length + 1)) : null; }
-function sign(value) { return crypto.createHmac('sha256', cfg.sessionSecret).update(value).digest('hex'); }
+const MIME_TYPES = {
+  '.html': 'text/html; charset=utf-8', '.css': 'text/css; charset=utf-8',
+  '.js': 'application/javascript; charset=utf-8', '.json': 'application/json; charset=utf-8',
+  '.png': 'image/png', '.jpg': 'image/jpeg', '.jpeg': 'image/jpeg',
+  '.svg': 'image/svg+xml', '.ico': 'image/x-icon'
+};
+function securityHeaders(res) {
+  res.setHeader('X-Content-Type-Options', 'nosniff');
+  res.setHeader('X-Frame-Options', 'DENY');
+  res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
+}
+function sendJson(res, status, data) {
+  if (res.headersSent) return;
+  securityHeaders(res);
+  res.writeHead(status, { 'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': 'no-store' });
+  res.end(JSON.stringify(data));
+}
+function safeCode(v) {
+  const s = String(v || '').trim();
+  return s && s.length <= 80 && /^[A-Za-z0-9_-]+$/.test(s) ? s : null;
+}
+function publicScript(s) {
+  return {
+    code: s.code, title: s.title, originalFilename: s.originalFilename,
+    fileSize: s.fileSize, fileExtension: s.fileExtension, targetIp: s.targetIp,
+    resourceName: s.resourceName, encryptionMode: s.encryptionMode,
+    uploader: s.uploader || s.uploaderName, downloads: s.downloads || 0,
+    createdAt: s.createdAt, revokedAt: s.revokedAt || null
+  };
+}
+function cookieValue(req, name) {
+  const hit = (req.headers.cookie || '').split(';').map(x => x.trim()).find(x => x.startsWith(name + '='));
+  return hit ? decodeURIComponent(hit.slice(name.length + 1)) : null;
+}
+function sign(value) {
+  return crypto.createHmac('sha256', cfg.sessionSecret).update(value).digest('hex');
+}
 function setSession(res, user) {
   const id = crypto.randomBytes(24).toString('hex');
   sessions.set(id, { user, expires: Date.now() + 7 * 864e5 });
   saveSessionsToDisk();
-  res.setHeader('Set-Cookie', `ravx_session=${id}.${sign(id)}; Path=/; HttpOnly; SameSite=Lax; Max-Age=604800`);
+  res.setHeader('Set-Cookie', 'ravx_session=' + id + '.' + sign(id) + '; Path=/; HttpOnly; SameSite=Lax; Max-Age=604800');
 }
 function currentUser(req) {
   const raw = cookieValue(req, 'ravx_session');
   if (!raw) return null;
   const [id, sig] = raw.split('.');
   const session = sessions.get(id);
-  if (!id || sig !== sign(id) || !session || session.expires < Date.now()) { if (id) { sessions.delete(id); saveSessionsToDisk(); } return null; }
+  if (!id || sig !== sign(id) || !session || session.expires < Date.now()) {
+    if (id) { sessions.delete(id); saveSessionsToDisk(); }
+    return null;
+  }
   return session.user;
 }
-function requireUser(req, res, permission = false) { const user = currentUser(req); if (!user) { sendJson(res, 401, { success: false, message: 'تسجيل الدخول عبر Discord مطلوب' }); return null; } if (permission && !user.canEncrypt) { sendJson(res, 403, { success: false, message: 'لا تملك صلاحية التشفير في Discord' }); return null; } return user; }
-async function discordApi(endpoint, options = {}) { const r = await fetch('https://discord.com/api/v10' + endpoint, options); const d = await r.json().catch(() => ({})); if (!r.ok) throw Error(d.message || `Discord ${r.status}`); return d; }
+function requireUser(req, res, permission) {
+  const user = currentUser(req);
+  if (!user) { sendJson(res, 401, { success: false, message: 'تسجيل الدخول عبر Discord مطلوب' }); return null; }
+  if (permission && !user.canEncrypt) { sendJson(res, 403, { success: false, message: 'لا تملك صلاحية التشفير' }); return null; }
+  return user;
+}
+async function discordApi(endpoint, options) {
+  const r = await fetch('https://discord.com/api/v10' + endpoint, options || {});
+  const d = await r.json().catch(() => ({}));
+  if (!r.ok) throw Error(d.message || 'Discord ' + r.status);
+  return d;
+}
 async function getDiscordAccess(user, member) {
   const roles = member.roles || [];
   const adminById = cfg.adminIds.has(user.id) || user.id === process.env.OWNER_DISCORD_ID;
@@ -180,8 +228,8 @@ async function getDiscordAccess(user, member) {
   if (sub.entry) return { canEncrypt: sub.active, isAdmin: false };
   if (!cfg.botToken || !cfg.guildId) return { canEncrypt: !!(cfg.roleId && roles.includes(cfg.roleId)), isAdmin: false };
   try {
-    const guildMember = await discordApi(`/guilds/${cfg.guildId}/members/${user.id}`, { headers: { Authorization: `Bot ${cfg.botToken}` } });
-    const guildRoles = await discordApi(`/guilds/${cfg.guildId}/roles`, { headers: { Authorization: `Bot ${cfg.botToken}` } });
+    const guildMember = await discordApi('/guilds/' + cfg.guildId + '/members/' + user.id, { headers: { Authorization: 'Bot ' + cfg.botToken } });
+    const guildRoles = await discordApi('/guilds/' + cfg.guildId + '/roles', { headers: { Authorization: 'Bot ' + cfg.botToken } });
     const memberRoleIds = new Set([cfg.guildId, ...(guildMember.roles || [])]);
     let permissions = 0n;
     for (const role of guildRoles) {
@@ -190,16 +238,30 @@ async function getDiscordAccess(user, member) {
     const administrator = (permissions & 0x8n) === 0x8n;
     const roleAllowed = !!cfg.roleId && (guildMember.roles || []).includes(cfg.roleId);
     return { canEncrypt: administrator || roleAllowed, isAdmin: administrator };
-  } catch (e) { console.error('[WEB] Discord permission check:', e.message); return { canEncrypt: !!(cfg.roleId && roles.includes(cfg.roleId)), isAdmin: false }; }
+  } catch (e) {
+    console.error('[WEB] Discord permission check:', e.message);
+    return { canEncrypt: !!(cfg.roleId && roles.includes(cfg.roleId)), isAdmin: false };
+  }
 }
-function loginUrl() { const q = new URLSearchParams({ client_id: cfg.clientId || '', redirect_uri: cfg.redirectUri || '', response_type: 'code', scope: 'identify guilds.members.read' }); return 'https://discord.com/oauth2/authorize?' + q; }
+function loginUrl() {
+  const q = new URLSearchParams({
+    client_id: cfg.clientId || '',
+    redirect_uri: cfg.redirectUri || '',
+    response_type: 'code',
+    scope: 'identify guilds.members.read'
+  });
+  return 'https://discord.com/oauth2/authorize?' + q;
+}
 async function oauthCallback(code, res) {
   if (!code) throw Error('رمز تسجيل الدخول غير موجود');
   if (!cfg.clientId || !cfg.clientSecret || !cfg.redirectUri || !cfg.guildId) throw Error('إعدادات Discord OAuth غير مكتملة');
-  const body = new URLSearchParams({ client_id: cfg.clientId, client_secret: cfg.clientSecret, grant_type: 'authorization_code', code, redirect_uri: cfg.redirectUri });
+  const body = new URLSearchParams({
+    client_id: cfg.clientId, client_secret: cfg.clientSecret,
+    grant_type: 'authorization_code', code, redirect_uri: cfg.redirectUri
+  });
   const token = await discordApi('/oauth2/token', { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, body });
-  const user = await discordApi('/users/@me', { headers: { Authorization: `Bearer ${token.access_token}` } });
-  const member = await discordApi(`/users/@me/guilds/${cfg.guildId}/member`, { headers: { Authorization: `Bearer ${token.access_token}` } });
+  const user = await discordApi('/users/@me', { headers: { Authorization: 'Bearer ' + token.access_token } });
+  const member = await discordApi('/users/@me/guilds/' + cfg.guildId + '/member', { headers: { Authorization: 'Bearer ' + token.access_token } });
   const access = await getDiscordAccess(user, member);
   setSession(res, { id: user.id, username: user.username, avatar: user.avatar, canEncrypt: access.canEncrypt, isAdmin: access.isAdmin, permCheckedAt: Date.now() });
   logger.info('auth.login', { userId: user.id, username: user.username, isAdmin: access.isAdmin, canEncrypt: access.canEncrypt });
@@ -208,40 +270,60 @@ async function oauthCallback(code, res) {
 }
 
 const PERMISSION_REFRESH_MS = 3 * 60 * 1000;
-async function refreshSessionPermissions(req, force = false) {
+async function refreshSessionPermissions(req, force) {
   const user = currentUser(req);
   if (!user || !cfg.botToken || !cfg.guildId) return user;
   if (!force && user.permCheckedAt && Date.now() - user.permCheckedAt < PERMISSION_REFRESH_MS) return user;
   try {
-    const member = await discordApi(`/guilds/${cfg.guildId}/members/${user.id}`, { headers: { Authorization: `Bot ${cfg.botToken}` } });
+    const member = await discordApi('/guilds/' + cfg.guildId + '/members/' + user.id, { headers: { Authorization: 'Bot ' + cfg.botToken } });
     const access = await getDiscordAccess(user, member);
     user.canEncrypt = access.canEncrypt;
     user.isAdmin = access.isAdmin;
     user.permCheckedAt = Date.now();
     saveSessionsToDisk();
     return user;
-  } catch (e) { console.error('[WEB] permission refresh:', e.message); return user; }
+  } catch (e) {
+    console.error('[WEB] permission refresh:', e.message);
+    return user;
+  }
 }
+
 function serveStatic(req, res, pathname) {
   const rel = pathname === '/' ? 'index.html' : pathname.replace(/^\/+/, '');
   const file = path.resolve(PUBLIC_DIR, rel);
-  if (file !== PUBLIC_DIR && !file.startsWith(PUBLIC_DIR + path.sep)) return sendJson(res, 403, { success: false, message: 'Forbidden' });
+  if (file !== PUBLIC_DIR && !file.startsWith(PUBLIC_DIR + path.sep)) {
+    return sendJson(res, 403, { success: false, message: 'Forbidden' });
+  }
   fs.stat(file, (e, s) => {
     if (e || !s.isFile()) {
       const fallback = path.join(PUBLIC_DIR, 'index.html');
-      return fs.readFile(fallback, (er, c) => { if (er) return sendJson(res, 404, { success: false, message: 'Page not found' }); securityHeaders(res); res.writeHead(200, { 'Content-Type': MIME_TYPES['.html'] }); res.end(c); });
+      return fs.readFile(fallback, (er, c) => {
+        if (er) return sendJson(res, 404, { success: false, message: 'Page not found' });
+        securityHeaders(res);
+        res.writeHead(200, { 'Content-Type': MIME_TYPES['.html'] });
+        res.end(c);
+      });
     }
     securityHeaders(res);
     res.writeHead(200, { 'Content-Type': MIME_TYPES[path.extname(file).toLowerCase()] || 'application/octet-stream' });
     fs.createReadStream(file).pipe(res);
   });
 }
+
 function parseUpload(req) {
   return new Promise((resolve, reject) => {
     let tempDir, filePath, fields = {}, fileInfo = null, size = 0, settled = false, fileDone = null;
-    const fail = e => { if (settled) return; settled = true; if (filePath) fs.rmSync(filePath, { force: true }); if (tempDir) fs.rmSync(tempDir, { recursive: true, force: true }); reject(e); };
+    const fail = e => {
+      if (settled) return;
+      settled = true;
+      if (filePath) fs.rmSync(filePath, { force: true });
+      if (tempDir) fs.rmSync(tempDir, { recursive: true, force: true });
+      reject(e);
+    };
     let bb;
-    try { bb = Busboy({ headers: req.headers, limits: { fileSize: MAX_UPLOAD, files: 1, fields: 10 } }); } catch (e) { return fail(e); }
+    try {
+      bb = Busboy({ headers: req.headers, limits: { fileSize: MAX_UPLOAD, files: 1, fields: 10 } });
+    } catch (e) { return fail(e); }
     tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'ravx-upload-'));
     bb.on('field', (name, val) => fields[name] = String(val).trim());
     bb.on('file', (name, stream, info) => {
@@ -257,7 +339,15 @@ function parseUpload(req) {
       stream.pipe(out);
     });
     bb.on('error', fail);
-    bb.on('finish', async () => { if (settled) return; try { if (fileDone) await fileDone; if (!filePath || !fileInfo) throw Error('لم يتم رفع ملف'); settled = true; resolve({ fields, filePath, fileInfo, size, tempDir }); } catch (e) { fail(e); } });
+    bb.on('finish', async () => {
+      if (settled) return;
+      try {
+        if (fileDone) await fileDone;
+        if (!filePath || !fileInfo) throw Error('لم يتم رفع ملف');
+        settled = true;
+        resolve({ fields, filePath, fileInfo, size, tempDir });
+      } catch (e) { fail(e); }
+    });
     req.on('aborted', () => fail(Error('تم إلغاء الرفع')));
     req.pipe(bb);
   });
@@ -266,7 +356,6 @@ function parseUpload(req) {
 async function encryptRoute(req, res) {
   const user = requireUser(req, res);
   if (!user) return;
-
   const sub = subscriptionInfo(user.id);
   if (!user.isAdmin) {
     if (sub.entry && !sub.active) {
@@ -277,8 +366,9 @@ async function encryptRoute(req, res) {
       return sendJson(res, 403, { success: false, message: 'لا تملك صلاحية التشفير. فعّل كود اشتراك أولاً.' });
     }
   }
-
-  if (encryptingNow.has(user.id)) return sendJson(res, 409, { success: false, message: 'في عملية تشفير جارية بالفعل، انتظر انتهاءها.' });
+  if (encryptingNow.has(user.id)) {
+    return sendJson(res, 409, { success: false, message: 'في عملية تشفير جارية بالفعل' });
+  }
   encryptingNow.add(user.id);
 
   let reserved = false, committed = false;
@@ -292,7 +382,7 @@ async function encryptRoute(req, res) {
     reserved = reservation.tracked;
   }
 
-  if (!engine?.encryptResource) {
+  if (!engine || !engine.encryptResource) {
     if (reserved) subs.release(user.id);
     encryptingNow.delete(user.id);
     return sendJson(res, 503, { success: false, message: 'محرك التشفير غير متاح' });
@@ -307,9 +397,13 @@ async function encryptRoute(req, res) {
     const encryptionMode = ['target', 'full', 'none'].includes(upload.fields.encryptionMode) ? upload.fields.encryptionMode : 'target';
     if (!resourceName || !targetIp) throw Error('اسم المورد وIP السيرفر مطلوبان');
     if (!isValidTarget(targetIp)) throw Error('صيغة IP/دومين السيرفر غير صحيحة');
-    const result = await engine.encryptResource({ inputZipPath: upload.filePath, targetIp, resourceName, encryptionMode, uploader: { id: user.id, name: user.username } });
-    if (!result?.script || !fs.existsSync(db.getFilePath(result.script.savedFilename))) throw Error('فشل حفظ الملف المشفر');
-
+    const result = await engine.encryptResource({
+      inputZipPath: upload.filePath, targetIp, resourceName, encryptionMode,
+      uploader: { id: user.id, name: user.username }
+    });
+    if (!result || !result.script || !fs.existsSync(db.getFilePath(result.script.savedFilename))) {
+      throw Error('فشل حفظ الملف المشفر');
+    }
     let subscription = null;
     if (!user.isAdmin) {
       const commit = subs.commit(user.id);
@@ -325,19 +419,18 @@ async function encryptRoute(req, res) {
     sendJson(res, 400, { success: false, message: e.message || 'فشل التشفير' });
   } finally {
     encryptingNow.delete(user.id);
-    if (upload?.tempDir) fs.rmSync(upload.tempDir, { recursive: true, force: true });
+    if (upload && upload.tempDir) fs.rmSync(upload.tempDir, { recursive: true, force: true });
   }
 }
 
 async function unprotectRoute(req, res) {
   const user = requireUser(req, res);
   if (!user) return;
-  if (!user.isAdmin) return sendJson(res, 403, { success: false, message: 'فك الحماية متاح للأدمن فقط.' });
-
-  if (encryptingNow.has(user.id)) return sendJson(res, 409, { success: false, message: 'في عملية جارية بالفعل، انتظر انتهاءها.' });
+  if (!user.isAdmin) return sendJson(res, 403, { success: false, message: 'فك الحماية متاح للأدمن فقط' });
+  if (encryptingNow.has(user.id)) return sendJson(res, 409, { success: false, message: 'في عملية جارية بالفعل' });
   encryptingNow.add(user.id);
 
-  if (!engine?.unprotectResource) {
+  if (!engine || !engine.unprotectResource) {
     encryptingNow.delete(user.id);
     return sendJson(res, 503, { success: false, message: 'محرك فك الحماية غير متاح' });
   }
@@ -347,8 +440,13 @@ async function unprotectRoute(req, res) {
     upload = await parseUpload(req);
     if (!/\.zip$/i.test(upload.fileInfo.filename)) throw Error('ارفع ملف ZIP فقط');
     const label = String(upload.fields.label || upload.fileInfo.filename.replace(/\.zip$/i, '')).replace(/[^a-zA-Z0-9_-]/g, '_').slice(0, 80) || 'resource';
-    const result = await engine.unprotectResource({ inputZipPath: upload.filePath, label, uploader: { id: user.id, name: user.username } });
-    if (!result?.script || !fs.existsSync(db.getFilePath(result.script.savedFilename))) throw Error('فشل حفظ الملف بعد فك الحماية');
+    const result = await engine.unprotectResource({
+      inputZipPath: upload.filePath, label,
+      uploader: { id: user.id, name: user.username }
+    });
+    if (!result || !result.script || !fs.existsSync(db.getFilePath(result.script.savedFilename))) {
+      throw Error('فشل حفظ الملف بعد فك الحماية');
+    }
     sendJson(res, 200, { success: true, script: publicScript(result.script), report: result.report });
   } catch (e) {
     console.error('[WEB] unprotect:', e);
@@ -356,28 +454,36 @@ async function unprotectRoute(req, res) {
     sendJson(res, 400, { success: false, message: e.message || 'فشل فك الحماية' });
   } finally {
     encryptingNow.delete(user.id);
-    if (upload?.tempDir) fs.rmSync(upload.tempDir, { recursive: true, force: true });
+    if (upload && upload.tempDir) fs.rmSync(upload.tempDir, { recursive: true, force: true });
   }
 }
 
 function createServer() {
   return http.createServer(async (req, res) => {
     try {
-      const u = new URL(req.url, `http://${req.headers.host || 'localhost'}`), p = u.pathname;
-      if (req.method === 'OPTIONS') { res.writeHead(204, { 'Access-Control-Allow-Origin': '*' }); return res.end(); }
+      const u = new URL(req.url, 'http://' + (req.headers.host || 'localhost'));
+      const p = u.pathname;
+      if (req.method === 'OPTIONS') {
+        res.writeHead(204, { 'Access-Control-Allow-Origin': '*' });
+        return res.end();
+      }
 
       if (p === '/api/auth/login') {
         if (rateLimited(req, res, 'login', 20, 60 * 1000)) return;
-        if (!cfg.clientId || !cfg.redirectUri || !cfg.guildId) return sendJson(res, 500, { success: false, message: 'إعدادات Discord OAuth ناقصة' });
+        if (!cfg.clientId || !cfg.redirectUri || !cfg.guildId) {
+          return sendJson(res, 500, { success: false, message: 'إعدادات Discord OAuth ناقصة' });
+        }
         res.writeHead(302, { Location: loginUrl() });
         return res.end();
       }
+
       if (p === '/api/auth/callback') {
         if (rateLimited(req, res, 'callback', 20, 60 * 1000)) return;
         return await oauthCallback(u.searchParams.get('code'), res);
       }
+
       if (p === '/api/auth/me') {
-        const user = await refreshSessionPermissions(req);
+        const user = await refreshSessionPermissions(req, false);
         let subscription = null;
         if (user) {
           const sub = subscriptionInfo(user.id);
@@ -388,26 +494,30 @@ function createServer() {
             saveSessionsToDisk();
           }
         }
-        return sendJson(res, 200, { success: true, user, subscription, oauthConfigured: !!(cfg.clientId && cfg.clientSecret && cfg.redirectUri && cfg.guildId), permissionRoleConfigured: !!cfg.roleId });
+        return sendJson(res, 200, {
+          success: true, user, subscription,
+          oauthConfigured: !!(cfg.clientId && cfg.clientSecret && cfg.redirectUri && cfg.guildId),
+          permissionRoleConfigured: !!cfg.roleId
+        });
       }
+
       if (p === '/api/subscription') {
         const user = requireUser(req, res);
         if (!user) return;
         return sendJson(res, 200, { success: true, subscription: subscriptionInfo(user.id).info });
       }
+
       if (p === '/api/auth/logout') {
         const raw = cookieValue(req, 'ravx_session');
         if (raw) { sessions.delete(raw.split('.')[0]); saveSessionsToDisk(); }
         res.setHeader('Set-Cookie', 'ravx_session=; Path=/; Max-Age=0; HttpOnly; SameSite=Lax');
         return sendJson(res, 200, { success: true });
       }
-      if (p === '/api/health') return sendJson(res, 200, { success: true, online: true, engine: !!engine, maxUploadBytes: MAX_UPLOAD });
 
-      /* ═══════════════════════════════════════════════════════════
-       * 🔧 نقاط الأدمن الجديدة — إدارة الترخيص الحي
-       * ═══════════════════════════════════════════════════════════ */
+      if (p === '/api/health') {
+        return sendJson(res, 200, { success: true, online: true, engine: !!engine, maxUploadBytes: MAX_UPLOAD });
+      }
 
-      // 📋 قائمة كل السكربتات (للأدمن)
       if (p === '/api/admin/scripts' && req.method === 'GET') {
         const user = requireUser(req, res);
         if (!user) return;
@@ -416,7 +526,6 @@ function createServer() {
         return sendJson(res, 200, { success: true, scripts: raw });
       }
 
-      // 🗑️ إلغاء ترخيص كود — السكربت يتوقف فوراً عند العميل في أول فحص
       if (p.startsWith('/api/admin/revoke/') && req.method === 'POST') {
         const user = requireUser(req, res);
         if (!user) return;
@@ -426,7 +535,6 @@ function createServer() {
         const entry = db.findByCode(code);
         if (!entry) return sendJson(res, 404, { success: false, message: 'السكربت غير موجود' });
         db.updateTargetIp(code, '__REVOKED__');
-        // نعلّم الإلغاء أيضاً داخل السجل لتمييزه عن تغيير IP عادي
         try {
           const all = db.readDatabase();
           const idx = all.findIndex(s => s.code === code.toUpperCase());
@@ -437,10 +545,9 @@ function createServer() {
           }
         } catch (e) {}
         logger.warn('license.revoked', { code, byAdminId: user.id });
-        return sendJson(res, 200, { success: true, message: 'تم إلغاء الترخيص. السكربت يتوقف عند العميل في أول فحص.' });
+        return sendJson(res, 200, { success: true, message: 'تم إلغاء الترخيص' });
       }
 
-      // ♻️ استرجاع ترخيص — يعيد الترخيص للعمل بعد إلغائه (يحتاج IP جديد)
       if (p.startsWith('/api/admin/unrevoke/') && req.method === 'POST') {
         const user = requireUser(req, res);
         if (!user) return;
@@ -468,7 +575,6 @@ function createServer() {
         return sendJson(res, 200, { success: true, message: 'تم استرجاع الترخيص' });
       }
 
-      // 🗑️ حذف سكربت بالكامل (مع ملفه)
       if (p.startsWith('/api/admin/delete/') && req.method === 'POST') {
         const user = requireUser(req, res);
         if (!user) return;
@@ -484,9 +590,6 @@ function createServer() {
         return sendJson(res, 200, { success: true, message: 'تم حذف السكربت بالكامل' });
       }
 
-      /* ═══════════════════════════════════════════════════════════
-       * 🌐 فحص الترخيص الحي — يُستدعى من FiveM مباشرة
-       * ═══════════════════════════════════════════════════════════ */
       if (p.startsWith('/api/license/')) {
         if (rateLimited(req, res, 'license', 60, 60 * 1000)) return;
         const code = safeCode(p.slice('/api/license/'.length));
@@ -496,7 +599,6 @@ function createServer() {
         const reportedIp = String(u.searchParams.get('ip') || '').trim();
         const effectiveIp = isValidTargetToken(reportedIp) ? reportedIp : socketIp;
 
-        // كود ملغى
         if (s && s.revokedAt) {
           logger.warn('license.denied', { code, socketIp, reportedIp, reason: 'revoked' });
           return sendJson(res, 200, { success: true, authorized: false, ip: effectiveIp });
@@ -506,19 +608,22 @@ function createServer() {
           return sendJson(res, 200, { success: true, authorized: false, ip: effectiveIp });
         }
         const authorized = matchesTargetIp(effectiveIp, s.targetIp);
-        if (!authorized) logger.warn('license.denied', { code, socketIp, reportedIp, checkedIp: effectiveIp, licensedIp: s.targetIp, resourceName: s.resourceName });
+        if (!authorized) {
+          logger.warn('license.denied', {
+            code, socketIp, reportedIp, checkedIp: effectiveIp,
+            licensedIp: s.targetIp, resourceName: s.resourceName
+          });
+        }
         return sendJson(res, 200, { success: true, authorized, ip: effectiveIp, resourceName: s.resourceName });
       }
 
-      /* ═══════════════════════════════════════════════════════════
-       * 🌐 تغيير الآي بي المرخَّص — أدمن فقط
-       * ═══════════════════════════════════════════════════════════ */
       if (p.startsWith('/api/script/') && p.endsWith('/ip') && req.method === 'POST') {
         const user = requireUser(req, res);
         if (!user) return;
         if (!user.isAdmin) return sendJson(res, 403, { success: false, message: 'تغيير الآي بي للأدمن فقط' });
         if (rateLimited(req, res, 'set-ip', 20, 60 * 1000)) return;
-        const code = safeCode(p.split('/')[3]);
+        const segments = p.split('/');
+        const code = safeCode(segments[3]);
         if (!code) return sendJson(res, 400, { success: false, message: 'كود السكربت مطلوب' });
         let body = '';
         for await (const chunk of req) { body += chunk; if (body.length > 4096) break; }
@@ -538,4 +643,10 @@ function createServer() {
         if (!code) return sendJson(res, 400, { success: false, message: 'كود السكربت مطلوب' });
         const s = db.findByCode(code);
         if (!s) return sendJson(res, 404, { success: false, message: 'لم يتم العثور على السكربت' });
-        return sendJson
+        return sendJson(res, 200, { success: true, script: publicScript(s) });
+      }
+
+      if (p.startsWith('/api/download/')) {
+        if (rateLimited(req, res, 'download', 30, 60 * 1000)) return;
+        const code = safeCode(p.slice('/api/download/'.length));
+        const s =

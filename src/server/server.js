@@ -23,11 +23,7 @@ const cfg = {
 let engine = null;
 try { engine = require(path.join(__dirname, '../engine/bot-engine')); } catch (e) { console.error('[WEB] engine load failed:', e.message); }
 
-// ==================== الجلسات — محفوظة على القرص لا في الذاكرة فقط ====================
-// كانت الجلسات تُحفظ في Map بالذاكرة فقط؛ أي إعادة تشغيل للسيرفر (نشر جديد، سقوط
-// العملية، توقف مؤقت من الاستضافة) كانت تمسح كل الجلسات فيظهر المستخدم "مسجّل خروج"
-// فجأة رغم أن الكوكي نفسه ما زال صالحاً. الآن نحفظها في storage/sessions.json ونحمّلها
-// عند الإقلاع، فتبقى الجلسة شغالة عبر عمليات إعادة التشغيل حتى تنتهي مدتها فعلياً.
+// ==================== الجلسات ====================
 const STORAGE_DIR = path.resolve(__dirname, '../../storage');
 const SESSIONS_FILE = path.join(STORAGE_DIR, 'sessions.json');
 const sessions = new Map();
@@ -42,7 +38,7 @@ function loadSessionsFromDisk() {
     for (const [id, session] of Object.entries(raw)) {
       if (session && session.expires > now) sessions.set(id, session);
     }
-  } catch (e) { /* لا يوجد ملف بعد، أو تالف — نبدأ بجلسات فارغة بأمان */ }
+  } catch (e) {}
 }
 
 function saveSessionsToDisk() {
@@ -56,7 +52,6 @@ function saveSessionsToDisk() {
 
 loadSessionsFromDisk();
 
-// تنظيف دوري للجلسات المنتهية من الذاكرة والقرص، كل 10 دقائق
 setInterval(() => {
   const now = Date.now();
   let changed = false;
@@ -66,9 +61,7 @@ setInterval(() => {
   if (changed) saveSessionsToDisk();
 }, 10 * 60 * 1000).unref();
 
-// ==================== حدّ معدل الطلبات (Rate Limit) ====================
-// حماية بسيطة بدون اعتماديات خارجية: تمنع إغراق نقاط النهاية الحساسة (تسجيل
-// الدخول، التشفير، التحميل، البحث عن كود) بعدد كبير من الطلبات من نفس الـIP.
+// ==================== Rate Limit ====================
 const rateBuckets = new Map();
 function clientIp(req) {
   const fwd = req.headers['x-forwarded-for'];
@@ -91,19 +84,14 @@ function rateLimited(req, res, key, limit, windowMs) {
   }
   return false;
 }
-// تنظيف دوري لسلال المعدل حتى لا تتراكم في الذاكرة
 setInterval(() => {
   const now = Date.now();
   for (const [k, b] of rateBuckets.entries()) if (b.resetAt < now) rateBuckets.delete(k);
 }, 5 * 60 * 1000).unref();
 
-// ==================== الاشتراك ورصيد التشفير (مشترك مع البوت) ====================
-// كل القرارات تُقرأ لحظياً من محرك الاشتراكات (permissions.json) لا من الجلسة.
-// قبل كذا كان الموقع يعتمد على user.canEncrypt المخزّن في الجلسة والمحدَّث كل 3
-// دقائق، فيقدر العضو يشفّر أكثر من مرة خلال هذه الفجوة بعد ما ينتهي رصيده.
+// ==================== الاشتراك ====================
 function subscriptionInfo(userId) { return subs.getStatus(userId); }
 
-// سحب رتبة الاشتراك من Discord مباشرة من الموقع (لا ننتظر دورة البوت).
 async function removeRoleNow(userId, entry) {
   const guildId = entry?.guildId || cfg.guildId;
   const roleId = entry?.roleId || cfg.roleId;
@@ -117,8 +105,6 @@ async function removeRoleNow(userId, entry) {
   }
 }
 
-// إبطال صلاحية التشفير في كل جلسات هذا المستخدم فوراً — عشان الواجهة تتحدث
-// لحظة انتهاء الرصيد بدل ما تنتظر دورة التحديث (هذا سبب "الموقع يتأخر").
 function invalidateUserSessions(userId, canEncrypt = false) {
   let changed = false;
   for (const session of sessions.values()) {
@@ -131,29 +117,20 @@ function invalidateUserSessions(userId, canEncrypt = false) {
   if (changed) saveSessionsToDisk();
 }
 
-// بعد نفاد الرصيد: قفل السجل (تم داخل subs.commit) + سحب الرتبة + إبطال الجلسات.
 async function finalizeExhausted(userId, entry) {
   const ok = await removeRoleNow(userId, entry);
   if (ok) subs.markRoleRemoved(userId);
   invalidateUserSessions(userId, false);
 }
 
-// يمنع نفس المستخدم من إرسال أكثر من طلب تشفير بنفس اللحظة (يحمي رصيد الباقات
-// المحدودة من استهلاك مضاعف لو ضغط المستخدم الزر مرتين بسرعة).
 const encryptingNow = new Set();
 
-// التحقق من صيغة IP/دومين السيرفر قبل استخدامه داخل محرك التشفير — يمنع حقن
-// قيم غريبة (اقتباسات، فواصل منقوطة، أسطر جديدة) داخل ملفات Lua الناتجة.
-// يقبل أكثر من عنوان مفصول بفاصلة (IPv4 و/أو IPv6 و/أو دومين) — بعض السيرفرات
-// تتصل بخادم الترخيص أحياناً عبر IPv4 وأحياناً عبر IPv6 (حسب شبكة مزوّد
-// الاستضافة)، فالسماح بأكثر من عنوان لنفس الترخيص يمنع رفض عميل حقيقي فقط
-// لأن اتصاله الصادر استخدم بروتوكولاً مختلفاً عن العنوان المسجَّل يدوياً.
 function isValidTargetToken(value) {
   const t = String(value || '').trim();
   if (!t || t.length > 100) return false;
   const colonCount = (t.match(/:/g) || []).length;
-  if (colonCount >= 2) return /^[0-9A-Fa-f:]+$/.test(t); // عنوان IPv6
-  return /^[A-Za-z0-9](?:[A-Za-z0-9.-]*[A-Za-z0-9])?(?::\d{1,5})?$/.test(t); // IPv4/دومين (+منفذ اختياري)
+  if (colonCount >= 2) return /^[0-9A-Fa-f:]+$/.test(t);
+  return /^[A-Za-z0-9](?:[A-Za-z0-9.-]*[A-Za-z0-9])?(?::\d{1,5})?$/.test(t);
 }
 function isValidTarget(value) {
   const v = String(value || '').trim();
@@ -161,9 +138,6 @@ function isValidTarget(value) {
   const parts = v.split(',').map(s => s.trim()).filter(Boolean);
   return parts.length > 0 && parts.every(isValidTargetToken);
 }
-// يطبّع عنوان IPv4 المكتوب بصيغة IPv6-mapped (::ffff:1.2.3.4) إلى شكله
-// IPv4 العادي، ويوحّد حالة الأحرف — حتى لا يفشل التطابق بسبب اختلاف الصياغة
-// فقط بين ما خزّنه الأدمن وما وصل فعلياً من طلب العميل.
 function normalizeIp(ip) {
   let v = String(ip || '').trim().toLowerCase();
   if (v.startsWith('::ffff:')) v = v.slice(7);
@@ -179,7 +153,7 @@ const MIME_TYPES = { '.html': 'text/html; charset=utf-8', '.css': 'text/css; cha
 function securityHeaders(res) { res.setHeader('X-Content-Type-Options', 'nosniff'); res.setHeader('X-Frame-Options', 'DENY'); res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin'); }
 function sendJson(res, status, data) { if (res.headersSent) return; securityHeaders(res); res.writeHead(status, { 'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': 'no-store' }); res.end(JSON.stringify(data)); }
 function safeCode(v) { const s = String(v || '').trim(); return s && s.length <= 80 && /^[A-Za-z0-9_-]+$/.test(s) ? s : null; }
-function publicScript(s) { return { code: s.code, title: s.title, originalFilename: s.originalFilename, fileSize: s.fileSize, fileExtension: s.fileExtension, targetIp: s.targetIp, resourceName: s.resourceName, encryptionMode: s.encryptionMode, uploader: s.uploader || s.uploaderName, downloads: s.downloads || 0, createdAt: s.createdAt }; }
+function publicScript(s) { return { code: s.code, title: s.title, originalFilename: s.originalFilename, fileSize: s.fileSize, fileExtension: s.fileExtension, targetIp: s.targetIp, resourceName: s.resourceName, encryptionMode: s.encryptionMode, uploader: s.uploader || s.uploaderName, downloads: s.downloads || 0, createdAt: s.createdAt, revokedAt: s.revokedAt || null }; }
 function cookieValue(req, name) { const hit = (req.headers.cookie || '').split(';').map(x => x.trim()).find(x => x.startsWith(name + '=')); return hit ? decodeURIComponent(hit.slice(name.length + 1)) : null; }
 function sign(value) { return crypto.createHmac('sha256', cfg.sessionSecret).update(value).digest('hex'); }
 function setSession(res, user) {
@@ -202,16 +176,12 @@ async function getDiscordAccess(user, member) {
   const roles = member.roles || [];
   const adminById = cfg.adminIds.has(user.id) || user.id === process.env.OWNER_DISCORD_ID;
   if (adminById) return { canEncrypt: true, isAdmin: true };
-  // لو عنده سجل اشتراك في النظام، هو المرجع (لا ننتظر مزامنة الرتبة من Discord):
-  // يفعّل كود من الديسكورد → يقدر يشفّر من الموقع فوراً، وينتهي رصيده → يُمنع فوراً.
   const sub = subs.getStatus(user.id);
   if (sub.entry) return { canEncrypt: sub.active, isAdmin: false };
   if (!cfg.botToken || !cfg.guildId) return { canEncrypt: !!(cfg.roleId && roles.includes(cfg.roleId)), isAdmin: false };
   try {
     const guildMember = await discordApi(`/guilds/${cfg.guildId}/members/${user.id}`, { headers: { Authorization: `Bot ${cfg.botToken}` } });
     const guildRoles = await discordApi(`/guilds/${cfg.guildId}/roles`, { headers: { Authorization: `Bot ${cfg.botToken}` } });
-    // GET /guilds/{guild}/members/{user} لا يعيد permissions عادةً؛
-    // لذلك نحسبها من صلاحيات رتب العضو، مع صلاحيات everyone الأساسية.
     const memberRoleIds = new Set([cfg.guildId, ...(guildMember.roles || [])]);
     let permissions = 0n;
     for (const role of guildRoles) {
@@ -236,11 +206,7 @@ async function oauthCallback(code, res) {
   res.writeHead(302, { Location: '/' });
   res.end();
 }
-// كنا نعيد التحقق من صلاحيات Discord (نداءين لـ API) في كل تحميل صفحة، وهذا
-// يسبب "تعليق الصفحة ثم رجوعها" لو تأخر رد Discord أو حصل Rate Limit مؤقت.
-// الآن نخزّن آخر وقت تحقق (permCheckedAt) ونكتفي بالتحقق الفعلي كل REFRESH_MS
-// فقط، بينما بقية الطلبات ترجع فوراً من الجلسة المخزّنة — يبقى التحديث دورياً
-// (خلال دقائق) لكن بدون ما يعلّق كل تنقّل بين الصفحات.
+
 const PERMISSION_REFRESH_MS = 3 * 60 * 1000;
 async function refreshSessionPermissions(req, force = false) {
   const user = currentUser(req);
@@ -296,12 +262,11 @@ function parseUpload(req) {
     req.pipe(bb);
   });
 }
+
 async function encryptRoute(req, res) {
   const user = requireUser(req, res);
   if (!user) return;
 
-  // التحقق الحيّ: الأدمن مسموح دائماً، ومن عنده سجل اشتراك يُحكم عليه من السجل
-  // نفسه لحظياً، ومن ما عنده سجل (رتبة يدوية) يُحكم عليه من صلاحية الجلسة.
   const sub = subscriptionInfo(user.id);
   if (!user.isAdmin) {
     if (sub.entry && !sub.active) {
@@ -316,8 +281,6 @@ async function encryptRoute(req, res) {
   if (encryptingNow.has(user.id)) return sendJson(res, 409, { success: false, message: 'في عملية تشفير جارية بالفعل، انتظر انتهاءها.' });
   encryptingNow.add(user.id);
 
-  // 🔒 حجز العملية من الرصيد قبل بدء المعالجة — نفس القفل الذي يستعمله البوت،
-  // فلا يمكن استهلاك عملية التجربة الواحدة مرتين (موقع + ديسكورد بنفس اللحظة).
   let reserved = false, committed = false;
   if (!user.isAdmin) {
     const reservation = subs.reserve(user.id);
@@ -347,7 +310,6 @@ async function encryptRoute(req, res) {
     const result = await engine.encryptResource({ inputZipPath: upload.filePath, targetIp, resourceName, encryptionMode, uploader: { id: user.id, name: user.username } });
     if (!result?.script || !fs.existsSync(db.getFilePath(result.script.savedFilename))) throw Error('فشل حفظ الملف المشفر');
 
-    // تأكيد الاستهلاك فور نجاح التشفير، ثم سحب الرتبة وإبطال الجلسة فوراً لو نفد الرصيد
     let subscription = null;
     if (!user.isAdmin) {
       const commit = subs.commit(user.id);
@@ -359,7 +321,6 @@ async function encryptRoute(req, res) {
   } catch (e) {
     console.error('[WEB] encryption:', e);
     logger.error('encrypt.route_failed', e, { userId: user.id });
-    // فشل التشفير → إرجاع الحجز، العميل ما يخسر عملية من باقته
     if (reserved && !committed) { try { subs.release(user.id); } catch (err) {} }
     sendJson(res, 400, { success: false, message: e.message || 'فشل التشفير' });
   } finally {
@@ -368,10 +329,6 @@ async function encryptRoute(req, res) {
   }
 }
 
-// 🔓 فك حماية مورد سبق تشفيره — أدمن فقط عمداً: هذه الأداة تلغي حماية الآي بي
-// المدفوعة، فحصرها بالأدمن يمنع أي مستخدم عادي من فك حماية سكربت غيره اشتراه
-// بالصلاحية نفسها. تقبل نفس نوع الأرشيف الناتج من التشفير أو أي ZIP قديم مشفَّر
-// بنفس القالب، حتى لو تم تشفيره بنسخة أقدم من الأداة قبل هذا التحديث.
 async function unprotectRoute(req, res) {
   const user = requireUser(req, res);
   if (!user) return;
@@ -402,6 +359,7 @@ async function unprotectRoute(req, res) {
     if (upload?.tempDir) fs.rmSync(upload.tempDir, { recursive: true, force: true });
   }
 }
+
 function createServer() {
   return http.createServer(async (req, res) => {
     try {
@@ -410,7 +368,7 @@ function createServer() {
 
       if (p === '/api/auth/login') {
         if (rateLimited(req, res, 'login', 20, 60 * 1000)) return;
-        if (!cfg.clientId || !cfg.redirectUri || !cfg.guildId) return sendJson(res, 500, { success: false, message: 'إعدادات Discord OAuth ناقصة: DISCORD_CLIENT_ID وDISCORD_REDIRECT_URI وDISCORD_GUILD_ID مطلوبة' });
+        if (!cfg.clientId || !cfg.redirectUri || !cfg.guildId) return sendJson(res, 500, { success: false, message: 'إعدادات Discord OAuth ناقصة' });
         res.writeHead(302, { Location: loginUrl() });
         return res.end();
       }
@@ -424,7 +382,6 @@ function createServer() {
         if (user) {
           const sub = subscriptionInfo(user.id);
           subscription = sub.info;
-          // مصدر الحقيقة للتشفير هو سجل الاشتراك، فنصحّح الجلسة فوراً عند أي تغيّر
           if (sub.entry && !user.isAdmin && user.canEncrypt !== sub.active) {
             user.canEncrypt = sub.active;
             user.permCheckedAt = Date.now();
@@ -445,24 +402,106 @@ function createServer() {
         return sendJson(res, 200, { success: true });
       }
       if (p === '/api/health') return sendJson(res, 200, { success: true, online: true, engine: !!engine, maxUploadBytes: MAX_UPLOAD });
-      // 🌐 فحص الآي بي الحيّ — يُستدعى مباشرة من خادم FiveM للعميل نفسه (لا من
-      // متصفح)، بدون تسجيل دخول، لأن الملف المشفَّر لا يحمل أي جلسة Discord.
-      // نقرأ آي بي الطالب من الطلب نفسه ونقارنه بالآي بي المخزَّن حالياً لهذا
-      // الكود — فتغييره من لوحة الأدمن يُطبَّق فوراً بدون إرسال ملف جديد للعميل.
+
+      /* ═══════════════════════════════════════════════════════════
+       * 🔧 نقاط الأدمن الجديدة — إدارة الترخيص الحي
+       * ═══════════════════════════════════════════════════════════ */
+
+      // 📋 قائمة كل السكربتات (للأدمن)
+      if (p === '/api/admin/scripts' && req.method === 'GET') {
+        const user = requireUser(req, res);
+        if (!user) return;
+        if (!user.isAdmin) return sendJson(res, 403, { success: false, message: 'للأدمن فقط' });
+        const raw = db.readDatabase();
+        return sendJson(res, 200, { success: true, scripts: raw });
+      }
+
+      // 🗑️ إلغاء ترخيص كود — السكربت يتوقف فوراً عند العميل في أول فحص
+      if (p.startsWith('/api/admin/revoke/') && req.method === 'POST') {
+        const user = requireUser(req, res);
+        if (!user) return;
+        if (!user.isAdmin) return sendJson(res, 403, { success: false, message: 'للأدمن فقط' });
+        const code = safeCode(p.slice('/api/admin/revoke/'.length));
+        if (!code) return sendJson(res, 400, { success: false, message: 'كود غير صحيح' });
+        const entry = db.findByCode(code);
+        if (!entry) return sendJson(res, 404, { success: false, message: 'السكربت غير موجود' });
+        db.updateTargetIp(code, '__REVOKED__');
+        // نعلّم الإلغاء أيضاً داخل السجل لتمييزه عن تغيير IP عادي
+        try {
+          const all = db.readDatabase();
+          const idx = all.findIndex(s => s.code === code.toUpperCase());
+          if (idx >= 0) {
+            all[idx].revokedAt = new Date().toISOString();
+            all[idx].revokedBy = user.id;
+            db.writeDatabase(all);
+          }
+        } catch (e) {}
+        logger.warn('license.revoked', { code, byAdminId: user.id });
+        return sendJson(res, 200, { success: true, message: 'تم إلغاء الترخيص. السكربت يتوقف عند العميل في أول فحص.' });
+      }
+
+      // ♻️ استرجاع ترخيص — يعيد الترخيص للعمل بعد إلغائه (يحتاج IP جديد)
+      if (p.startsWith('/api/admin/unrevoke/') && req.method === 'POST') {
+        const user = requireUser(req, res);
+        if (!user) return;
+        if (!user.isAdmin) return sendJson(res, 403, { success: false, message: 'للأدمن فقط' });
+        const code = safeCode(p.slice('/api/admin/unrevoke/'.length));
+        if (!code) return sendJson(res, 400, { success: false, message: 'كود غير صحيح' });
+        let body = '';
+        for await (const chunk of req) { body += chunk; if (body.length > 4096) break; }
+        let parsed = {};
+        try { parsed = JSON.parse(body || '{}'); } catch (e) {}
+        const newIp = String(parsed.targetIp || '').trim();
+        if (!isValidTarget(newIp)) return sendJson(res, 400, { success: false, message: 'صيغة IP غير صحيحة' });
+        const entry = db.updateTargetIp(code, newIp);
+        if (!entry) return sendJson(res, 404, { success: false, message: 'السكربت غير موجود' });
+        try {
+          const all = db.readDatabase();
+          const idx = all.findIndex(s => s.code === code.toUpperCase());
+          if (idx >= 0) {
+            delete all[idx].revokedAt;
+            delete all[idx].revokedBy;
+            db.writeDatabase(all);
+          }
+        } catch (e) {}
+        logger.info('license.unrevoked', { code, newIp, byAdminId: user.id });
+        return sendJson(res, 200, { success: true, message: 'تم استرجاع الترخيص' });
+      }
+
+      // 🗑️ حذف سكربت بالكامل (مع ملفه)
+      if (p.startsWith('/api/admin/delete/') && req.method === 'POST') {
+        const user = requireUser(req, res);
+        if (!user) return;
+        if (!user.isAdmin) return sendJson(res, 403, { success: false, message: 'للأدمن فقط' });
+        const code = safeCode(p.slice('/api/admin/delete/'.length));
+        if (!code) return sendJson(res, 400, { success: false, message: 'كود غير صحيح' });
+        const entry = db.findByCode(code);
+        if (!entry) return sendJson(res, 404, { success: false, message: 'السكربت غير موجود' });
+        const fp = db.getFilePath(entry.savedFilename);
+        if (fp && fs.existsSync(fp)) { try { fs.unlinkSync(fp); } catch (e) {} }
+        db.deleteScript(code);
+        logger.warn('script.deleted', { code, byAdminId: user.id });
+        return sendJson(res, 200, { success: true, message: 'تم حذف السكربت بالكامل' });
+      }
+
+      /* ═══════════════════════════════════════════════════════════
+       * 🌐 فحص الترخيص الحي — يُستدعى من FiveM مباشرة
+       * ═══════════════════════════════════════════════════════════ */
       if (p.startsWith('/api/license/')) {
         if (rateLimited(req, res, 'license', 60, 60 * 1000)) return;
         const code = safeCode(p.slice('/api/license/'.length));
         if (!code) return sendJson(res, 400, { success: false, message: 'كود الترخيص مطلوب' });
         const s = db.findByCode(code);
         const socketIp = clientIp(req);
-        // الملف المشفَّر يحدّد عنوانه العام على IPv4 تحديداً (عبر api4.ipify.org
-        // اللي ما عنده سجل IPv6 إطلاقاً) ويرسله كباراميتر ?ip=، لأن بعض السيرفرات
-        // تتصل بخادمنا صادراً عبر IPv6 رغم إن عنوانها المعروف/المباع للعميل
-        // IPv4 — لو الباراميتر موجود وصالح نعتمده هو، وإلا نرجع لعنوان الاتصال
-        // نفسه (نفس السلوك القديم). النتيجة تطابق دائماً الآي بي IPv4 الحقيقي.
         const reportedIp = String(u.searchParams.get('ip') || '').trim();
         const effectiveIp = isValidTargetToken(reportedIp) ? reportedIp : socketIp;
-        if (!s || !s.targetIp) {
+
+        // كود ملغى
+        if (s && s.revokedAt) {
+          logger.warn('license.denied', { code, socketIp, reportedIp, reason: 'revoked' });
+          return sendJson(res, 200, { success: true, authorized: false, ip: effectiveIp });
+        }
+        if (!s || !s.targetIp || s.targetIp === '__REVOKED__') {
           logger.warn('license.denied', { code, socketIp, reportedIp, reason: 'unknown_code_or_no_ip' });
           return sendJson(res, 200, { success: true, authorized: false, ip: effectiveIp });
         }
@@ -470,10 +509,10 @@ function createServer() {
         if (!authorized) logger.warn('license.denied', { code, socketIp, reportedIp, checkedIp: effectiveIp, licensedIp: s.targetIp, resourceName: s.resourceName });
         return sendJson(res, 200, { success: true, authorized, ip: effectiveIp, resourceName: s.resourceName });
       }
-      // 🌐 تغيير الآي بي المرخَّص لكود موجود — أدمن فقط. هذا هو ما يجعل تغيير
-      // الآي بي "حيّاً": ما يحتاج إعادة تشفير ولا إرسال ملف جديد للعميل، فقط
-      // تحديث هذا السجل، وسكربت العميل يقرأ القيمة الجديدة في أول فحص جاي.
-      // مقروءة قبل مسار /api/script/ العام عمداً حتى لا يبتلعها ذلك المسار.
+
+      /* ═══════════════════════════════════════════════════════════
+       * 🌐 تغيير الآي بي المرخَّص — أدمن فقط
+       * ═══════════════════════════════════════════════════════════ */
       if (p.startsWith('/api/script/') && p.endsWith('/ip') && req.method === 'POST') {
         const user = requireUser(req, res);
         if (!user) return;
@@ -484,7 +523,7 @@ function createServer() {
         let body = '';
         for await (const chunk of req) { body += chunk; if (body.length > 4096) break; }
         let parsed = {};
-        try { parsed = JSON.parse(body || '{}'); } catch (e) { /* ignore */ }
+        try { parsed = JSON.parse(body || '{}'); } catch (e) {}
         const newIp = String(parsed.targetIp || '').trim();
         if (!isValidTarget(newIp)) return sendJson(res, 400, { success: false, message: 'صيغة IP/دومين غير صحيحة' });
         const updated = db.updateTargetIp(code, newIp);
@@ -492,56 +531,11 @@ function createServer() {
         logger.info('license.ip_changed', { code, newIp, byAdminId: user.id });
         return sendJson(res, 200, { success: true, script: publicScript(updated) });
       }
+
       if (p === '/api/script' || p.startsWith('/api/script/')) {
         if (rateLimited(req, res, 'script', 60, 60 * 1000)) return;
         const code = safeCode(u.searchParams.get('code') || p.split('/')[3]);
         if (!code) return sendJson(res, 400, { success: false, message: 'كود السكربت مطلوب' });
         const s = db.findByCode(code);
         if (!s) return sendJson(res, 404, { success: false, message: 'لم يتم العثور على السكربت' });
-        return sendJson(res, 200, { success: true, script: publicScript(s) });
-      }
-      if (p.startsWith('/api/download/')) {
-        if (rateLimited(req, res, 'download', 30, 60 * 1000)) return;
-        const code = safeCode(p.slice('/api/download/'.length)), s = code && db.findByCode(code);
-        if (!s) return sendJson(res, 404, { success: false, message: 'السكربت غير موجود' });
-        const fp = db.getFilePath(s.savedFilename);
-        if (!fs.existsSync(fp)) return sendJson(res, 404, { success: false, message: 'الملف غير موجود' });
-        db.incrementDownload(code);
-        const name = String(s.originalFilename || `${code}.zip`).replace(/[\r\n"\\]/g, '_'), st = fs.statSync(fp);
-        securityHeaders(res);
-        res.writeHead(200, { 'Content-Type': 'application/zip', 'Content-Length': st.size, 'Content-Disposition': `attachment; filename="${name}"` });
-        return fs.createReadStream(fp).pipe(res);
-      }
-      if (p === '/api/stats') {
-        const user = requireUser(req, res);
-        if (!user) return;
-        if (!user.isAdmin) return sendJson(res, 403, { success: false, message: 'لوحة الإدارة للأدمن فقط' });
-        return sendJson(res, 200, { success: true, ...db.getStats() });
-      }
-      if (p === '/api/encrypt' && req.method === 'POST') {
-        if (rateLimited(req, res, 'encrypt', 10, 60 * 1000)) return;
-        return encryptRoute(req, res);
-      }
-      if (p === '/api/unprotect' && req.method === 'POST') {
-        if (rateLimited(req, res, 'unprotect', 10, 60 * 1000)) return;
-        return unprotectRoute(req, res);
-      }
-
-      if (p === '/api/logs') {
-        const user = requireUser(req, res);
-        if (!user) return;
-        if (!user.isAdmin) return sendJson(res, 403, { success: false, message: 'اللوق للأدمن فقط' });
-        const limit = Math.min(Number(u.searchParams.get('limit')) || 200, 1000);
-        return sendJson(res, 200, { success: true, logs: logger.readRecent(limit) });
-      }
-      if (p.startsWith('/api/')) return sendJson(res, 404, { success: false, message: 'API Route Not Found' });
-      serveStatic(req, res, p);
-    } catch (e) {
-      console.error('[WEB]', e);
-      logger.error('server.unhandled', e, { path: req.url });
-      sendJson(res, 500, { success: false, message: 'خطأ داخلي في الخادم' });
-    }
-  });
-}
-module.exports = { createServer };
-if (require.main === module) createServer().listen(Number(process.env.PORT || 3000), () => console.log('RAVX STORY server online'));
+        return sendJson

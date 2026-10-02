@@ -214,6 +214,44 @@ document.addEventListener('DOMContentLoaded', () => {
     unprotectStatus.className = 'status ' + (ok ? 'ok' : 'error');
   }
 
+  function showUnprotectResult(d){
+    const code = d.script.code;
+    document.getElementById('unprotect-code').textContent = code;
+    document.getElementById('unprotect-link').href = '/api/download/' + encodeURIComponent(code);
+    document.getElementById('unprotect-report').textContent =
+      'تم فك ' + d.report.unprotected + ' من أصل ' + d.report.processed + ' ملف Lua.';
+    document.getElementById('unprotect-result').hidden = false;
+    loadLogs();
+  }
+
+  const unprotectCodeStatus = document.getElementById('unprotect-code-status');
+  function unprotectCodeToast(text, ok = false){
+    if (!unprotectCodeStatus) return;
+    unprotectCodeStatus.textContent = text;
+    unprotectCodeStatus.className = 'status ' + (ok ? 'ok' : 'error');
+  }
+  const unprotectCodeForm = document.getElementById('unprotect-code-form');
+  if (unprotectCodeForm){
+    unprotectCodeForm.addEventListener('submit', async e => {
+      e.preventDefault();
+      const code = document.getElementById('unprotect-existing-code').value.trim().toUpperCase();
+      const btn = document.getElementById('unprotect-code-btn');
+      btn.disabled = true;
+      btn.textContent = 'جاري فك الحماية...';
+      unprotectCodeToast('جاري معالجة المورد المحفوظ');
+      try{
+        const d = await api('/api/script/' + encodeURIComponent(code) + '/unprotect', {method: 'POST'});
+        showUnprotectResult(d);
+        unprotectCodeToast('تم فك الحماية وإنشاء نسخة قابلة للتنزيل', true);
+      }catch(err){
+        unprotectCodeToast(err.message);
+      }finally{
+        btn.disabled = false;
+        btn.innerHTML = 'فك الحماية بالكود <b>←</b>';
+      }
+    });
+  }
+
   const unprotectForm = document.getElementById('unprotect-form');
   if (unprotectForm){
     unprotectForm.addEventListener('submit', async e => {
@@ -229,12 +267,7 @@ document.addEventListener('DOMContentLoaded', () => {
       unprotectToast('جاري المعالجة، لا تغلق الصفحة');
       try{
         const d = await api('/api/unprotect', {method: 'POST', body: f});
-        const code = d.script.code;
-        document.getElementById('unprotect-code').textContent = code;
-        document.getElementById('unprotect-link').href = '/api/download/' + encodeURIComponent(code);
-        document.getElementById('unprotect-report').textContent =
-          'تم فك ' + d.report.unprotected + ' من أصل ' + d.report.processed + ' ملف Lua.';
-        document.getElementById('unprotect-result').hidden = false;
+        showUnprotectResult(d);
         unprotectToast('تم فك الحماية بنجاح — الملف الآن قابل للتعديل', true);
         btn.innerHTML = 'تم فك الحماية ✓';
         loadLogs();
@@ -273,7 +306,7 @@ document.addEventListener('DOMContentLoaded', () => {
           headers: {'Content-Type': 'application/json'},
           body: JSON.stringify({targetIp: newIp})
         });
-        ipToast('تم تحديث الآي بي — يتطبّق عند العميل تلقائياً في أول فحص جاي', true);
+        ipToast('تم تحديث الآي بي — يتطبّق عند العميل خلال دقيقة تقريباً', true);
         btn.innerHTML = 'تحديث الآي بي الآن ←';
         loadLogs();
       }catch(err){

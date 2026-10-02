@@ -26,11 +26,11 @@ const protectionEngine = require('./src/shared/protection-engine');
 
 // ==================== إعدادات النظام ====================
 const TOKEN = process.env.DISCORD_BOT_TOKEN;
-const CLIENT_ID = process.env.CLIENT_ID || '';
-const PANEL_CHANNEL_ID = process.env.PANEL_CHANNEL_ID || '';
-const ADMIN_PANEL_CHANNEL_ID = process.env.ADMIN_PANEL_CHANNEL_ID || '';
-const PRICING_CHANNEL_ID = process.env.PRICING_CHANNEL_ID || '';
-const GRANT_PERMISSION_ROLE_ID = process.env.GRANT_PERMISSION_ROLE_ID || process.env.ENCRYPT_ROLE_ID || '';
+const CLIENT_ID = process.env.CLIENT_ID || '1543275242762407958';
+const PANEL_CHANNEL_ID = process.env.PANEL_CHANNEL_ID || '1545704301605945354';
+const ADMIN_PANEL_CHANNEL_ID = process.env.ADMIN_PANEL_CHANNEL_ID || '1545524543903367318';
+const PRICING_CHANNEL_ID = process.env.PRICING_CHANNEL_ID || '1545526903052435476';
+const GRANT_PERMISSION_ROLE_ID = process.env.GRANT_PERMISSION_ROLE_ID || process.env.ENCRYPT_ROLE_ID || '1509455687934283776';
 const WEBHOOK_URL = process.env.WEBHOOK_URL || "";
 
 const PORT = process.env.PORT || 3000;
@@ -621,11 +621,11 @@ if (interaction.customId === 'btn_start_protect') {
                         .setEmoji('🛡️'),
                     new StringSelectMenuOptionBuilder()
                         .setLabel('تشفير شامل')
-                        .setDescription('يشفّر كل ملفات .lua بدون استثناء — أقصى درجة حماية')
+                        .setDescription('يموّه ملفات Lua كلها — ملفات fxmanifest تبقى كما هي')
                         .setValue('full')
                         .setEmoji('📦'),
                     new StringSelectMenuOptionBuilder()
-                        .setLabel('بدون تشفير')
+                        .setLabel('قفل IP فقط')
                         .setDescription('يفعّل قفل الآي بي فقط، من غير تشفير أكواد')
                         .setValue('none')
                         .setEmoji('🔓')
@@ -839,8 +839,8 @@ if (interaction.customId === 'btn_start_protect') {
 
             const modeLabels = {
                 target: '🛡️ الملفات المستهدفة',
-                full: '📦 تشفير شامل (V8)',
-                none: '🔓 بدون تشفير'
+                full: '📦 تمويه شامل',
+                none: '🔓 قفل IP فقط'
             };
             const modeLabel = modeLabels[encryptionMode] || encryptionMode;
 

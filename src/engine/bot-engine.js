@@ -89,10 +89,8 @@ async function encryptResource({ inputZipPath, targetIp, resourceName, encryptio
   }
 }
 
-// 🔓 فك حماية مورد سبق تشفيره — يقبل نفس نوع الأرشيف الناتج من التشفير (أو أي
-// ZIP قديم مشفَّر بنفس القالب حتى لو أُنتج بنسخة سابقة من الأداة)، يعكس التمويه
-// على كل ملفات .lua المموَّهة، يزيل حارس الآي بي المدمج، ويعيد ضغط الناتج
-// كملف جاهز للتعديل. يُستعمل من لوحة الأدمن على الموقع ومن سكربت CLI المستقل.
+// فك حماية الأرشيفات التي تستخدم RAVX_OBF_V1، وإزالة حارس الترخيص المدمج.
+// تُرفض صيغ الحماية القديمة أو غير المدعومة عملياً برسالة في تقرير العملية.
 async function unprotectResource({ inputZipPath, label = 'unprotected', uploader = {} }) {
   const work = fs.mkdtempSync(path.join(os.tmpdir(), 'ravx-unprotect-'));
   const extracted = path.join(work, 'resource');

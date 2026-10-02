@@ -43,8 +43,8 @@ function loadDemoCode(code) {
 // Mode Labels
 const ENCRYPTION_MODES = {
   target: '🛡️ تشفير الملفات المستهدفة (client / server)',
-  full: '📦 تشفير شامل لجميع ملفات Lua',
-  none: '🔓 بدون تشفير (قفل بالـ IP فقط)'
+  full: '📦 تمويه شامل لملفات Lua',
+  none: '🔓 قفل IP فقط'
 };
 
 // Verify Code via API

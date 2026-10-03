@@ -14,8 +14,9 @@
 
 const fs = require('fs');
 const path = require('path');
+const storage = require('./storage');
 
-const ROOT = path.resolve(__dirname, '../..');
+const ROOT = storage.ROOT;
 
 // ==================== مكان التخزين ====================
 // ⚠️ كانت هذه الملفات في جذر المشروع مباشرة — وهو نفس مجلد الكود المرفوع
@@ -27,30 +28,15 @@ const ROOT = path.resolve(__dirname, '../..');
 // .gitignore) والمُثبَت فعلياً أنه يبقى بعد إعادة التشغيل (يستخدمه الموقع
 // أصلاً لجلسات storage/sessions.json)، فنقلنا كل ملفات الحالة القابلة
 // للتغيير إليه.
-const STORAGE_DIR = path.resolve(process.env.RAVX_DATA_DIR || path.join(ROOT, 'storage'));
-const PERMISSIONS_FILE = path.join(STORAGE_DIR, 'permissions.json');
-const CODES_FILE = path.join(STORAGE_DIR, 'permission_codes.json');
-const HISTORY_FILE = path.join(STORAGE_DIR, 'subscription_history.json');
+const STORAGE_DIR = storage.STORAGE_DIR;
+const PERMISSIONS_FILE = storage.file('permissions.json');
+const CODES_FILE = storage.file('permission_codes.json');
+const HISTORY_FILE = storage.file('subscription_history.json');
 const LOCK_DIR = path.join(STORAGE_DIR, '.ravx-perm.lock');
 
-// ترحيل تلقائي لمرة واحدة: لو الملفات القديمة موجودة في الجذر (من نسخة سابقة)
-// وما فيه نسخة في storage/ بعد، ننقلها بدل ما نبدأ من الصفر ونخسر الأكواد
-// المستهلكة والاشتراكات الحالية.
-function migrateLegacyFile(legacyName, targetFile) {
-    const legacyPath = path.join(ROOT, legacyName);
-    try {
-        if (!fs.existsSync(targetFile) && fs.existsSync(legacyPath)) {
-            fs.mkdirSync(STORAGE_DIR, { recursive: true });
-            fs.copyFileSync(legacyPath, targetFile);
-            console.log(`[RAVX] تم ترحيل ${legacyName} إلى storage/ (تخزين دائم يبقى بعد إعادة التشغيل).`);
-        }
-    } catch (e) { console.error(`[RAVX] فشل ترحيل ${legacyName}:`, e.message); }
-}
-
+// storage.file() performs one-time migration from the old project storage/
+// and project-root locations when RAVX_STORAGE_DIR points to a persistent disk.
 fs.mkdirSync(STORAGE_DIR, { recursive: true });
-migrateLegacyFile('permissions.json', PERMISSIONS_FILE);
-migrateLegacyFile('permission_codes.json', CODES_FILE);
-migrateLegacyFile('subscription_history.json', HISTORY_FILE);
 
 // ==================== حدود الباقات ====================
 // المصدر الوحيد لمدة وسقف كل باقة. لا نعتمد على حقل days المخزّن مع الكود

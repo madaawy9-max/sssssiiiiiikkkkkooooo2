@@ -66,7 +66,7 @@
       <div class="mode-row">
         <button type="button" class="mode active" data-mode="target"><b>مستهدف</b><small>client / server + IP</small></button>
         <button type="button" class="mode" data-mode="full"><b>شامل</b><small>كل ملفات Lua + IP</small></button>
-        <button type="button" class="mode" data-mode="none"><b>بدون تشفير</b><small>بدون حماية IP</small></button>
+        <button type="button" class="mode" data-mode="none"><b>قفل IP فقط</b><small>الكود مقروء + ترخيص حي</small></button>
       </div>
       <button class="btn primary full" id="encrypt-btn">تشفير المورد الآن <b>←</b></button>
       <div id="encrypt-status" class="status"></div>
@@ -91,13 +91,14 @@
     </form>
   </div>
 
-  <div id="delete-box" class="encrypt dash-card reveal" hidden>
-    <div class="dash-title"><span>🗑</span><div><h3>حذف سكربت وترخيصه</h3><p>يحذف السجل وملف ZIP من التخزين — للأدمن فقط</p></div></div>
-    <form id="delete-form">
-      <label>كود السكربت<input id="delete-code" required placeholder="RAVX-XXXXXXXXXX" style="text-transform:uppercase"></label>
-      <button class="btn danger full" id="delete-btn" type="submit">حذف السكربت نهائياً</button>
-      <div id="delete-status" class="status"></div>
-    </form>
+  <div id="licenses-box" class="dash-card reveal" hidden style="margin-top:24px">
+    <div class="dash-title"><span>🧾</span><div><h3>إدارة تراخيص السكربتات</h3><p>عرض كل الأكواد المباعة، تغيير IP بسرعة، أو حذف الترخيص والملف نهائياً</p></div></div>
+    <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:12px">
+      <button id="licenses-refresh" class="btn ghost sm" type="button">تحديث القائمة</button>
+      <input id="licenses-search" placeholder="ابحث بالكود / المورد / IP" style="min-width:260px;flex:1">
+    </div>
+    <div id="licenses-list" style="display:grid;gap:10px"></div>
+    <div id="licenses-status" class="status"></div>
   </div>
 
   <div id="unprotect-box" class="encrypt dash-card reveal" hidden>

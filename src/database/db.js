@@ -1,60 +1,73 @@
 const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
+const storage = require('../shared/storage');
 
-const DATA_DIR = path.resolve(process.env.RAVX_DATA_DIR || path.join(__dirname, '../../storage'));
-const DB_FILE = path.join(DATA_DIR, 'scripts.json');
-const UPLOADS_DIR = path.join(DATA_DIR, 'uploads');
+const DB_FILE = storage.file('scripts.json', { legacyRoot: false });
+const DB_BACKUP_FILE = `${DB_FILE}.bak`;
+const UPLOADS_DIR = storage.dir('uploads');
 
-// التأكد من وجود المجلدات وقاعدة البيانات
 function ensureDirectories() {
-  const storageDir = path.join(__dirname, '../../storage');
-  if (!fs.existsSync(storageDir)) {
-    fs.mkdirSync(storageDir, { recursive: true });
-  }
-  if (!fs.existsSync(UPLOADS_DIR)) {
-    fs.mkdirSync(UPLOADS_DIR, { recursive: true });
-  }
-  if (!fs.existsSync(DB_FILE)) {
-    fs.writeFileSync(DB_FILE, JSON.stringify([], null, 2), 'utf-8');
-  }
+  storage.ensureStorage();
+  fs.mkdirSync(UPLOADS_DIR, { recursive: true });
+  if (!fs.existsSync(DB_FILE)) writeDatabase([]);
 }
 
-// توليد كود مميز وسهل القراءة (مثل RAVX-8K3M9ABCD)
 function generateCode(prefix = 'RAVX', length = 10) {
   const chars = '23456789ABCDEFGHJKLMNPQRSTUVWXYZ';
   let code = '';
-  for (let i = 0; i < length; i++) {
-    code += chars.charAt(Math.floor(Math.random() * chars.length));
-  }
+  for (let i = 0; i < length; i++) code += chars[crypto.randomInt(0, chars.length)];
   return `${prefix}-${code}`;
 }
 
-// قراءة كل السجلات
+function parseDbFile(file) {
+  const raw = fs.readFileSync(file, 'utf8');
+  const parsed = JSON.parse(raw || '[]');
+  return Array.isArray(parsed) ? parsed : [];
+}
+
 function readDatabase() {
   ensureDirectories();
   try {
-    const data = fs.readFileSync(DB_FILE, 'utf-8');
-    return JSON.parse(data || '[]');
+    return parseDbFile(DB_FILE);
   } catch (err) {
-    console.error('Error reading database:', err);
-    return [];
+    console.error('[RAVX DB] scripts.json read failed, trying backup:', err.message);
+    try {
+      const recovered = parseDbFile(DB_BACKUP_FILE);
+      writeDatabase(recovered);
+      return recovered;
+    } catch (_) {
+      return [];
+    }
   }
 }
 
-// حفظ السجلات
 function writeDatabase(data) {
-  ensureDirectories();
+  storage.ensureStorage();
+  fs.mkdirSync(path.dirname(DB_FILE), { recursive: true });
+  const tmp = `${DB_FILE}.${process.pid}.${Date.now()}.tmp`;
   try {
-    fs.writeFileSync(DB_FILE, JSON.stringify(data, null, 2), 'utf-8');
+    if (fs.existsSync(DB_FILE)) {
+      try { fs.copyFileSync(DB_FILE, DB_BACKUP_FILE); } catch (_) {}
+    }
+    fs.writeFileSync(tmp, JSON.stringify(data, null, 2), 'utf8');
+    fs.renameSync(tmp, DB_FILE);
     return true;
   } catch (err) {
-    console.error('Error writing database:', err);
+    try { if (fs.existsSync(tmp)) fs.unlinkSync(tmp); } catch (_) {}
+    console.error('[RAVX DB] write failed:', err);
     return false;
   }
 }
 
-// حفظ سكربت جديد في قاعدة البيانات
+function uniqueCode(db, customCode = null) {
+  if (customCode) return String(customCode).trim().toUpperCase();
+  let code;
+  do { code = generateCode('RAVX'); }
+  while (db.some(item => String(item.code || '').toUpperCase() === code.toUpperCase()));
+  return code;
+}
+
 function saveScript({
   title,
   originalFilename,
@@ -68,52 +81,34 @@ function saveScript({
   customCode = null
 }) {
   const db = readDatabase();
-  let code = customCode;
-
-  if (!code) {
-    do {
-      code = generateCode('RAVX');
-    } while (db.some(item => item.code.toUpperCase() === code.toUpperCase()));
-  }
-
-  const ext = path.extname(originalFilename || savedFilename).toLowerCase().replace('.', '');
-
+  const code = uniqueCode(db, customCode);
+  const ext = path.extname(originalFilename || savedFilename || '').toLowerCase().replace('.', '');
   const newEntry = {
-    id: crypto.randomUUID ? crypto.randomUUID() : Date.now().toString(),
-    code: code.toUpperCase(),
+    id: crypto.randomUUID ? crypto.randomUUID() : `${Date.now()}-${crypto.randomBytes(6).toString('hex')}`,
+    code,
     title: title || resourceName || originalFilename,
     originalFilename: originalFilename || savedFilename,
-    savedFilename: savedFilename,
+    savedFilename,
     fileSize: fileSize || 0,
     fileExtension: ext || 'zip',
-    targetIp: targetIp,
-    resourceName: resourceName,
-    encryptionMode: encryptionMode,
-    uploader: {
-      name: uploaderName,
-      id: uploaderId
-    },
+    targetIp,
+    resourceName,
+    encryptionMode,
+    uploader: { name: uploaderName, id: uploaderId },
     downloads: 0,
     createdAt: new Date().toISOString()
   };
-
   db.unshift(newEntry);
-  writeDatabase(db);
+  if (!writeDatabase(db)) throw new Error('فشل حفظ سجل السكربت في قاعدة البيانات');
   return newEntry;
 }
 
-// 🔑 يحجز كوداً فريداً ويحفظ سجلاً مبدئياً (pending) قبل حتى ما نبدأ نشفّر —
-// عشان نقدر ندمج الكود نفسه داخل ملف Lua (كمعرّف ترخيص) بدل الآي بي الخام.
-// كتابة السجل فوراً (بدون await بينها وبين توليد الكود) تمنع تكرار نفس الكود
-// لأن Node أحادي الخيط ولا يوجد نداء غير متزامن بينهما.
 function createPendingScript({ resourceName, targetIp = null, encryptionMode = 'target', uploaderName = 'RAVX User', uploaderId = null }) {
   const db = readDatabase();
-  let code;
-  do { code = generateCode('RAVX'); } while (db.some(item => item.code.toUpperCase() === code.toUpperCase()));
-
+  const code = uniqueCode(db);
   const newEntry = {
-    id: crypto.randomUUID ? crypto.randomUUID() : Date.now().toString(),
-    code: code.toUpperCase(),
+    id: crypto.randomUUID ? crypto.randomUUID() : `${Date.now()}-${crypto.randomBytes(6).toString('hex')}`,
+    code,
     title: resourceName,
     originalFilename: null,
     savedFilename: null,
@@ -125,24 +120,13 @@ function createPendingScript({ resourceName, targetIp = null, encryptionMode = '
     uploader: { name: uploaderName, id: uploaderId },
     downloads: 0,
     createdAt: new Date().toISOString(),
-    pending: true,
-    encryptionKey: null
+    pending: true
   };
   db.unshift(newEntry);
-  writeDatabase(db);
+  if (!writeDatabase(db)) throw new Error('فشل حجز كود الترخيص');
   return newEntry;
 }
 
-function setEncryptionKey(code, encryptionKey) {
-  const db = readDatabase();
-  const entry = db.find(s => s.code === String(code).toUpperCase());
-  if (!entry) return null;
-  entry.encryptionKey = String(encryptionKey);
-  writeDatabase(db);
-  return entry;
-}
-
-// يُستدعى بعد نجاح التشفير وإنتاج الملف النهائي — يكمل بيانات السجل المبدئي.
 function finalizeScript(code, { originalFilename, savedFilename, fileSize }) {
   const db = readDatabase();
   const entry = db.find(s => s.code === String(code).toUpperCase());
@@ -150,102 +134,94 @@ function finalizeScript(code, { originalFilename, savedFilename, fileSize }) {
   entry.originalFilename = originalFilename;
   entry.savedFilename = savedFilename;
   entry.fileSize = fileSize || 0;
-  entry.fileExtension = path.extname(originalFilename || savedFilename).toLowerCase().replace('.', '') || 'zip';
+  entry.fileExtension = path.extname(originalFilename || savedFilename || '').toLowerCase().replace('.', '') || 'zip';
+  entry.finalizedAt = new Date().toISOString();
   delete entry.pending;
-  writeDatabase(db);
+  if (!writeDatabase(db)) throw new Error('فشل إكمال سجل السكربت');
   return entry;
 }
 
-// يحذف سجلاً مبدئياً لو فشلت المعالجة، حتى لا يبقى كود "معلَّق" بلا ملف حقيقي.
-function deleteScript(code) {
+function deleteScript(code, options = {}) {
   const db = readDatabase();
-  const idx = db.findIndex(s => s.code === String(code).toUpperCase());
+  const searchCode = String(code || '').trim().toUpperCase();
+  const idx = db.findIndex(s => s.code === searchCode);
   if (idx === -1) return false;
-  const removed = db[idx];
-  if (removed?.savedFilename) {
-    try { fs.rmSync(getFilePath(removed.savedFilename), { force: true }); } catch (e) {}
+  const [entry] = db.splice(idx, 1);
+  if (!writeDatabase(db)) throw new Error('فشل حذف سجل السكربت');
+  if (options.deleteFile && entry.savedFilename) {
+    try {
+      const fp = getFilePath(entry.savedFilename);
+      if (fs.existsSync(fp)) fs.unlinkSync(fp);
+    } catch (e) {
+      console.error('[RAVX DB] failed to delete archive:', e.message);
+    }
   }
-  db.splice(idx, 1);
-  writeDatabase(db);
-  return true;
+  return entry;
 }
 
-// 🌐 تغيير الآي بي المرخَّص لسكربت موجود بالفعل — هذا هو أساس ميزة "الآي بي
-// الحيّ": الملف المشفَّر عند العميل يسأل خادمنا عن الآي بي المسموح بكوده
-// وقت التشغيل بدل ما يكون الآي بي مدموجاً ثابتاً بداخل الملف، فتغييره هنا
-// يطبَّق تلقائياً عند العميل بدون ما تحتاج ترسل له ملفاً جديداً.
 function updateTargetIp(code, newIp) {
   const db = readDatabase();
-  const entry = db.find(s => s.code === String(code).toUpperCase());
+  const entry = db.find(s => s.code === String(code || '').trim().toUpperCase());
   if (!entry) return null;
   entry.targetIp = newIp;
   entry.ipUpdatedAt = new Date().toISOString();
-  writeDatabase(db);
+  if (!writeDatabase(db)) throw new Error('فشل حفظ الآي بي الجديد');
   return entry;
 }
 
-// البحث عن سكربت بواسطة الكود
 function findByCode(code) {
   if (!code) return null;
-  const db = readDatabase();
-  const searchCode = code.trim().toUpperCase();
-  return db.find(s => s.code === searchCode) || null;
+  const searchCode = String(code).trim().toUpperCase();
+  return readDatabase().find(s => s.code === searchCode) || null;
 }
 
-// زيادة عداد التحميل
+function listScripts({ limit = 500, includePending = false } = {}) {
+  const n = Math.max(1, Math.min(Number(limit) || 500, 5000));
+  return readDatabase().filter(s => includePending || !s.pending).slice(0, n);
+}
+
 function incrementDownload(code) {
   const db = readDatabase();
-  const searchCode = code.trim().toUpperCase();
+  const searchCode = String(code || '').trim().toUpperCase();
   const script = db.find(s => s.code === searchCode);
-  if (script) {
-    script.downloads = (script.downloads || 0) + 1;
-    writeDatabase(db);
-    return script.downloads;
-  }
-  return 0;
+  if (!script) return 0;
+  script.downloads = (script.downloads || 0) + 1;
+  writeDatabase(db);
+  return script.downloads;
 }
 
-// مسار الملف على القرص
 function getFilePath(savedFilename) {
-  return path.join(UPLOADS_DIR, savedFilename);
+  const safe = path.basename(String(savedFilename || ''));
+  return path.join(UPLOADS_DIR, safe);
 }
 
-// إحصائيات عامة
 function getStats() {
-  const all = readDatabase();
-  const totalDownloads = all.reduce((sum, item) => sum + (item.downloads || 0), 0);
+  const all = readDatabase().filter(s => !s.pending);
   return {
     totalScripts: all.length,
-    totalDownloads: totalDownloads
+    totalDownloads: all.reduce((sum, item) => sum + (item.downloads || 0), 0)
   };
 }
 
-// إضافة بيانات تجريبية في البداية لتجربة الموقع فوراً
 function initDemoData() {
   ensureDirectories();
   const db = readDatabase();
-  if (db.length === 0) {
-    const demoZipName = 'demo_ravx_script.zip';
-    const demoPath = path.join(UPLOADS_DIR, demoZipName);
-    
-    // إنشاء ملف تجريبي صغير
-    if (!fs.existsSync(demoPath)) {
-      fs.writeFileSync(demoPath, 'RAVX-TEAM Demo Protected Script Payload');
-    }
-
-    saveScript({
-      title: 'qb-vehicleshop (تجريبي)',
-      originalFilename: 'RAVX_Secured_qb-vehicleshop_127_0_0_1.zip',
-      savedFilename: demoZipName,
-      fileSize: 1048576, // 1 MB
-      targetIp: '127.0.0.1',
-      resourceName: 'qb-vehicleshop',
-      encryptionMode: 'target',
-      uploaderName: 'RAVX Admin',
-      customCode: 'RAVX-DEMO000001'
-    });
-    console.log('✅ تم إنشاء كود تجريبي لاختبار الموقع: RAVX-DEMO000001');
-  }
+  if (db.length !== 0) return;
+  const demoZipName = 'demo_ravx_script.zip';
+  const demoPath = path.join(UPLOADS_DIR, demoZipName);
+  if (!fs.existsSync(demoPath)) fs.writeFileSync(demoPath, 'RAVX-TEAM Demo Protected Script Payload');
+  saveScript({
+    title: 'qb-vehicleshop (تجريبي)',
+    originalFilename: 'RAVX_Secured_qb-vehicleshop_127_0_0_1.zip',
+    savedFilename: demoZipName,
+    fileSize: fs.statSync(demoPath).size,
+    targetIp: '127.0.0.1',
+    resourceName: 'qb-vehicleshop',
+    encryptionMode: 'target',
+    uploaderName: 'RAVX Admin',
+    customCode: 'RAVX-DEMO000001'
+  });
+  console.log('✅ تم إنشاء كود تجريبي: RAVX-DEMO000001');
 }
 
 initDemoData();
@@ -253,14 +229,17 @@ initDemoData();
 module.exports = {
   saveScript,
   createPendingScript,
-  setEncryptionKey,
   finalizeScript,
   deleteScript,
   updateTargetIp,
   findByCode,
+  listScripts,
   incrementDownload,
   getFilePath,
   getStats,
   generateCode,
+  readDatabase,
+  writeDatabase,
+  DB_FILE,
   UPLOADS_DIR
 };

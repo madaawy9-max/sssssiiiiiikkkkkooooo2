@@ -9,8 +9,9 @@
 
 const fs = require('fs');
 const path = require('path');
+const storage = require('./storage');
 
-const LOG_DIR = path.resolve(__dirname, '../../storage/logs');
+const LOG_DIR = storage.dir('logs');
 
 function ensureLogDir() {
   try { if (!fs.existsSync(LOG_DIR)) fs.mkdirSync(LOG_DIR, { recursive: true }); } catch (e) { /* ignore */ }

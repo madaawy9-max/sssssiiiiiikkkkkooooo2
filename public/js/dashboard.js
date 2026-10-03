@@ -58,18 +58,19 @@ function renderDashboardUser(user){
   const unprotectBox = document.getElementById('unprotect-box');
   const logsBox = document.getElementById('logs-box');
   const ipBox = document.getElementById('ip-box');
-  const deleteBox = document.getElementById('delete-box');
+  const licensesBox = document.getElementById('licenses-box');
   if (user.isAdmin){
     unprotectBox.hidden = false;
     logsBox.hidden = false;
     if (ipBox) ipBox.hidden = false;
-    if (deleteBox) deleteBox.hidden = false;
+    if (licensesBox) licensesBox.hidden = false;
     loadLogs();
+    loadLicensesList();
   } else {
     unprotectBox.hidden = true;
     logsBox.hidden = true;
     if (ipBox) ipBox.hidden = true;
-    if (deleteBox) deleteBox.hidden = true;
+    if (licensesBox) licensesBox.hidden = true;
   }
 }
 
@@ -137,6 +138,66 @@ async function loadStatsIfAdmin(user){
       '<div><b>' + s.totalScripts + '</b><small>الموارد</small></div>' +
       '<div><b>' + s.totalDownloads + '</b><small>التحميلات</small></div>';
   }catch(e){ /* not admin or unavailable */ }
+}
+
+let adminScripts = [];
+
+function renderLicensesList(){
+  const list = document.getElementById('licenses-list');
+  if (!list) return;
+  const q = (document.getElementById('licenses-search')?.value || '').trim().toLowerCase();
+  const rows = adminScripts.filter(s => !q || [s.code, s.resourceName, s.title, s.targetIp].some(v => String(v || '').toLowerCase().includes(q)));
+  if (!rows.length){
+    list.innerHTML = '<div style="opacity:.65;padding:10px">لا توجد تراخيص مطابقة.</div>';
+    return;
+  }
+  list.innerHTML = rows.map(s => {
+    const created = s.createdAt ? new Date(s.createdAt).toLocaleString('ar', {dateStyle:'short', timeStyle:'short'}) : '—';
+    return '<div class="license-row" data-license-code="' + escapeHtml(s.code) + '" style="border:1px solid var(--border);border-radius:14px;padding:13px;display:grid;gap:9px">' +
+      '<div style="display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap"><div><b style="font-family:monospace">' + escapeHtml(s.code) + '</b><div style="font-size:13px;opacity:.75">' + escapeHtml(s.resourceName || s.title || 'resource') + '</div></div><small style="opacity:.6">' + escapeHtml(created) + '</small></div>' +
+      '<div style="word-break:break-all"><small style="opacity:.6">IP / Domain</small><div>' + escapeHtml(s.targetIp || '—') + '</div></div>' +
+      '<div style="display:flex;gap:8px;flex-wrap:wrap"><button type="button" class="btn ghost sm" data-license-edit="' + escapeHtml(s.code) + '">تغيير IP</button><a class="btn ghost sm" href="/api/download/' + encodeURIComponent(s.code) + '" target="_blank">تحميل</a><button type="button" class="btn ghost sm" data-license-delete="' + escapeHtml(s.code) + '" style="border-color:var(--danger);color:var(--danger)">حذف الترخيص</button></div>' +
+    '</div>';
+  }).join('');
+
+  list.querySelectorAll('[data-license-edit]').forEach(btn => btn.addEventListener('click', () => {
+    const code = btn.dataset.licenseEdit;
+    const item = adminScripts.find(s => s.code === code);
+    document.getElementById('ip-code').value = code;
+    document.getElementById('ip-new').value = item?.targetIp || '';
+    document.getElementById('ip-box')?.scrollIntoView({behavior:'smooth', block:'center'});
+  }));
+
+  list.querySelectorAll('[data-license-delete]').forEach(btn => btn.addEventListener('click', async () => {
+    const code = btn.dataset.licenseDelete;
+    const item = adminScripts.find(s => s.code === code);
+    const label = item?.resourceName || item?.title || code;
+    if (!confirm('حذف ترخيص ' + label + ' (' + code + ')؟ سيتم حذف ملف التحميل أيضاً، والنسخة عند العميل ستُرفض في الفحص القادم.')) return;
+    btn.disabled = true;
+    try{
+      await api('/api/script/' + encodeURIComponent(code), {method:'DELETE'});
+      const status = document.getElementById('licenses-status');
+      if (status){ status.textContent = 'تم حذف الترخيص والملف بنجاح'; status.className = 'status ok'; }
+      await loadLicensesList();
+      loadLogs();
+    }catch(err){
+      const status = document.getElementById('licenses-status');
+      if (status){ status.textContent = err.message; status.className = 'status error'; }
+      btn.disabled = false;
+    }
+  }));
+}
+
+async function loadLicensesList(){
+  const list = document.getElementById('licenses-list');
+  if (!list) return;
+  try{
+    const d = await api('/api/admin/scripts?limit=1000');
+    adminScripts = Array.isArray(d.scripts) ? d.scripts : [];
+    renderLicensesList();
+  }catch(err){
+    list.innerHTML = '<div style="color:var(--danger)">' + escapeHtml(err.message || 'تعذر تحميل التراخيص') + '</div>';
+  }
 }
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -253,25 +314,10 @@ document.addEventListener('DOMContentLoaded', () => {
   const logsRefresh = document.getElementById('logs-refresh');
   if (logsRefresh) logsRefresh.addEventListener('click', loadLogs);
 
-  /* ===== حذف سكربت (أدمن) ===== */
-  const deleteForm = document.getElementById('delete-form');
-  if (deleteForm){
-    deleteForm.addEventListener('submit', async e => {
-      e.preventDefault();
-      const code = document.getElementById('delete-code').value.trim().toUpperCase();
-      const btn = document.getElementById('delete-btn');
-      const status = document.getElementById('delete-status');
-      if (!code) { status.textContent = 'اكتب كود السكربت أولاً'; status.className = 'status error'; return; }
-      btn.disabled = true; btn.textContent = 'جاري الحذف...';
-      try{
-        await api('/api/script/' + encodeURIComponent(code), {method:'DELETE'});
-        status.textContent = 'تم حذف السجل وملف السكربت بنجاح'; status.className = 'status ok';
-        document.getElementById('delete-code').value = '';
-        loadLogs();
-      }catch(err){ status.textContent = err.message; status.className = 'status error'; }
-      finally{ btn.disabled = false; btn.textContent = 'حذف السكربت نهائياً'; }
-    });
-  }
+  const licensesRefresh = document.getElementById('licenses-refresh');
+  if (licensesRefresh) licensesRefresh.addEventListener('click', loadLicensesList);
+  const licensesSearch = document.getElementById('licenses-search');
+  if (licensesSearch) licensesSearch.addEventListener('input', renderLicensesList);
 
   /* ===== تغيير الآي بي الحيّ (أدمن) ===== */
   const ipStatus = document.getElementById('ip-status');
@@ -299,6 +345,7 @@ document.addEventListener('DOMContentLoaded', () => {
         ipToast('تم تحديث الآي بي — يتطبّق عند العميل تلقائياً في أول فحص جاي', true);
         btn.innerHTML = 'تحديث الآي بي الآن ←';
         loadLogs();
+        loadLicensesList();
       }catch(err){
         ipToast(err.message);
         btn.innerHTML = 'تحديث الآي بي الآن ←';

@@ -7,6 +7,19 @@ const Busboy = require('busboy');
 const db = require('../database/db');
 const subs = require('../shared/subscriptions');
 const logger = require('../shared/logger');
+const storage = require('../shared/storage');
+
+function persistentSessionSecret() {
+  if (process.env.SESSION_SECRET) return process.env.SESSION_SECRET;
+  const file = storage.file('session_secret.txt', { legacyRoot: false });
+  try {
+    const existing = fs.readFileSync(file, 'utf8').trim();
+    if (existing.length >= 32) return existing;
+  } catch (_) {}
+  const generated = crypto.randomBytes(48).toString('hex');
+  try { fs.writeFileSync(file, generated, { encoding: 'utf8', mode: 0o600 }); } catch (_) {}
+  return generated;
+}
 
 const PUBLIC_DIR = path.resolve(__dirname, '../../public');
 const MAX_UPLOAD = Number(process.env.MAX_UPLOAD_BYTES || 5 * 1024 * 1024 * 1024);
@@ -18,7 +31,7 @@ const cfg = {
   roleId: process.env.ENCRYPT_ROLE_ID || process.env.GRANT_PERMISSION_ROLE_ID,
   botToken: process.env.DISCORD_BOT_TOKEN,
   adminIds: new Set(String(process.env.ADMIN_USER_IDS || '').split(',').map(x => x.trim()).filter(Boolean)),
-  sessionSecret: process.env.SESSION_SECRET || crypto.randomBytes(32).toString('hex')
+  sessionSecret: persistentSessionSecret()
 };
 let engine = null;
 try { engine = require(path.join(__dirname, '../engine/bot-engine')); } catch (e) { console.error('[WEB] engine load failed:', e.message); }
@@ -28,7 +41,7 @@ try { engine = require(path.join(__dirname, '../engine/bot-engine')); } catch (e
 // العملية، توقف مؤقت من الاستضافة) كانت تمسح كل الجلسات فيظهر المستخدم "مسجّل خروج"
 // فجأة رغم أن الكوكي نفسه ما زال صالحاً. الآن نحفظها في storage/sessions.json ونحمّلها
 // عند الإقلاع، فتبقى الجلسة شغالة عبر عمليات إعادة التشغيل حتى تنتهي مدتها فعلياً.
-const STORAGE_DIR = path.resolve(process.env.RAVX_DATA_DIR || path.join(__dirname, '../../storage'));
+const STORAGE_DIR = storage.STORAGE_DIR;
 const SESSIONS_FILE = path.join(STORAGE_DIR, 'sessions.json');
 const sessions = new Map();
 
@@ -179,7 +192,7 @@ const MIME_TYPES = { '.html': 'text/html; charset=utf-8', '.css': 'text/css; cha
 function securityHeaders(res) { res.setHeader('X-Content-Type-Options', 'nosniff'); res.setHeader('X-Frame-Options', 'DENY'); res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin'); }
 function sendJson(res, status, data) { if (res.headersSent) return; securityHeaders(res); res.writeHead(status, { 'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': 'no-store' }); res.end(JSON.stringify(data)); }
 function safeCode(v) { const s = String(v || '').trim(); return s && s.length <= 80 && /^[A-Za-z0-9_-]+$/.test(s) ? s : null; }
-function publicScript(s) { return { code: s.code, title: s.title, originalFilename: s.originalFilename, fileSize: s.fileSize, fileExtension: s.fileExtension, targetIp: s.targetIp, resourceName: s.resourceName, encryptionMode: s.encryptionMode, uploader: s.uploader || s.uploaderName, downloads: s.downloads || 0, createdAt: s.createdAt }; }
+function publicScript(s) { return { code: s.code, title: s.title, originalFilename: s.originalFilename, fileSize: s.fileSize, fileExtension: s.fileExtension, targetIp: s.targetIp, resourceName: s.resourceName, encryptionMode: s.encryptionMode, uploader: s.uploader || s.uploaderName, downloads: s.downloads || 0, createdAt: s.createdAt, ipUpdatedAt: s.ipUpdatedAt || null }; }
 function cookieValue(req, name) { const hit = (req.headers.cookie || '').split(';').map(x => x.trim()).find(x => x.startsWith(name + '=')); return hit ? decodeURIComponent(hit.slice(name.length + 1)) : null; }
 function sign(value) { return crypto.createHmac('sha256', cfg.sessionSecret).update(value).digest('hex'); }
 function setSession(res, user) {
@@ -450,7 +463,7 @@ function createServer() {
       // نقرأ آي بي الطالب من الطلب نفسه ونقارنه بالآي بي المخزَّن حالياً لهذا
       // الكود — فتغييره من لوحة الأدمن يُطبَّق فوراً بدون إرسال ملف جديد للعميل.
       if (p.startsWith('/api/license/')) {
-        if (rateLimited(req, res, 'license', 60, 60 * 1000)) return;
+        if (rateLimited(req, res, 'license', 600, 60 * 1000)) return;
         const code = safeCode(p.slice('/api/license/'.length));
         if (!code) return sendJson(res, 400, { success: false, message: 'كود الترخيص مطلوب' });
         const s = db.findByCode(code);
@@ -468,8 +481,33 @@ function createServer() {
         }
         const authorized = matchesTargetIp(effectiveIp, s.targetIp);
         if (!authorized) logger.warn('license.denied', { code, socketIp, reportedIp, checkedIp: effectiveIp, licensedIp: s.targetIp, resourceName: s.resourceName });
-        return sendJson(res, 200, { success: true, authorized, ip: effectiveIp, resourceName: s.resourceName, key: authorized ? s.encryptionKey : undefined });
+        return sendJson(res, 200, { success: true, authorized, ip: effectiveIp, resourceName: s.resourceName });
       }
+      // 📋 إدارة تراخيص السكربتات من الموقع — أدمن فقط.
+      if (p === '/api/admin/scripts' && req.method === 'GET') {
+        const user = requireUser(req, res);
+        if (!user) return;
+        if (!user.isAdmin) return sendJson(res, 403, { success: false, message: 'إدارة التراخيص للأدمن فقط' });
+        if (rateLimited(req, res, 'admin-scripts', 60, 60 * 1000)) return;
+        const limit = Math.min(Number(u.searchParams.get('limit')) || 500, 2000);
+        return sendJson(res, 200, { success: true, scripts: db.listScripts({ limit }).map(publicScript) });
+      }
+
+      // 🗑️ حذف ترخيص/سكربت مباع. نحذف سجل الترخيص والملف المحفوظ على الموقع؛
+      // النسخة الموجودة عند العميل ستأخذ authorized=false في أول فحص حي قادم.
+      if (p.startsWith('/api/script/') && req.method === 'DELETE' && !p.endsWith('/ip')) {
+        const user = requireUser(req, res);
+        if (!user) return;
+        if (!user.isAdmin) return sendJson(res, 403, { success: false, message: 'حذف التراخيص للأدمن فقط' });
+        if (rateLimited(req, res, 'delete-script', 20, 60 * 1000)) return;
+        const code = safeCode(p.split('/')[3]);
+        if (!code) return sendJson(res, 400, { success: false, message: 'كود السكربت مطلوب' });
+        const removed = db.deleteScript(code, { deleteFile: true });
+        if (!removed) return sendJson(res, 404, { success: false, message: 'السكربت غير موجود' });
+        logger.warn('license.deleted', { code, resourceName: removed.resourceName, oldIp: removed.targetIp, byAdminId: user.id });
+        return sendJson(res, 200, { success: true, deleted: publicScript(removed) });
+      }
+
       // 🌐 تغيير الآي بي المرخَّص لكود موجود — أدمن فقط. هذا هو ما يجعل تغيير
       // الآي بي "حيّاً": ما يحتاج إعادة تشفير ولا إرسال ملف جديد للعميل، فقط
       // تحديث هذا السجل، وسكربت العميل يقرأ القيمة الجديدة في أول فحص جاي.
@@ -491,19 +529,6 @@ function createServer() {
         if (!updated) return sendJson(res, 404, { success: false, message: 'السكربت غير موجود' });
         logger.info('license.ip_changed', { code, newIp, byAdminId: user.id });
         return sendJson(res, 200, { success: true, script: publicScript(updated) });
-      }
-      if (p.startsWith('/api/script/') && req.method === 'DELETE') {
-        const user = requireUser(req, res);
-        if (!user) return;
-        if (!user.isAdmin) return sendJson(res, 403, { success: false, message: 'حذف السكربتات للأدمن فقط' });
-        if (rateLimited(req, res, 'delete-script', 20, 60 * 1000)) return;
-        const code = safeCode(p.slice('/api/script/'.length));
-        if (!code) return sendJson(res, 400, { success: false, message: 'كود السكربت مطلوب' });
-        const existing = db.findByCode(code);
-        if (!existing) return sendJson(res, 404, { success: false, message: 'السكربت غير موجود' });
-        db.deleteScript(code);
-        logger.info('script.deleted', { code, targetIp: existing.targetIp, byAdminId: user.id });
-        return sendJson(res, 200, { success: true, code });
       }
       if (p === '/api/script' || p.startsWith('/api/script/')) {
         if (rateLimited(req, res, 'script', 60, 60 * 1000)) return;

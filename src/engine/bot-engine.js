@@ -1,10 +1,9 @@
 const fs = require('fs');
-const crypto = require('crypto');
 const path = require('path');
 const os = require('os');
 const { execFile } = require('child_process');
 const { promisify } = require('util');
-const { ZipArchive } = require('archiver');
+const archiver = require('archiver');
 let db;
 try {
   db = require('../database/db');
@@ -23,7 +22,7 @@ const execFileAsync = promisify(execFile);
 function createZipFromDirectory(sourceDir, outputPath) {
   return new Promise((resolve, reject) => {
     const output = fs.createWriteStream(outputPath);
-    const archive = new ZipArchive({ zlib: { level: 0 } });
+    const archive = archiver('zip', { zlib: { level: 0 } });
     let done = false;
     const fail = error => { if (!done) { done = true; reject(error); } };
     output.on('close', () => { if (!done) { done = true; resolve(); } });
@@ -53,9 +52,7 @@ async function encryptResource({ inputZipPath, targetIp, resourceName, encryptio
   // ملف Lua كمعرّف ترخيص (بدل الآي بي الخام)، فالملف يسأل خادمنا عن الآي بي
   // المسموح لهذا الكود وقت التشغيل بدل ما يحمله ثابتاً بداخله. لو فشلت
   // المعالجة نحذف هذا السجل المبدئي (finally block) حتى لا يبقى كود معلَّق.
-  const licenseKey = crypto.randomBytes(32).toString('hex');
   const pending = db.createPendingScript({ resourceName, targetIp, encryptionMode, uploaderName: uploader.name || 'Web User', uploaderId: uploader.id || null });
-  db.setEncryptionKey(pending.code, licenseKey);
 
   const work = fs.mkdtempSync(path.join(os.tmpdir(), 'ravx-engine-'));
   const extracted = path.join(work, 'resource');
@@ -71,7 +68,7 @@ async function encryptResource({ inputZipPath, targetIp, resourceName, encryptio
 
     // نفس الدالة، نفس السلوك بالحرف، سواء التشفير جاء من الموقع أو من الديسكورد.
     // نمرر كود الترخيص بدل الآي بي الخام — الفحص يصير حيّاً عبر /api/license.
-    protectionEngine.processAndProtectFiles(processRoot, pending.code, resourceName, encryptionMode, baseUrl, licenseKey);
+    protectionEngine.processAndProtectFiles(processRoot, pending.code, resourceName, encryptionMode, baseUrl);
 
     fs.mkdirSync(path.dirname(outputPath), { recursive: true });
     if (fs.existsSync(outputPath)) fs.unlinkSync(outputPath);
@@ -106,20 +103,7 @@ async function unprotectResource({ inputZipPath, label = 'unprotected', uploader
     fs.mkdirSync(extracted, { recursive: true });
     await execFileAsync('unzip', ['-q', '-o', inputZipPath, '-d', extracted], { maxBuffer: 1024 * 1024 });
 
-    const findCode = dir => {
-      for (const ent of fs.readdirSync(dir, { withFileTypes: true })) {
-        const p = path.join(dir, ent.name);
-        if (ent.isDirectory()) { const found = findCode(p); if (found) return found; }
-        else if (/\.lua$/i.test(p)) {
-          const meta = protectionEngine.protectedMetadata(fs.readFileSync(p, 'utf8'));
-          if (meta) return meta.code;
-        }
-      }
-      return null;
-    };
-    const protectedCode = findCode(extracted);
-    const protectedEntry = protectedCode && db.findByCode(protectedCode);
-    const report = protectionEngine.unprotectFiles(extracted, code => protectedEntry?.code === code ? protectedEntry.encryptionKey : null);
+    const report = protectionEngine.unprotectFiles(extracted);
 
     fs.mkdirSync(path.dirname(outputPath), { recursive: true });
     if (fs.existsSync(outputPath)) fs.unlinkSync(outputPath);

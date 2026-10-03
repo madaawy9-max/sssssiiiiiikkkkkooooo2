@@ -23,6 +23,7 @@ const db = require('./src/database/db');
 const { createServer } = require('./src/server/server');
 const subs = require('./src/shared/subscriptions');
 const protectionEngine = require('./src/shared/protection-engine');
+const storage = require('./src/shared/storage');
 
 // ==================== إعدادات النظام ====================
 const TOKEN = process.env.DISCORD_BOT_TOKEN;
@@ -43,21 +44,10 @@ const THUMBNAIL_URL = "https://cdn.discordapp.com/attachments/134753097497155999
 // بعد إعادة التشغيل/إعادة النشر) بدل جذر المشروع — كان هذا سبب رجوع الأكواد
 // المستهلكة للعمل بعد أي إعادة تشغيل. راجع src/shared/subscriptions.js لمزيد
 // من التفاصيل والترحيل التلقائي للملفات القديمة.
-const storageDir = path.resolve(process.env.RAVX_DATA_DIR || path.join(__dirname, 'storage'));
+const storageDir = storage.STORAGE_DIR;
 fs.mkdirSync(storageDir, { recursive: true });
-function migrateLegacyRootFile(name) {
-    const legacy = path.join(__dirname, name);
-    const target = path.join(storageDir, name);
-    try {
-        if (!fs.existsSync(target) && fs.existsSync(legacy)) {
-            fs.copyFileSync(legacy, target);
-            console.log(`[RAVX] تم ترحيل ${name} إلى storage/.`);
-        }
-    } catch (e) { console.error(`[RAVX] فشل ترحيل ${name}:`, e.message); }
-}
-migrateLegacyRootFile('licenses.json');
-migrateLegacyRootFile('subscription_logs.json');
-const filePath = path.join(storageDir, 'licenses.json');
+const filePath = storage.file('licenses.json');
+storage.file('subscription_logs.json');
 
 const PERMISSION_CODES_CHANNEL_ID = process.env.PERMISSION_CODES_CHANNEL_ID || process.env.PERMISSION_CHANNEL_ID || '';
 console.log('[RAVX CONFIG] Permission channel:', PERMISSION_CODES_CHANNEL_ID || 'NOT SET');
@@ -339,7 +329,7 @@ client.once(Events.ClientReady, async () => {
                 new TextDisplayBuilder().setContent(
                     '# 🛡️ RAVX PROTECTOR\n' +
                     '-# Enterprise-Grade FiveM Script Security\n\n' +
-                    '**`🟢 ONLINE`**　**`⚡ V8 ENGINE`**　**`🔒 AES-256`**\n\n' +
+                    '**`🟢 ONLINE`**　**`⚡ V5 ENGINE`**　**`🔒 INTEGRITY + IP`**\n\n' +
                     'حماية وتشفير احترافي لموارد **FiveM** — كل العملية تتم عبر الأزرار بالأسفل.\n' +
                     'اختر نوع التشفير ثم أدخل IP السيرفر، وبعدها ارفع ملف ZIP وسيتم تجهيز السكربت المحمي.'
                 )
@@ -365,7 +355,7 @@ client.once(Events.ClientReady, async () => {
                 .addTextDisplayComponents(
                     new TextDisplayBuilder().setContent(
                         '### ✨ لماذا RAVX؟\n' +
-                        '🛡️ ‎ **محرك تشفير V8** — طبقات حماية متعددة ضد الـ Hooks والتفكيك\n' +
+                        '🛡️ ‎ **محرك حماية V5** — تمويه متعدد الطبقات + فحص سلامة + ترخيص IP حي\n' +
                         '⚡ ‎ **رفع ومعالجة فورية** — بدون تجهيز ملفات مسبقة على السيرفر\n' +
                         '🔒 ‎ **خصوصية تامة** — تُحذف رسالتك تلقائياً فور استلام الملف\n' +
                         '🌐 ‎ **بوابة تحميل مستقلة** — روابط وأكواد تتجاوز حدود ديسكورد (24MB+)'
@@ -474,7 +464,7 @@ new ButtonBuilder().setCustomId('btn_web_upload').setLabel('🌐 رفع من ا�
                         new TextDisplayBuilder().setContent(
                             '# 💎 RAVX PROTECTOR — الاشتراكات\n' +
                             '-# حماية وتشفير سكربتات FiveM بأعلى مستوى احترافي\n\n' +
-                            '`✅ تشفير V8 كامل`　`✅ قفل IP`　`✅ رفع مباشر`　`✅ دعم فني`'
+                            '`✅ حماية V5 كاملة`　`✅ قفل IP`　`✅ رفع مباشر`　`✅ دعم فني`'
                         )
                     )
                     .addSeparatorComponents(new SeparatorBuilder().setSpacing(SeparatorSpacingSize.Large))
@@ -839,7 +829,7 @@ if (interaction.customId === 'btn_start_protect') {
 
             const modeLabels = {
                 target: '🛡️ الملفات المستهدفة',
-                full: '📦 تشفير شامل (V8)',
+                full: '📦 تشفير شامل (V5)',
                 none: '🔓 بدون تشفير'
             };
             const modeLabel = modeLabels[encryptionMode] || encryptionMode;
@@ -912,7 +902,7 @@ if (interaction.customId === 'btn_start_protect') {
 
             // إشعار المستخدم بالبدء وتحديث الرد
             await interaction.editReply({
-                content: '⏳ **تم استلام الملف بنجاح!** جاري التحميل وفك الضغط وتشفير الأكواد بمحرك V8... برجاء الانتظار ثوانٍ...',
+                content: '⏳ **تم استلام الملف بنجاح!** جاري التحميل وفك الضغط وتشفير الأكواد بمحرك V5... برجاء الانتظار ثوانٍ...',
                 components: []
             }).catch(() => {});
 
@@ -977,7 +967,6 @@ if (interaction.customId === 'btn_start_protect') {
                 //    خادمنا وقت التشغيل بدل ما يحمل آي بي ثابت بداخله، فتغيير الآي بي
                 //    لاحقاً من لوحة الأدمن يُطبَّق تلقائياً بدون إرسال ملف جديد للعميل).
                 if (!BASE_URL) throw new Error('BASE_URL غير مضبوط — لازم لفحص الآي بي الحيّ.');
-                const encryptionKey = require('crypto').randomBytes(32).toString('hex');
                 const pendingEntry = db.createPendingScript({
                     resourceName,
                     targetIp: ip,
@@ -985,12 +974,11 @@ if (interaction.customId === 'btn_start_protect') {
                     uploaderName: interaction.user.tag || interaction.user.username,
                     uploaderId: interaction.user.id
                 });
-                db.setEncryptionKey(pendingEntry.code, encryptionKey);
 
                 let scriptEntry;
                 try {
-                    // 6. تطبيق التشفير المتقدم V8 وفحص الترخيص الحيّ (بكود الترخيص بدل الآي بي الخام)
-                    protectionEngine.processAndProtectFiles(targetProcessDir, pendingEntry.code, resourceName, encryptionMode, BASE_URL, encryptionKey);
+                    // 6. تطبيق محرك الحماية V5 وفحص الترخيص الحيّ (بكود الترخيص بدل الآي بي الخام)
+                    protectionEngine.processAndProtectFiles(targetProcessDir, pendingEntry.code, resourceName, encryptionMode, BASE_URL);
 
                     // 7. إعادة ضغط الملف المحمي
                     const finalZipFileName = `RAVX_Secured_${resourceName}_${pendingEntry.code}.zip`;

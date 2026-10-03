@@ -1,7 +1,6 @@
 'use strict';
 
 const fs = require('fs');
-const os = require('os');
 const path = require('path');
 const { execFile } = require('child_process');
 const { promisify } = require('util');
@@ -45,14 +44,16 @@ async function obfuscateLua(source, relativeName) {
     throw new Error(`ملف Lua أكبر من الحد البالغ 50MB: ${relativeName}`);
   }
 
-  const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'ravx-hercules-'));
+  // Hercules resolves/handles input files relative to its own source tree on
+  // some builds. Keep the temporary input under src/ instead of /tmp.
+  const tempDir = fs.mkdtempSync(path.join(path.dirname(scriptPath), '.ravx-hercules-'));
   const safeBase = path.basename(relativeName || 'resource.lua').replace(/[^A-Za-z0-9_.-]/g, '_');
   const inputPath = path.join(tempDir, safeBase.toLowerCase().endsWith('.lua') ? safeBase : `${safeBase}.lua`);
   const outputPath = outputPathFor(inputPath);
   fs.writeFileSync(inputPath, sourceBytes);
 
   try {
-    await execFileAsync(luaBin, [scriptPath, inputPath, `--${preset}`], {
+    await execFileAsync(luaBin, [scriptPath, inputPath, '--target', 'lua', `--${preset}`], {
       cwd: path.dirname(scriptPath),
       timeout: 190000,
       maxBuffer: 20 * 1024 * 1024,
@@ -65,7 +66,9 @@ async function obfuscateLua(source, relativeName) {
     if (!protectedSource.trim()) throw new Error('Hercules أعاد ملف Lua فارغاً.');
     return protectedSource;
   } catch (error) {
-    const detail = [error.stderr, error.stdout, error.message].filter(Boolean).join('\n').trim();
+    const detail = [error.stderr, error.stdout, error.message,
+      error.code ? `exit=${error.code}` : '', error.signal ? `signal=${error.signal}` : '']
+      .filter(Boolean).join('\n').trim();
     if (/spawn .*ENOENT|not found|is not recognized/i.test(detail)) {
       throw new Error(`لم يتم العثور على Lua 5.4 (${luaBin}). ثبّت Lua 5.4 أو اضبط LUA_BIN لمسار lua.`);
     }

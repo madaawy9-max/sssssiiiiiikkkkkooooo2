@@ -3,8 +3,6 @@ const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
 const os = require('os');
-const dns = require('dns').promises;
-const net = require('net');
 const Busboy = require('busboy');
 const db = require('../database/db');
 const subs = require('../shared/subscriptions');
@@ -30,7 +28,7 @@ try { engine = require(path.join(__dirname, '../engine/bot-engine')); } catch (e
 // العملية، توقف مؤقت من الاستضافة) كانت تمسح كل الجلسات فيظهر المستخدم "مسجّل خروج"
 // فجأة رغم أن الكوكي نفسه ما زال صالحاً. الآن نحفظها في storage/sessions.json ونحمّلها
 // عند الإقلاع، فتبقى الجلسة شغالة عبر عمليات إعادة التشغيل حتى تنتهي مدتها فعلياً.
-const STORAGE_DIR = path.resolve(__dirname, '../../storage');
+const STORAGE_DIR = path.resolve(process.env.RAVX_DATA_DIR || path.join(__dirname, '../../storage'));
 const SESSIONS_FILE = path.join(STORAGE_DIR, 'sessions.json');
 const sessions = new Map();
 
@@ -74,9 +72,7 @@ setInterval(() => {
 const rateBuckets = new Map();
 function clientIp(req) {
   const fwd = req.headers['x-forwarded-for'];
-  // Forwarded headers are user-controlled unless a known proxy overwrites them.
-  // Enable TRUST_PROXY only when the app is reachable solely through that proxy.
-  if (process.env.TRUST_PROXY === 'true' && fwd) return String(fwd).split(',')[0].trim();
+  if (fwd) return String(fwd).split(',')[0].trim();
   return req.socket?.remoteAddress || 'unknown';
 }
 function rateLimited(req, res, key, limit, windowMs) {
@@ -155,11 +151,9 @@ const encryptingNow = new Set();
 function isValidTargetToken(value) {
   const t = String(value || '').trim();
   if (!t || t.length > 100) return false;
-  if (net.isIP(t)) return true;
-  const host = t.replace(/:\d{1,5}$/, '');
-  if (net.isIP(host)) return true;
-  if (host.length > 253 || !/^[A-Za-z0-9](?:[A-Za-z0-9.-]*[A-Za-z0-9])?$/.test(host)) return false;
-  return host.split('.').every(label => label.length > 0 && label.length <= 63 && !label.startsWith('-') && !label.endsWith('-'));
+  const colonCount = (t.match(/:/g) || []).length;
+  if (colonCount >= 2) return /^[0-9A-Fa-f:]+$/.test(t); // عنوان IPv6
+  return /^[A-Za-z0-9](?:[A-Za-z0-9.-]*[A-Za-z0-9])?(?::\d{1,5})?$/.test(t); // IPv4/دومين (+منفذ اختياري)
 }
 function isValidTarget(value) {
   const v = String(value || '').trim();
@@ -175,20 +169,10 @@ function normalizeIp(ip) {
   if (v.startsWith('::ffff:')) v = v.slice(7);
   return v;
 }
-async function matchesTargetIp(requesterIp, targetIpField) {
+function matchesTargetIp(requesterIp, targetIpField) {
   if (!targetIpField) return false;
   const req = normalizeIp(requesterIp);
-  const candidates = String(targetIpField).split(',').map(t => t.trim()).filter(Boolean);
-  for (let candidate of candidates) {
-    if ((candidate.match(/:/g) || []).length === 1) candidate = candidate.replace(/:\d{1,5}$/, '');
-    if (normalizeIp(candidate) === req) return true;
-    if (net.isIP(candidate)) continue;
-    try {
-      const resolved = await dns.lookup(candidate, { all: true, verbatim: true });
-      if (resolved.some(entry => normalizeIp(entry.address) === req)) return true;
-    } catch (_) { /* DNS may be temporarily unavailable; deny this candidate */ }
-  }
-  return false;
+  return String(targetIpField).split(',').some(t => normalizeIp(t) === req);
 }
 
 const MIME_TYPES = { '.html': 'text/html; charset=utf-8', '.css': 'text/css; charset=utf-8', '.js': 'application/javascript; charset=utf-8', '.json': 'application/json; charset=utf-8', '.png': 'image/png', '.jpg': 'image/jpeg', '.jpeg': 'image/jpeg', '.svg': 'image/svg+xml', '.ico': 'image/x-icon' };
@@ -384,8 +368,10 @@ async function encryptRoute(req, res) {
   }
 }
 
-// فك حماية ملفات RAVX_OBF_V1 المدعومة — أدمن فقط، لأن الناتج يعيد المصدر
-// القابل للتعديل ويلغي قفل الترخيص. الصيغ الأقدم غير المدعومة تُرفض برسالة واضحة.
+// 🔓 فك حماية مورد سبق تشفيره — أدمن فقط عمداً: هذه الأداة تلغي حماية الآي بي
+// المدفوعة، فحصرها بالأدمن يمنع أي مستخدم عادي من فك حماية سكربت غيره اشتراه
+// بالصلاحية نفسها. تقبل نفس نوع الأرشيف الناتج من التشفير أو أي ZIP قديم مشفَّر
+// بنفس القالب، حتى لو تم تشفيره بنسخة أقدم من الأداة قبل هذا التحديث.
 async function unprotectRoute(req, res) {
   const user = requireUser(req, res);
   if (!user) return;
@@ -406,11 +392,6 @@ async function unprotectRoute(req, res) {
     const label = String(upload.fields.label || upload.fileInfo.filename.replace(/\.zip$/i, '')).replace(/[^a-zA-Z0-9_-]/g, '_').slice(0, 80) || 'resource';
     const result = await engine.unprotectResource({ inputZipPath: upload.filePath, label, uploader: { id: user.id, name: user.username } });
     if (!result?.script || !fs.existsSync(db.getFilePath(result.script.savedFilename))) throw Error('فشل حفظ الملف بعد فك الحماية');
-    if (!result.report?.unprotected) {
-      try { fs.rmSync(db.getFilePath(result.script.savedFilename), { force: true }); } catch (_) {}
-      try { db.deleteScript(result.script.code); } catch (_) {}
-      return sendJson(res, 422, { success: false, message: 'لم أجد داخل الملف صيغة حماية مدعومة لفكها.' });
-    }
     sendJson(res, 200, { success: true, script: publicScript(result.script), report: result.report });
   } catch (e) {
     console.error('[WEB] unprotect:', e);
@@ -421,60 +402,6 @@ async function unprotectRoute(req, res) {
     if (upload?.tempDir) fs.rmSync(upload.tempDir, { recursive: true, force: true });
   }
 }
-
-// Admin-only unprotect by the existing license code. This keeps an owner from
-// needing to download and re-upload their own protected archive just to revoke
-// its IP guard or restore the editable source.
-async function unprotectByCodeRoute(req, res, code) {
-  const user = requireUser(req, res);
-  if (!user) return;
-  if (!user.isAdmin) return sendJson(res, 403, { success: false, message: 'فك الحماية متاح للأدمن فقط.' });
-  if (rateLimited(req, res, 'unprotect-code', 10, 60 * 1000)) return;
-  if (!engine?.unprotectResource) return sendJson(res, 503, { success: false, message: 'محرك فك الحماية غير متاح' });
-  if (encryptingNow.has(user.id)) return sendJson(res, 409, { success: false, message: 'في عملية جارية بالفعل، انتظر انتهاءها.' });
-
-  const script = db.findByCode(code);
-  if (!script || !script.savedFilename || script.pending) return sendJson(res, 404, { success: false, message: 'كود المورد أو ملفه غير موجود.' });
-  const inputZipPath = db.getFilePath(script.savedFilename);
-  const sourceBackupPath = script.sourceBackupFilename
-    ? db.getFilePath(script.sourceBackupFilename)
-    : null;
-  const hasSourceBackup = Boolean(sourceBackupPath && fs.existsSync(sourceBackupPath));
-  if (!hasSourceBackup && !fs.existsSync(inputZipPath)) return sendJson(res, 404, { success: false, message: 'ملف المورد أو نسخة المصدر الأصلية غير موجودة على الخادم.' });
-
-  encryptingNow.add(user.id);
-  try {
-    let result;
-    if (hasSourceBackup && engine.restoreOriginalResource) {
-      result = await engine.restoreOriginalResource({
-        inputZipPath: sourceBackupPath,
-        label: script.resourceName || script.title || code,
-        uploader: { id: user.id, name: user.username }
-      });
-    } else {
-      result = await engine.unprotectResource({
-        inputZipPath,
-        label: script.resourceName || script.title || code,
-        uploader: { id: user.id, name: user.username }
-      });
-    }
-    if (!result?.report?.unprotected && !result?.report?.restoredOriginal) {
-      if (result?.script?.savedFilename) {
-        try { fs.rmSync(db.getFilePath(result.script.savedFilename), { force: true }); } catch (_) {}
-        try { db.deleteScript(result.script.code); } catch (_) {}
-      }
-      return sendJson(res, 422, { success: false, message: 'لم أجد داخل الملف صيغة حماية مدعومة لفكها.' });
-    }
-    logger.info('unprotect.by_code', { code, newCode: result.script?.code, userId: user.id, filesUnprotected: result.report.unprotected });
-    return sendJson(res, 200, { success: true, script: publicScript(result.script), report: result.report });
-  } catch (err) {
-    logger.error('unprotect.by_code_failed', err, { code, userId: user.id });
-    return sendJson(res, 400, { success: false, message: err.message || 'فشل فك الحماية' });
-  } finally {
-    encryptingNow.delete(user.id);
-  }
-}
-
 function createServer() {
   return http.createServer(async (req, res) => {
     try {
@@ -520,27 +447,28 @@ function createServer() {
       if (p === '/api/health') return sendJson(res, 200, { success: true, online: true, engine: !!engine, maxUploadBytes: MAX_UPLOAD });
       // 🌐 فحص الآي بي الحيّ — يُستدعى مباشرة من خادم FiveM للعميل نفسه (لا من
       // متصفح)، بدون تسجيل دخول، لأن الملف المشفَّر لا يحمل أي جلسة Discord.
-      // نقرأ عنوان اتصال خادم FiveM من الطلب نفسه. لا نعتمد عنواناً يرسله
-      // المستدعي كـ query parameter لأنه قابل للتزوير.
+      // نقرأ آي بي الطالب من الطلب نفسه ونقارنه بالآي بي المخزَّن حالياً لهذا
+      // الكود — فتغييره من لوحة الأدمن يُطبَّق فوراً بدون إرسال ملف جديد للعميل.
       if (p.startsWith('/api/license/')) {
         if (rateLimited(req, res, 'license', 60, 60 * 1000)) return;
         const code = safeCode(p.slice('/api/license/'.length));
         if (!code) return sendJson(res, 400, { success: false, message: 'كود الترخيص مطلوب' });
         const s = db.findByCode(code);
         const socketIp = clientIp(req);
-        const effectiveIp = socketIp;
+        // الملف المشفَّر يحدّد عنوانه العام على IPv4 تحديداً (عبر api4.ipify.org
+        // اللي ما عنده سجل IPv6 إطلاقاً) ويرسله كباراميتر ?ip=، لأن بعض السيرفرات
+        // تتصل بخادمنا صادراً عبر IPv6 رغم إن عنوانها المعروف/المباع للعميل
+        // IPv4 — لو الباراميتر موجود وصالح نعتمده هو، وإلا نرجع لعنوان الاتصال
+        // نفسه (نفس السلوك القديم). النتيجة تطابق دائماً الآي بي IPv4 الحقيقي.
+        const reportedIp = String(u.searchParams.get('ip') || '').trim();
+        const effectiveIp = isValidTargetToken(reportedIp) ? reportedIp : socketIp;
         if (!s || !s.targetIp) {
-          logger.warn('license.denied', { code, socketIp, reason: 'unknown_code_or_no_ip' });
+          logger.warn('license.denied', { code, socketIp, reportedIp, reason: 'unknown_code_or_no_ip' });
           return sendJson(res, 200, { success: true, authorized: false, ip: effectiveIp });
         }
-        const authorized = await matchesTargetIp(effectiveIp, s.targetIp);
-        if (!authorized) logger.warn('license.denied', { code, socketIp, checkedIp: effectiveIp, licensedIp: s.targetIp, resourceName: s.resourceName });
-        return sendJson(res, 200, { success: true, authorized, ip: effectiveIp, resourceName: s.resourceName });
-      }
-      if (p.startsWith('/api/script/') && p.endsWith('/unprotect') && req.method === 'POST') {
-        const code = safeCode(p.split('/')[3]);
-        if (!code) return sendJson(res, 400, { success: false, message: 'كود السكربت غير صحيح' });
-        return unprotectByCodeRoute(req, res, code);
+        const authorized = matchesTargetIp(effectiveIp, s.targetIp);
+        if (!authorized) logger.warn('license.denied', { code, socketIp, reportedIp, checkedIp: effectiveIp, licensedIp: s.targetIp, resourceName: s.resourceName });
+        return sendJson(res, 200, { success: true, authorized, ip: effectiveIp, resourceName: s.resourceName, key: authorized ? s.encryptionKey : undefined });
       }
       // 🌐 تغيير الآي بي المرخَّص لكود موجود — أدمن فقط. هذا هو ما يجعل تغيير
       // الآي بي "حيّاً": ما يحتاج إعادة تشفير ولا إرسال ملف جديد للعميل، فقط
@@ -563,6 +491,19 @@ function createServer() {
         if (!updated) return sendJson(res, 404, { success: false, message: 'السكربت غير موجود' });
         logger.info('license.ip_changed', { code, newIp, byAdminId: user.id });
         return sendJson(res, 200, { success: true, script: publicScript(updated) });
+      }
+      if (p.startsWith('/api/script/') && req.method === 'DELETE') {
+        const user = requireUser(req, res);
+        if (!user) return;
+        if (!user.isAdmin) return sendJson(res, 403, { success: false, message: 'حذف السكربتات للأدمن فقط' });
+        if (rateLimited(req, res, 'delete-script', 20, 60 * 1000)) return;
+        const code = safeCode(p.slice('/api/script/'.length));
+        if (!code) return sendJson(res, 400, { success: false, message: 'كود السكربت مطلوب' });
+        const existing = db.findByCode(code);
+        if (!existing) return sendJson(res, 404, { success: false, message: 'السكربت غير موجود' });
+        db.deleteScript(code);
+        logger.info('script.deleted', { code, targetIp: existing.targetIp, byAdminId: user.id });
+        return sendJson(res, 200, { success: true, code });
       }
       if (p === '/api/script' || p.startsWith('/api/script/')) {
         if (rateLimited(req, res, 'script', 60, 60 * 1000)) return;

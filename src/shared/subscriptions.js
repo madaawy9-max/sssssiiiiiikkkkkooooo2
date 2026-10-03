@@ -27,7 +27,7 @@ const ROOT = path.resolve(__dirname, '../..');
 // .gitignore) والمُثبَت فعلياً أنه يبقى بعد إعادة التشغيل (يستخدمه الموقع
 // أصلاً لجلسات storage/sessions.json)، فنقلنا كل ملفات الحالة القابلة
 // للتغيير إليه.
-const STORAGE_DIR = path.join(ROOT, 'storage');
+const STORAGE_DIR = path.resolve(process.env.RAVX_DATA_DIR || path.join(ROOT, 'storage'));
 const PERMISSIONS_FILE = path.join(STORAGE_DIR, 'permissions.json');
 const CODES_FILE = path.join(STORAGE_DIR, 'permission_codes.json');
 const HISTORY_FILE = path.join(STORAGE_DIR, 'subscription_history.json');

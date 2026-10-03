@@ -1,230 +1,166 @@
-'use strict';
-
+/* RAVX protection engine
+ * Practical FiveM protection: the resource contains ciphertext only. The key is
+ * returned by the license API after the server IP is authorized. This prevents
+ * a static copy of the ZIP from being decrypted without access to the license
+ * service. It is still not absolute DRM: code can be observed after runtime load.
+ */
 const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
 
-const WRAPPER_MARKER = '--[[RAVX_OBF_V1]]';
-const LICENSE_MARKER = '--[[RAVX_LICENSE_V1]]';
+const MARKER = '-- RAVX-FIVEM-PROTECTED-V5';
 
-function luaLongString(value) {
-  const source = String(value);
-  let equals = '';
-  while (source.includes(`]${equals}]`)) equals += '=';
-  return `[${equals}[${source}]${equals}]`;
+function u32(n) { return n >>> 0; }
+function xorshift32(n) {
+  n = u32(n ^ (n << 13));
+  n = u32(n ^ (n >>> 17));
+  return u32(n ^ (n << 5));
+}
+function seedFor(keyHex, nonceHex) {
+  let s = 2166136261 >>> 0;
+  const input = Buffer.from(`${keyHex}${nonceHex}`, 'utf8');
+  for (const b of input) { s = u32(s ^ b); s = Math.imul(s, 16777619) >>> 0; }
+  return s || 0x6d2b79f5;
+}
+function encryptBytes(source, keyHex, nonceHex) {
+  let state = seedFor(keyHex, nonceHex);
+  const input = Buffer.from(source, 'utf8');
+  const out = Buffer.alloc(input.length);
+  for (let i = 0; i < input.length; i++) {
+    state = xorshift32(state);
+    out[i] = input[i] ^ (state & 0xff) ^ ((i * 31) & 0xff);
+  }
+  return out.toString('hex');
 }
 
-function encodeLua(sourceCode, chunkLabel) {
-  const bytes = Buffer.from(String(sourceCode), 'utf8');
-  const key = crypto.randomInt(1, 256);
-  const values = [];
-  for (let i = 0; i < bytes.length; i++) {
-    const stream = (key + ((i + 1) * 73) + ((i + 1) % 31) * 19) & 0xff;
-    values.push(bytes[i] ^ stream);
-  }
-  const label = String(chunkLabel || 'ravx').replace(/[\r\n]/g, '_').replace(/['\\]/g, '_');
-  return `${WRAPPER_MARKER}\n` +
-`local __ravx_key = ${key}
-local __ravx_data = {${values.join(',')}}
-local __ravx_out = {}
-for __ravx_i = 1, #__ravx_data do
-    local __ravx_stream = (__ravx_key + (__ravx_i * 73) + (__ravx_i % 31) * 19) & 0xFF
-    __ravx_out[__ravx_i] = string.char((__ravx_data[__ravx_i] ~ __ravx_stream) & 0xFF)
+function luaQuote(value) { return JSON.stringify(String(value)); }
+function buildProtectedLua(source, chunkLabel, licenseCode, baseUrl, keyHex) {
+  const nonceHex = crypto.randomBytes(12).toString('hex');
+  const dataHex = encryptBytes(source, keyHex, nonceHex);
+  const endpoint = `${String(baseUrl).replace(/\/$/, '')}/api/license/${encodeURIComponent(licenseCode)}`;
+  return `${MARKER}
+-- The decryption key is obtained only after live license/IP authorization.
+local RAVX_CODE = ${luaQuote(licenseCode)}
+local RAVX_URL = ${luaQuote(endpoint)}
+local RAVX_NONCE = ${luaQuote(nonceHex)}
+local RAVX_DATA = ${luaQuote(dataHex)}
+
+local function ravx_bxor(a, b)
+    if bit32 and bit32.bxor then return bit32.bxor(a, b) end
+    return a ~ b
 end
-local __ravx_source = table.concat(__ravx_out)
-local __ravx_chunk, __ravx_err = load(__ravx_source, '@${label}', 't', _ENV)
-if not __ravx_chunk then error('[RAVX] Protected chunk failed to load: ' .. tostring(__ravx_err)) end
-__ravx_chunk()
+local function ravx_seed(key, nonce)
+    local s = 2166136261
+    local v = key .. nonce
+    for i = 1, #v do
+        s = ravx_bxor(s, string.byte(v, i))
+        s = (s * 16777619) % 4294967296
+    end
+    if s == 0 then s = 1831565813 end
+    return s
+end
+local function ravx_step(s)
+    s = ravx_bxor(s, (s * 8192) % 4294967296)
+    s = ravx_bxor(s, math.floor(s / 131072))
+    s = ravx_bxor(s, (s * 32) % 4294967296)
+    return s % 4294967296
+end
+local function ravx_unhex(h)
+    local out = {}
+    for i = 1, #h, 2 do out[#out + 1] = tonumber(string.sub(h, i, i + 1), 16) end
+    return out
+end
+local function ravx_decrypt(key)
+    local bytes, out, state = ravx_unhex(RAVX_DATA), {}, ravx_seed(key, RAVX_NONCE)
+    for i = 1, #bytes do
+        state = ravx_step(state)
+        local b = ravx_bxor(bytes[i], state % 256)
+        b = ravx_bxor(b, ((i - 1) * 31) % 256)
+        out[i] = string.char(b % 256)
+    end
+    return table.concat(out)
+end
+
+CreateThread(function()
+    local done, allowed, licenseKey, responseBody = false, false, nil, nil
+    local requestUrl = RAVX_URL
+    PerformHttpRequest(requestUrl, function(status, body)
+        responseBody = body or ''
+        if status == 200 and responseBody:match('"authorized"%s*:%s*true') then
+            licenseKey = responseBody:match('"key"%s*:%s*"([0-9a-fA-F]+)"')
+            allowed = licenseKey ~= nil and #licenseKey >= 32
+        end
+        done = true
+    end, 'GET', '', { ['Content-Type'] = 'application/json' })
+    local waited = 0
+    while not done and waited < 15000 do Wait(100); waited = waited + 100 end
+    if not done or not allowed then
+        error('[RAVX] License denied or license service unavailable for ' .. RAVX_CODE)
+        return
+    end
+    local source = ravx_decrypt(licenseKey)
+    local fn, err = load(source, '@${String(chunkLabel).replace(/\\/g, '\\\\').replace(/'/g, "\\'")}')
+    if not fn then error('[RAVX] Protected chunk load failed: ' .. tostring(err)) end
+    return fn()
+end)
 `;
 }
 
-// Compatibility name used by older callers. This is obfuscation, not
-// cryptographic encryption: the runtime decoder and data ship with the file.
-function obfuscateLuaBlob(sourceCode, chunkLabel) {
-  return encodeLua(sourceCode, chunkLabel);
-}
-
-function isServerLua(filePath) {
-  const normalized = filePath.replace(/\\/g, '/').toLowerCase();
-  const base = path.basename(normalized);
-  if (/(^|\/)client\//.test(normalized) || /(^|[-_.])client([-_.]|$)/.test(base)) return false;
-  return /(^|\/)(server|servers)\//.test(normalized) || /(^|[-_.])(server|sv|main)([-_.]|$)/.test(base);
-}
-
-function isTargetLua(filePath) {
-  const base = path.basename(filePath).toLowerCase();
-  return /(^|[-_.])(client|server|main)([-_.]|$)/.test(base) || isServerLua(filePath);
-}
-
-function buildProtectionCode(licenseCode, resourceName, baseUrl, originalSource = '') {
-  const code = String(licenseCode || '').trim();
-  const base = String(baseUrl || '').replace(/\/+$/, '');
-  if (!/^[A-Za-z0-9_-]{1,80}$/.test(code)) throw new Error('Invalid license code');
-  if (!/^https?:\/\//i.test(base)) throw new Error('BASE_URL must be an HTTP(S) URL');
-
-  const licenseUrl = `${base}/api/license/${encodeURIComponent(code)}`;
-  const sourceLiteral = luaLongString(originalSource);
-  const label = String(resourceName || 'resource').replace(/[^A-Za-z0-9_.-]/g, '_');
-  return `${LICENSE_MARKER}
-local __ravx_resource = GetCurrentResourceName()
-local __ravx_license_url = ${JSON.stringify(licenseUrl)}
-local __ravx_license_payload = ${sourceLiteral}
-local __ravx_loaded = false
-local __ravx_denials = 0
-
-local function __ravx_checkLicense(callback)
-    PerformHttpRequest(__ravx_license_url, function(status, body)
-        if status == 200 and type(body) == 'string' then
-            local ok, result = pcall(json.decode, body)
-            callback(ok and type(result) == 'table' and result.authorized == true, true)
-        elseif status >= 400 and status < 500 then
-            callback(false, true)
-        else
-            callback(false, false)
-        end
-    end, 'GET', '', { ['Accept'] = 'application/json' })
-end
-
-local function __ravx_start()
-    __ravx_checkLicense(function(authorized, reachable)
-        if not authorized then
-            if reachable then
-                __ravx_denials = __ravx_denials + 1
-                if __ravx_loaded and __ravx_denials >= 3 then
-                    print('[RAVX] License rejected for resource ${label}; stopping resource.')
-                    StopResource(__ravx_resource)
-                    return
-                end
-            end
-            -- A short outage or bot restart should not permanently break the
-            -- resource. Keep checking until the license service is available.
-            Citizen.SetTimeout(15000, __ravx_start)
-            return
-        end
-
-        __ravx_denials = 0
-        if not __ravx_loaded then
-            local chunk, err = load(__ravx_license_payload, '@${label}', 't', _ENV)
-            if not chunk then
-                print('[RAVX] Protected resource load failed: ' .. tostring(err))
-                StopResource(__ravx_resource)
-                return
-            end
-            __ravx_loaded = true
-            local ok, runErr = pcall(chunk)
-            if not ok then
-                print('[RAVX] Protected resource error: ' .. tostring(runErr))
-                StopResource(__ravx_resource)
-                return
-            end
-        end
-        -- Re-check periodically so a revoked license or changed IP takes effect
-        -- without downloading a replacement resource.
-        Citizen.SetTimeout(60000, __ravx_start)
-    end)
-end
-
-Citizen.CreateThread(__ravx_start)
-`;
-}
-
-function protectFile(source, filePath, licenseCode, resourceName, encryptionMode, baseUrl) {
-  const serverFile = isServerLua(filePath);
-  let sourceToProtect = String(source);
-  if (serverFile) sourceToProtect = buildProtectionCode(licenseCode, resourceName, baseUrl, sourceToProtect);
-  if (encryptionMode === 'none') return sourceToProtect;
-  return encodeLua(sourceToProtect, filePath.replace(/\\/g, '/'));
-}
-
-function walkLuaFiles(root) {
-  const result = [];
-  const visit = current => {
-    for (const entry of fs.readdirSync(current, { withFileTypes: true })) {
-      const fullPath = path.join(current, entry.name);
-      if (entry.isDirectory()) visit(fullPath);
-      else if (entry.isFile() && entry.name.toLowerCase().endsWith('.lua') &&
-        !['fxmanifest.lua', '__resource.lua'].includes(entry.name.toLowerCase())) result.push(fullPath);
-    }
-  };
-  visit(root);
-  return result;
-}
-
-function processAndProtectFiles(resourceRoot, licenseCode, resourceName, encryptionMode = 'target', baseUrl) {
-  const root = path.resolve(resourceRoot);
-  if (!fs.existsSync(root) || !fs.statSync(root).isDirectory()) throw new Error('Resource folder not found');
-  const mode = ['target', 'full', 'none'].includes(encryptionMode) ? encryptionMode : 'target';
-  const files = walkLuaFiles(root);
-  const serverFiles = files.filter(isServerLua);
-  if (!serverFiles.length) throw new Error('لم أجد ملف Lua للخادم (server/main) لإضافة فحص الترخيص.');
-  const selected = mode === 'full' ? files : mode === 'none' ? serverFiles : files.filter(isTargetLua);
-  if (!selected.some(isServerLua)) throw new Error('لم أجد ملف server/main ضمن ملفات Lua المحددة.');
-
-  let processed = 0;
-  for (const file of selected) {
-    const original = fs.readFileSync(file, 'utf8');
-    const relative = path.relative(root, file);
-    fs.writeFileSync(file, protectFile(original, relative, licenseCode, resourceName, mode, baseUrl), 'utf8');
-    processed++;
+function isLuaFile(file) { return /\.lua$/i.test(file); }
+function shouldGuard(file) { return true; }
+function walk(dir, out = []) {
+  for (const ent of fs.readdirSync(dir, { withFileTypes: true })) {
+    const p = path.join(dir, ent.name);
+    if (ent.isDirectory()) walk(p, out); else out.push(p);
   }
-  return { processed, serverFiles: serverFiles.length, mode };
+  return out;
 }
 
-function decodeWrapper(source) {
-  if (!source.startsWith(WRAPPER_MARKER)) return null;
-  const keyMatch = source.match(/local __ravx_key\s*=\s*(\d+)/);
-  const dataMatch = source.match(/local __ravx_data\s*=\s*\{([\d,\s]*)\}/);
-  if (!keyMatch || !dataMatch) return null;
-  const key = Number(keyMatch[1]);
-  const data = dataMatch[1].split(',').map(s => Number(s.trim())).filter(Number.isFinite);
-  const bytes = Buffer.alloc(data.length);
-  for (let i = 0; i < data.length; i++) {
-    const pos = i + 1;
-    const stream = (key + (pos * 73) + (pos % 31) * 19) & 0xff;
-    bytes[i] = data[i] ^ stream;
-  }
-  return bytes.toString('utf8');
-}
-
-function extractLicensePayload(source) {
-  if (!source.startsWith(LICENSE_MARKER)) return null;
-  const match = source.match(/local __ravx_license_payload\s*=\s*\[(=*)\[/);
-  if (!match) return null;
-  const openerEnd = match.index + match[0].length;
-  const close = `]${match[1]}]`;
-  const end = source.indexOf(close, openerEnd);
-  return end < 0 ? null : source.slice(openerEnd, end);
-}
-
-function unprotectFiles(resourceRoot) {
-  const root = path.resolve(resourceRoot);
-  const files = walkLuaFiles(root);
+function processAndProtectFiles(rootDir, licenseCode, resourceName, encryptionMode = 'target', baseUrl, licenseKey) {
+  if (!baseUrl) throw Error('BASE_URL غير مضبوط');
+  if (!/^[A-Za-z0-9_-]{3,80}$/.test(String(licenseCode))) throw Error('كود ترخيص غير صالح');
+  if (!/^[0-9a-f]{64}$/i.test(String(licenseKey || ''))) throw Error('مفتاح ترخيص غير صالح');
+  const files = walk(rootDir).filter(isLuaFile);
   let processed = 0;
-  let unprotected = 0;
   for (const file of files) {
-    let source = fs.readFileSync(file, 'utf8');
+    const source = fs.readFileSync(file, 'utf8');
+    if (source.includes(MARKER)) continue;
     processed++;
-    if (source.startsWith(LICENSE_MARKER)) {
-      const directPayload = extractLicensePayload(source);
-      if (directPayload !== null) {
-        fs.writeFileSync(file, directPayload, 'utf8');
-        unprotected++;
-      }
-      continue;
-    }
-    const decoded = decodeWrapper(source);
-    if (decoded === null) continue;
-    const payload = extractLicensePayload(decoded);
-    fs.writeFileSync(file, payload === null ? decoded : payload, 'utf8');
-    unprotected++;
+    // none keeps non-server Lua readable, while the server-side guard remains.
+    const rel = path.relative(rootDir, file).replace(/\\/g, '/');
+    const isServer = /(^|\/)(server|sv_|shared|main)/i.test(rel) || /fxmanifest|__resource/i.test(rel);
+    const protect = encryptionMode === 'full' || encryptionMode === 'target' || (encryptionMode === 'none' && isServer);
+    if (protect) fs.writeFileSync(file, buildProtectedLua(source, `${resourceName}/${rel}`, licenseCode, baseUrl, licenseKey), 'utf8');
   }
-  return { processed, unprotected };
+  return { processed, protected: files.length };
 }
 
-module.exports = {
-  obfuscateLuaBlob,
-  buildProtectionCode,
-  processAndProtectFiles,
-  unprotectFiles,
-  isServerLua
-};
+function protectedMetadata(text) {
+  if (!text || !text.includes(MARKER)) return null;
+  const code = text.match(/local RAVX_CODE = "([A-Za-z0-9_-]+)"/);
+  return code ? { code: code[1] } : null;
+}
+function unprotectFiles(rootDir, keyResolver) {
+  const files = walk(rootDir).filter(isLuaFile);
+  let processed = 0, unprotected = 0;
+  const report = { processed: 0, unprotected: 0, files: [] };
+  for (const file of files) {
+    const text = fs.readFileSync(file, 'utf8');
+    if (!text.includes(MARKER)) continue;
+    processed++;
+    const code = protectedMetadata(text)?.code;
+    const key = typeof keyResolver === 'function' ? keyResolver(code) : null;
+    if (!key) throw Error(`لا يوجد مفتاح ترخيص محفوظ لفك الملف: ${path.basename(file)}`);
+    const nonce = text.match(/local RAVX_NONCE = "([0-9a-f]+)"/)?.[1];
+    const data = text.match(/local RAVX_DATA = "([0-9a-f]+)"/)?.[1];
+    if (!nonce || !data) throw Error(`قالب حماية غير صالح: ${path.basename(file)}`);
+    let state = seedFor(key, nonce);
+    const bytes = Buffer.from(data, 'hex'), out = Buffer.alloc(bytes.length);
+    for (let i = 0; i < bytes.length; i++) { state = xorshift32(state); out[i] = bytes[i] ^ (state & 0xff) ^ ((i * 31) & 0xff); }
+    fs.writeFileSync(file, out.toString('utf8'), 'utf8');
+    unprotected++; report.files.push(path.relative(rootDir, file));
+  }
+  report.processed = processed; report.unprotected = unprotected; return report;
+}
+
+module.exports = { processAndProtectFiles, unprotectFiles, protectedMetadata, MARKER };

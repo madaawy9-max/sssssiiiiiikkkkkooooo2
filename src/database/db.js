@@ -2,8 +2,9 @@ const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
 
-const DB_FILE = path.join(__dirname, '../../storage/scripts.json');
-const UPLOADS_DIR = path.join(__dirname, '../../storage/uploads');
+const DATA_DIR = path.resolve(process.env.RAVX_DATA_DIR || path.join(__dirname, '../../storage'));
+const DB_FILE = path.join(DATA_DIR, 'scripts.json');
+const UPLOADS_DIR = path.join(DATA_DIR, 'uploads');
 
 // التأكد من وجود المجلدات وقاعدة البيانات
 function ensureDirectories() {
@@ -124,15 +125,25 @@ function createPendingScript({ resourceName, targetIp = null, encryptionMode = '
     uploader: { name: uploaderName, id: uploaderId },
     downloads: 0,
     createdAt: new Date().toISOString(),
-    pending: true
+    pending: true,
+    encryptionKey: null
   };
   db.unshift(newEntry);
   writeDatabase(db);
   return newEntry;
 }
 
+function setEncryptionKey(code, encryptionKey) {
+  const db = readDatabase();
+  const entry = db.find(s => s.code === String(code).toUpperCase());
+  if (!entry) return null;
+  entry.encryptionKey = String(encryptionKey);
+  writeDatabase(db);
+  return entry;
+}
+
 // يُستدعى بعد نجاح التشفير وإنتاج الملف النهائي — يكمل بيانات السجل المبدئي.
-function finalizeScript(code, { originalFilename, savedFilename, fileSize, sourceBackupFilename = null }) {
+function finalizeScript(code, { originalFilename, savedFilename, fileSize }) {
   const db = readDatabase();
   const entry = db.find(s => s.code === String(code).toUpperCase());
   if (!entry) return null;
@@ -140,7 +151,6 @@ function finalizeScript(code, { originalFilename, savedFilename, fileSize, sourc
   entry.savedFilename = savedFilename;
   entry.fileSize = fileSize || 0;
   entry.fileExtension = path.extname(originalFilename || savedFilename).toLowerCase().replace('.', '') || 'zip';
-  if (sourceBackupFilename) entry.sourceBackupFilename = path.basename(sourceBackupFilename);
   delete entry.pending;
   writeDatabase(db);
   return entry;
@@ -151,6 +161,10 @@ function deleteScript(code) {
   const db = readDatabase();
   const idx = db.findIndex(s => s.code === String(code).toUpperCase());
   if (idx === -1) return false;
+  const removed = db[idx];
+  if (removed?.savedFilename) {
+    try { fs.rmSync(getFilePath(removed.savedFilename), { force: true }); } catch (e) {}
+  }
   db.splice(idx, 1);
   writeDatabase(db);
   return true;
@@ -239,6 +253,7 @@ initDemoData();
 module.exports = {
   saveScript,
   createPendingScript,
+  setEncryptionKey,
   finalizeScript,
   deleteScript,
   updateTargetIp,

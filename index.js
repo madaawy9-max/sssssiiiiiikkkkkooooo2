@@ -22,8 +22,7 @@ const AdmZip = require('adm-zip');
 const db = require('./src/database/db');
 const { createServer } = require('./src/server/server');
 const subs = require('./src/shared/subscriptions');
-const protectionEngine = require('./src/shared/obfuscator-engine');
-const OBFUSCATOR_LABEL = String(process.env.OBFUSCATOR_PROVIDER || 'hercules').toLowerCase() === 'luraph' ? 'Luraph' : 'Hercules';
+const protectionEngine = require('./src/shared/protection-engine');
 
 // ==================== إعدادات النظام ====================
 const TOKEN = process.env.DISCORD_BOT_TOKEN;
@@ -44,7 +43,7 @@ const THUMBNAIL_URL = "https://cdn.discordapp.com/attachments/134753097497155999
 // بعد إعادة التشغيل/إعادة النشر) بدل جذر المشروع — كان هذا سبب رجوع الأكواد
 // المستهلكة للعمل بعد أي إعادة تشغيل. راجع src/shared/subscriptions.js لمزيد
 // من التفاصيل والترحيل التلقائي للملفات القديمة.
-const storageDir = path.join(__dirname, 'storage');
+const storageDir = path.resolve(process.env.RAVX_DATA_DIR || path.join(__dirname, 'storage'));
 fs.mkdirSync(storageDir, { recursive: true });
 function migrateLegacyRootFile(name) {
     const legacy = path.join(__dirname, name);
@@ -287,7 +286,7 @@ async function downloadFileStream(fileUrl, destPath) {
     }
 }
 
-// 🛡️ محرك الحماية موحّد مع الموقع؛ Hercules محلي افتراضيًا، وLuraph اختياري.
+// 🛡️ محرك الحماية والتشفير — موحّد الآن مع الموقع عبر src/shared/protection-engine.js
 // (كان البوت يستخدم محركاً محلياً منفصلاً عن محرك الموقع؛ هذا كان سبب أن
 // التشفير من الموقع لا يقفل الآي بي بنفس قوة تشفير الديسكورد — راجع تعليق
 // الملف المشترك لتفاصيل الفرق). كلاهما الآن يستدعي نفس الدالة بالضبط.
@@ -340,7 +339,7 @@ client.once(Events.ClientReady, async () => {
                 new TextDisplayBuilder().setContent(
                     '# 🛡️ RAVX PROTECTOR\n' +
                     '-# Enterprise-Grade FiveM Script Security\n\n' +
-                    `**\`🟢 ONLINE\`**　**\`🛡️ ${OBFUSCATOR_LABEL.toUpperCase()}\`**　**\`🎮 FiveM\`**\n\n` +
+                    '**`🟢 ONLINE`**　**`⚡ V8 ENGINE`**　**`🔒 AES-256`**\n\n' +
                     'حماية وتشفير احترافي لموارد **FiveM** — كل العملية تتم عبر الأزرار بالأسفل.\n' +
                     'اختر نوع التشفير ثم أدخل IP السيرفر، وبعدها ارفع ملف ZIP وسيتم تجهيز السكربت المحمي.'
                 )
@@ -366,7 +365,7 @@ client.once(Events.ClientReady, async () => {
                 .addTextDisplayComponents(
                     new TextDisplayBuilder().setContent(
                         '### ✨ لماذا RAVX؟\n' +
-                        `🛡️ ‎ **محرك ${OBFUSCATOR_LABEL}** — معالجة ملفات Lua لموارد FiveM\n` +
+                        '🛡️ ‎ **محرك تشفير V8** — طبقات حماية متعددة ضد الـ Hooks والتفكيك\n' +
                         '⚡ ‎ **رفع ومعالجة فورية** — بدون تجهيز ملفات مسبقة على السيرفر\n' +
                         '🔒 ‎ **خصوصية تامة** — تُحذف رسالتك تلقائياً فور استلام الملف\n' +
                         '🌐 ‎ **بوابة تحميل مستقلة** — روابط وأكواد تتجاوز حدود ديسكورد (24MB+)'
@@ -474,8 +473,8 @@ new ButtonBuilder().setCustomId('btn_web_upload').setLabel('🌐 رفع من ا�
                     .addTextDisplayComponents(
                         new TextDisplayBuilder().setContent(
                             '# 💎 RAVX PROTECTOR — الاشتراكات\n' +
-                            '-# تمويه موارد Lua في FiveM مع نظام ترخيص قابل للإدارة\n\n' +
-                            `\`✅ ${OBFUSCATOR_LABEL} لموارد FiveM\`　\`✅ قفل IP\`　\`✅ رفع مباشر\`　\`✅ دعم فني\``
+                            '-# حماية وتشفير سكربتات FiveM بأعلى مستوى احترافي\n\n' +
+                            '`✅ تشفير V8 كامل`　`✅ قفل IP`　`✅ رفع مباشر`　`✅ دعم فني`'
                         )
                     )
                     .addSeparatorComponents(new SeparatorBuilder().setSpacing(SeparatorSpacingSize.Large))
@@ -616,17 +615,17 @@ if (interaction.customId === 'btn_start_protect') {
                 .setPlaceholder('اختر نمط التشفير المناسب لسكريبتك')
                 .addOptions(
                     new StringSelectMenuOptionBuilder()
-                        .setLabel(`${OBFUSCATOR_LABEL} للملفات المستهدفة`)
-                        .setDescription(`يموّه ملفات client/server/main بمحرك ${OBFUSCATOR_LABEL} لموارد FiveM`)
+                        .setLabel('الملفات المستهدفة')
+                        .setDescription('يشفّر فقط ملفات client/server/main — الأنسب والأسرع')
                         .setValue('target')
                         .setEmoji('🛡️'),
                     new StringSelectMenuOptionBuilder()
-                        .setLabel(`${OBFUSCATOR_LABEL} شامل`)
-                        .setDescription(`يموّه كل ملفات Lua بمحرك ${OBFUSCATOR_LABEL} لموارد FiveM`)
+                        .setLabel('تشفير شامل')
+                        .setDescription('يشفّر كل ملفات .lua بدون استثناء — أقصى درجة حماية')
                         .setValue('full')
                         .setEmoji('📦'),
                     new StringSelectMenuOptionBuilder()
-                        .setLabel('قفل IP فقط')
+                        .setLabel('بدون تشفير')
                         .setDescription('يفعّل قفل الآي بي فقط، من غير تشفير أكواد')
                         .setValue('none')
                         .setEmoji('🔓')
@@ -839,9 +838,9 @@ if (interaction.customId === 'btn_start_protect') {
             const encryptionMode = session.mode || 'target';
 
             const modeLabels = {
-                target: `🛡️ ${OBFUSCATOR_LABEL} للملفات المستهدفة`,
-                full: `📦 ${OBFUSCATOR_LABEL} لكل ملفات Lua`,
-                none: '🔓 قفل IP فقط'
+                target: '🛡️ الملفات المستهدفة',
+                full: '📦 تشفير شامل (V8)',
+                none: '🔓 بدون تشفير'
             };
             const modeLabel = modeLabels[encryptionMode] || encryptionMode;
 
@@ -913,7 +912,7 @@ if (interaction.customId === 'btn_start_protect') {
 
             // إشعار المستخدم بالبدء وتحديث الرد
             await interaction.editReply({
-                content: `⏳ **تم استلام الملف بنجاح!** جاري تشغيل محرك ${OBFUSCATOR_LABEL} على ملفات Lua المحددة. قد تستغرق العملية وقتاً حسب عدد الملفات...`,
+                content: '⏳ **تم استلام الملف بنجاح!** جاري التحميل وفك الضغط وتشفير الأكواد بمحرك V8... برجاء الانتظار ثوانٍ...',
                 components: []
             }).catch(() => {});
 
@@ -978,6 +977,7 @@ if (interaction.customId === 'btn_start_protect') {
                 //    خادمنا وقت التشغيل بدل ما يحمل آي بي ثابت بداخله، فتغيير الآي بي
                 //    لاحقاً من لوحة الأدمن يُطبَّق تلقائياً بدون إرسال ملف جديد للعميل).
                 if (!BASE_URL) throw new Error('BASE_URL غير مضبوط — لازم لفحص الآي بي الحيّ.');
+                const encryptionKey = require('crypto').randomBytes(32).toString('hex');
                 const pendingEntry = db.createPendingScript({
                     resourceName,
                     targetIp: ip,
@@ -985,16 +985,12 @@ if (interaction.customId === 'btn_start_protect') {
                     uploaderName: interaction.user.tag || interaction.user.username,
                     uploaderId: interaction.user.id
                 });
+                db.setEncryptionKey(pendingEntry.code, encryptionKey);
 
                 let scriptEntry;
-                const sourceBackupName = `RAVX_Source_${pendingEntry.code}.zip`;
-                const sourceBackupPath = db.getFilePath(sourceBackupName);
                 try {
-                    // 6. تطبيق محرك الحماية المختار وفحص الترخيص الحي داخل ملفات الخادم
-                    await protectionEngine.processAndProtectFiles(targetProcessDir, pendingEntry.code, resourceName, encryptionMode, BASE_URL);
-
-                    // احتفظ بالأصل ليتمكن الأدمن من استعادته بالكود.
-                    fs.copyFileSync(inputZipPath, sourceBackupPath);
+                    // 6. تطبيق التشفير المتقدم V8 وفحص الترخيص الحيّ (بكود الترخيص بدل الآي بي الخام)
+                    protectionEngine.processAndProtectFiles(targetProcessDir, pendingEntry.code, resourceName, encryptionMode, BASE_URL, encryptionKey);
 
                     // 7. إعادة ضغط الملف المحمي
                     const finalZipFileName = `RAVX_Secured_${resourceName}_${pendingEntry.code}.zip`;
@@ -1010,11 +1006,9 @@ if (interaction.customId === 'btn_start_protect') {
                     scriptEntry = db.finalizeScript(pendingEntry.code, {
                         originalFilename: finalZipFileName,
                         savedFilename: finalZipFileName,
-                        fileSize: finalStats.size,
-                        sourceBackupFilename: sourceBackupName
+                        fileSize: finalStats.size
                     });
                 } catch (protectErr) {
-                    try { fs.rmSync(sourceBackupPath, { force: true }); } catch (e) {}
                     try { db.deleteScript(pendingEntry.code); } catch (e) {}
                     throw protectErr;
                 }

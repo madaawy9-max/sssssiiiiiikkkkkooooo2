@@ -64,11 +64,10 @@
         <label>IP السيرفر (تقدر تحط أكثر من عنوان مفصول بفاصلة)<input id="ip" required placeholder="127.0.0.1"></label>
       </div>
       <div class="mode-row">
-        <button type="button" class="mode active" data-mode="target"><b>تمويه مستهدف</b><small>client / server / main + IP</small></button>
-        <button type="button" class="mode" data-mode="full"><b>تمويه شامل</b><small>كل ملفات Lua + IP</small></button>
-        <button type="button" class="mode" data-mode="none"><b>قفل IP فقط</b><small>بدون تمويه للكود</small></button>
+        <button type="button" class="mode active" data-mode="target"><b>مستهدف</b><small>client / server + IP</small></button>
+        <button type="button" class="mode" data-mode="full"><b>شامل</b><small>كل ملفات Lua + IP</small></button>
+        <button type="button" class="mode" data-mode="none"><b>بدون تشفير</b><small>بدون حماية IP</small></button>
       </div>
-      <small style="display:block;margin:-4px 0 14px;color:var(--text-mute)">المحرك الافتراضي Hercules يعمل محليًا بلا مفتاح API؛ يجب تثبيت Lua 5.4 وملفات المحرك على الاستضافة.</small>
       <button class="btn primary full" id="encrypt-btn">تشفير المورد الآن <b>←</b></button>
       <div id="encrypt-status" class="status"></div>
       <div id="encrypt-result" class="encrypt-result" hidden>
@@ -80,7 +79,7 @@
   </div>
 
   <div id="ip-box" class="encrypt dash-card reveal" hidden>
-    <div class="dash-title"><span>🌐</span><div><h3>تغيير الآي بي المرخَّص (حيّ)</h3><p>غيّر آي بي أي كود مباع — يتحدّث عند العميل خلال دقيقة تقريباً بدون إرسال ملف جديد</p></div></div>
+    <div class="dash-title"><span>🌐</span><div><h3>تغيير الآي بي المرخَّص (حيّ)</h3><p>غيّر آي بي أي كود مباع — يتحدّث عند العميل تلقائياً بدون إرسال ملف جديد</p></div></div>
     <form id="ip-form">
       <div class="form-row">
         <label>كود السكربت<input id="ip-code" required placeholder="RAVX-XXXXXXXXXX" style="text-transform:uppercase"></label>
@@ -92,20 +91,22 @@
     </form>
   </div>
 
-  <div id="unprotect-box" class="encrypt dash-card reveal" hidden>
-    <div class="dash-title"><span>🔓</span><div><h3>فك حماية RAVX القديمة (أدمن)</h3><p>يدعم صيغة RAVX القديمة فقط؛ ملفات Hercules أو Luraph لا يمكن إرجاعها للمصدر الأصلي من ناتج التمويه</p></div></div>
-    <form id="unprotect-code-form" style="margin-bottom:18px">
-      <div class="form-row">
-        <label>فك مورد محفوظ باستخدام كود الترخيص<input id="unprotect-existing-code" autocomplete="off" placeholder="RAVX-XXXXXXXXXX" required></label>
-      </div>
-      <button class="btn primary full" id="unprotect-code-btn" type="submit">فك الحماية بالكود <b>←</b></button>
-      <div id="unprotect-code-status" class="status"></div>
+  <div id="delete-box" class="encrypt dash-card reveal" hidden>
+    <div class="dash-title"><span>🗑</span><div><h3>حذف سكربت وترخيصه</h3><p>يحذف السجل وملف ZIP من التخزين — للأدمن فقط</p></div></div>
+    <form id="delete-form">
+      <label>كود السكربت<input id="delete-code" required placeholder="RAVX-XXXXXXXXXX" style="text-transform:uppercase"></label>
+      <button class="btn danger full" id="delete-btn" type="submit">حذف السكربت نهائياً</button>
+      <div id="delete-status" class="status"></div>
     </form>
+  </div>
+
+  <div id="unprotect-box" class="encrypt dash-card reveal" hidden>
+    <div class="dash-title"><span>🔓</span><div><h3>فك الحماية للتعديل (أدمن)</h3><p>يرجّع أي مورد سبق تشفيره — حتى القديم — إلى Lua مقروء قابل للتعديل، ثم تقدر تعيد تشفيره من جديد</p></div></div>
     <form id="unprotect-form">
       <label class="drop" for="unprotect-file">
         <input id="unprotect-file" type="file" accept=".zip" hidden>
         <strong id="unprotect-file-name">اسحب ملف ZIP المشفَّر أو اضغط للاختيار</strong>
-        <small>ارفع ملف ZIP إذا لم يكن المورد محفوظًا في قاعدة الموقع</small>
+        <small>يدعم ملفات مشفَّرة قديمة بنفس القالب حتى لو أُنتجت بنسخة سابقة من الأداة</small>
       </label>
       <div class="form-row">
         <label>اسم/تسمية (اختياري)<input id="unprotect-label" placeholder="my-resource"></label>

@@ -57,11 +57,40 @@ function runHercules(luaBin, scriptPath, inputPath, preset, timeout) {
   return run;
 }
 
+function isTimeout(error) {
+  return Boolean(error && error.killed && error.signal === 'SIGTERM');
+}
+
+function fallbackPresets(preset) {
+  // Try the configured quality first. Large or unusually complex Lua files
+  // can make VM-heavy passes exceed the host's CPU budget, so step down only
+  // for a timeout instead of failing the entire resource immediately.
+  if (preset === 'maximum') return ['heavy', 'balanced', 'light'];
+  if (preset === 'heavy') return ['balanced', 'light'];
+  if (preset === 'balanced') return ['light'];
+  return [];
+}
+
+async function runWithFallback(preset, runAttempt) {
+  const attempts = [preset, ...fallbackPresets(preset)];
+  let lastError;
+  for (const attemptPreset of attempts) {
+    try {
+      await runAttempt(attemptPreset);
+      return attemptPreset;
+    } catch (error) {
+      lastError = error;
+      if (!isTimeout(error) || attemptPreset === attempts[attempts.length - 1]) throw error;
+    }
+  }
+  throw lastError;
+}
+
 function outputPathFor(inputPath) {
   return inputPath.replace(/\.lua$/i, '_obfuscated.lua');
 }
 
-async function obfuscateLua(source, relativeName) {
+async function obfuscateLuaDetailed(source, relativeName) {
   const scriptPath = resolveHerculesScript();
   const luaBin = String(process.env.LUA_BIN || 'lua5.4').trim();
   const preset = selectedPreset();
@@ -80,16 +109,19 @@ async function obfuscateLua(source, relativeName) {
   fs.writeFileSync(inputPath, sourceBytes);
 
   try {
-    await runHercules(luaBin, scriptPath, inputPath, preset, timeout);
+    const presetUsed = await runWithFallback(preset, async attemptPreset => {
+      fs.rmSync(outputPath, { force: true });
+      await runHercules(luaBin, scriptPath, inputPath, attemptPreset, timeout);
+    });
     if (!fs.existsSync(outputPath)) {
       throw new Error(`Hercules لم ينشئ الملف المتوقع: ${path.basename(outputPath)}`);
     }
     const protectedSource = fs.readFileSync(outputPath, 'utf8');
     if (!protectedSource.trim()) throw new Error('Hercules أعاد ملف Lua فارغاً.');
-    return protectedSource;
+    return { source: protectedSource, presetUsed };
   } catch (error) {
-    if (error.signal === 'SIGTERM' && error.killed) {
-      throw new Error(`انتهت مهلة Hercules بعد ${Math.round(timeout / 60000)} دقائق أثناء معالجة ${relativeName}. الإعداد الافتراضي heavy؛ خفّض HERCULES_PRESET إلى balanced لهذا المورد أو ارفع HERCULES_TIMEOUT_MS حتى ${MAX_TIMEOUT_MS}.`);
+    if (isTimeout(error)) {
+      throw new Error(`انتهت مهلة Hercules بعد تجربة الإعدادات الأخف أثناء معالجة ${relativeName}. خفّض HERCULES_PRESET أو قلّل حجم المورد؛ لم يتم اعتماد ملف ناقص.`);
     }
     const detail = [error.stderr, error.stdout, error.message,
       error.code ? `exit=${error.code}` : '', error.signal ? `signal=${error.signal}` : '']
@@ -101,6 +133,10 @@ async function obfuscateLua(source, relativeName) {
   } finally {
     fs.rmSync(tempDir, { recursive: true, force: true });
   }
+}
+
+async function obfuscateLua(source, relativeName) {
+  return (await obfuscateLuaDetailed(source, relativeName)).source;
 }
 
 function walkLuaFiles(root) {
@@ -153,15 +189,17 @@ async function processAndProtectFiles(resourceRoot, licenseCode, resourceName, e
   const selected = mode === 'full' ? files : files.filter(isTargetLua);
   if (!selected.some(protection.isServerLua)) throw new Error('لم أجد ملف server/main ضمن ملفات Lua المحددة.');
 
+  const fallbackFiles = [];
   for (const file of selected) {
     const relative = path.relative(root, file).replace(/\\/g, '/');
     const input = fs.readFileSync(file, 'utf8');
-    const output = await obfuscateLua(input, relative);
-    fs.writeFileSync(file, output, 'utf8');
+    const result = await obfuscateLuaDetailed(input, relative);
+    fs.writeFileSync(file, result.source, 'utf8');
+    if (result.presetUsed !== selectedPreset()) fallbackFiles.push(relative);
   }
 
   const manifestUpdated = ensureFiveMLua54(root);
-  return { processed: selected.length, serverFiles: serverFiles.length, mode, provider: 'hercules', manifestUpdated };
+  return { processed: selected.length, serverFiles: serverFiles.length, mode, provider: 'hercules', manifestUpdated, fallbackFiles };
 }
 
-module.exports = { processAndProtectFiles, obfuscateLua, selectedPreset, resolveHerculesScript };
+module.exports = { processAndProtectFiles, obfuscateLua, selectedPreset, resolveHerculesScript, fallbackPresets, runWithFallback };

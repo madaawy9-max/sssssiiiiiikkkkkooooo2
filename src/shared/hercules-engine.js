@@ -8,7 +8,10 @@ const protection = require('./protection-engine');
 
 const execFileAsync = promisify(execFile);
 const MAX_SCRIPT_BYTES = 50 * 1024 * 1024;
+const DEFAULT_TIMEOUT_MS = 10 * 60 * 1000;
+const MAX_TIMEOUT_MS = 12 * 60 * 1000;
 const PROJECT_ROOT = path.resolve(__dirname, '../..');
+let herculesQueue = Promise.resolve();
 
 function resolveHerculesScript() {
   const root = path.resolve(process.env.HERCULES_ROOT || path.join(PROJECT_ROOT, 'vendor/hercules'));
@@ -24,11 +27,34 @@ function resolveHerculesScript() {
 }
 
 function selectedPreset() {
-  const preset = String(process.env.HERCULES_PRESET || 'maximum').trim().toLowerCase();
+  const preset = String(process.env.HERCULES_PRESET || 'heavy').trim().toLowerCase();
   if (!['light', 'balanced', 'heavy', 'maximum'].includes(preset)) {
     throw new Error('HERCULES_PRESET يجب أن يكون light أو balanced أو heavy أو maximum.');
   }
   return preset;
+}
+
+function selectedTimeoutMs() {
+  const raw = process.env.HERCULES_TIMEOUT_MS;
+  const timeout = raw === undefined || raw === '' ? DEFAULT_TIMEOUT_MS : Number(raw);
+  if (!Number.isFinite(timeout) || timeout < 30000 || timeout > MAX_TIMEOUT_MS) {
+    throw new Error(`HERCULES_TIMEOUT_MS يجب أن يكون بين 30000 و${MAX_TIMEOUT_MS} مللي ثانية.`);
+  }
+  return timeout;
+}
+
+function runHercules(luaBin, scriptPath, inputPath, preset, timeout) {
+  // Limit CPU and memory pressure when Discord and web requests overlap.
+  const run = herculesQueue.then(() => execFileAsync(luaBin, [
+    scriptPath, inputPath, '--target', 'lua', `--${preset}`
+  ], {
+    cwd: path.dirname(scriptPath),
+    timeout,
+    maxBuffer: 20 * 1024 * 1024,
+    windowsHide: true
+  }));
+  herculesQueue = run.catch(() => {});
+  return run;
 }
 
 function outputPathFor(inputPath) {
@@ -39,6 +65,7 @@ async function obfuscateLua(source, relativeName) {
   const scriptPath = resolveHerculesScript();
   const luaBin = String(process.env.LUA_BIN || 'lua5.4').trim();
   const preset = selectedPreset();
+  const timeout = selectedTimeoutMs();
   const sourceBytes = Buffer.from(String(source), 'utf8');
   if (sourceBytes.length > MAX_SCRIPT_BYTES) {
     throw new Error(`ملف Lua أكبر من الحد البالغ 50MB: ${relativeName}`);
@@ -53,12 +80,7 @@ async function obfuscateLua(source, relativeName) {
   fs.writeFileSync(inputPath, sourceBytes);
 
   try {
-    await execFileAsync(luaBin, [scriptPath, inputPath, '--target', 'lua', `--${preset}`], {
-      cwd: path.dirname(scriptPath),
-      timeout: 190000,
-      maxBuffer: 20 * 1024 * 1024,
-      windowsHide: true
-    });
+    await runHercules(luaBin, scriptPath, inputPath, preset, timeout);
     if (!fs.existsSync(outputPath)) {
       throw new Error(`Hercules لم ينشئ الملف المتوقع: ${path.basename(outputPath)}`);
     }
@@ -66,6 +88,9 @@ async function obfuscateLua(source, relativeName) {
     if (!protectedSource.trim()) throw new Error('Hercules أعاد ملف Lua فارغاً.');
     return protectedSource;
   } catch (error) {
+    if (error.signal === 'SIGTERM' && error.killed) {
+      throw new Error(`انتهت مهلة Hercules بعد ${Math.round(timeout / 60000)} دقائق أثناء معالجة ${relativeName}. الإعداد الافتراضي heavy؛ خفّض HERCULES_PRESET إلى balanced لهذا المورد أو ارفع HERCULES_TIMEOUT_MS حتى ${MAX_TIMEOUT_MS}.`);
+    }
     const detail = [error.stderr, error.stdout, error.message,
       error.code ? `exit=${error.code}` : '', error.signal ? `signal=${error.signal}` : '']
       .filter(Boolean).join('\n').trim();

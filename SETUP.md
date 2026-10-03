@@ -27,7 +27,8 @@ BASE_URL=https://your-domain.example
 OBFUSCATOR_PROVIDER=hercules
 LUA_BIN=lua5.4
 HERCULES_ROOT=/app/vendor/hercules
-HERCULES_PRESET=maximum
+HERCULES_PRESET=heavy
+HERCULES_TIMEOUT_MS=600000
 # استخدم Luraph فقط عند اختيار OBFUSCATOR_PROVIDER=luraph
 # LPH_API_KEY=مفتاح_API_فعال
 # فعّله فقط إذا كان الموقع خلف reverse proxy موثوق يكتب X-Forwarded-For
@@ -42,7 +43,8 @@ HERCULES_PRESET=maximum
 - المحرك الافتراضي Hercules يعمل محليًا بلا API أو رصيد. نزّل مستودعه من `https://github.com/zeusssz/hercules-obfuscator` وضع مجلده باسم `vendor/hercules` بجذر المشروع. على Linux يمكن استخدام `git clone --depth 1 https://github.com/zeusssz/hercules-obfuscator.git vendor/hercules`. أو اضبط `HERCULES_ROOT` إلى مسار المستودع على الاستضافة.
 - يحتاج البوت برنامج Lua 5.4 مثبتًا على الاستضافة؛ اضبط `LUA_BIN` إلى اسمه أو مساره إذا لم يكن `lua5.4`. وجود ملفات Hercules وحده لا يثبّت Lua.
 - أضفت `Dockerfile` يثبت Lua 5.4 ويحمّل Hercules أثناء البناء. على Render، اختر بيئة Docker بدل Node لتستخدمه؛ لا تغيّر الخدمة العاملة قبل تجربة نسخة منفصلة، واربط قرصًا دائمًا بمجلد `storage/` حتى تبقى الأكواد والملفات بعد إعادة النشر.
-- `HERCULES_PRESET` يقبل `light` أو `balanced` أو `heavy` أو `maximum`؛ الافتراضي `maximum`. ابدأ على نسخة اختبار، ثم خفّضه إذا ظهرت مشكلة توافق.
+- `HERCULES_PRESET` يقبل `light` أو `balanced` أو `heavy` أو `maximum`؛ الافتراضي `heavy` لتقليل وقت الملفات الكبيرة. استخدم `maximum` للملفات التي تتحمل معالجة أطول.
+- مهلة Hercules الافتراضية 10 دقائق (`HERCULES_TIMEOUT_MS=600000`)، ويمكن رفعها حتى 12 دقيقة. يعالج البوت الملفات بالتتابع لتخفيف ضغط الذاكرة عند وصول طلبات متزامنة.
 - خياري `target` و`full` يمرران الملفات المحددة إلى Hercules محليًا. خيار `none` يضيف فحص الترخيص فقط من دون تمويه.
 - للرجوع إلى Luraph اضبط `OBFUSCATOR_PROVIDER=luraph` ووفّر `LPH_API_KEY` صالحًا. Hercules تمويه وليس تشفيرًا يستحيل فكه؛ احفظ المصدر الأصلي، واختبر المورد على FiveM تجريبي قبل توزيعه.
 - يضيف المحرك `lua54 'yes'` إلى `fxmanifest.lua` إذا لم يكن موجودًا.

@@ -16,7 +16,9 @@ COPY . .
 
 ENV OBFUSCATOR_PROVIDER=hercules \
     LUA_BIN=lua5.4 \
-    HERCULES_ROOT=/app/vendor/hercules
+    HERCULES_ROOT=/app/vendor/hercules \
+    HERCULES_PRESET=heavy \
+    HERCULES_TIMEOUT_MS=600000
 
 EXPOSE 3000
 CMD ["npm", "start"]

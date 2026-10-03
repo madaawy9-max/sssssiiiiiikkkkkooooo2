@@ -42,8 +42,8 @@ function loadDemoCode(code) {
 
 // Mode Labels
 const ENCRYPTION_MODES = {
-  target: '🛡️ Luraph للملفات المستهدفة (client / server)',
-  full: '📦 Luraph شامل لملفات Lua',
+  target: '🛡️ تمويه الملفات المستهدفة (client / server)',
+  full: '📦 تمويه شامل لملفات Lua',
   none: '🔓 قفل IP فقط'
 };
 

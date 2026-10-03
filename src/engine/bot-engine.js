@@ -10,9 +10,9 @@ try {
 } catch (_) {
   db = require(path.join(process.cwd(), 'src/database/db'));
 }
-// يستخدم الموقع وبوت Discord محرك Luraph واحداً، ويُدمجان فحص الترخيص داخل
-// ملفات الخادم قبل إرسالها للمحرك حتى يتلقى كل مسار الملفات نفسها.
-const protectionEngine = require('../shared/luraph-engine');
+// يستخدم الموقع وبوت Discord محرك الحماية نفسه، ويُدمجان فحص الترخيص داخل
+// ملفات الخادم قبل التمويه حتى يتلقى كل مسار الملفات نفسها.
+const protectionEngine = require('../shared/obfuscator-engine');
 const legacyProtectionEngine = require('../shared/protection-engine');
 const logger = require('../shared/logger');
 const execFileAsync = promisify(execFile);
@@ -66,11 +66,11 @@ async function encryptResource({ inputZipPath, targetIp, resourceName, encryptio
     const children = fs.readdirSync(extracted, { withFileTypes: true });
     if (children.length === 1 && children[0].isDirectory()) processRoot = path.join(extracted, children[0].name);
 
-    // أرسل ملفات Lua إلى Luraph لهدف FiveM بعد تضمين فحص الترخيص في ملفات الخادم.
+    // مرّر ملفات Lua لمحرك الحماية المحلي المحدد بعد تضمين فحص الترخيص في ملفات الخادم.
     await protectionEngine.processAndProtectFiles(processRoot, pending.code, resourceName, encryptionMode, baseUrl);
 
     // احتفظ بالأصل في مساحة التخزين الخاصة حتى يقدر الأدمن يرجعه بالكود؛
-    // Luraph لا يملك فكاً يعيد المصدر.
+    // ناتج التمويه لا يعيد المصدر الأصلي.
     fs.copyFileSync(inputZipPath, sourceBackupPath);
     fs.mkdirSync(path.dirname(outputPath), { recursive: true });
     if (fs.existsSync(outputPath)) fs.unlinkSync(outputPath);
